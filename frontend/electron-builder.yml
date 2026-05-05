@@ -1,0 +1,12 @@
+appId: com.barrcodes.xiv-tts-app
+productName: xiv-tts-app
+directories:
+  output: dist
+  buildResources: build
+files:
+  - out/**/*
+win:
+  icon: resources/connected.ico
+  target:
+    - target: nsis
+      arch: [x64]

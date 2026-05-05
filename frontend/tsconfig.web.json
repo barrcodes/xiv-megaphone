@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "target": "ES2022",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "paths": {
+      "@/*": ["./src/mainview/*"],
+      "shared/*": ["../frontend-shared/*"]
+    },
+    "baseUrl": "."
+  },
+  "include": [
+    "src/mainview/**/*",
+    "src/preload/index.d.ts",
+    "../frontend-shared/**/*"
+  ]
+}

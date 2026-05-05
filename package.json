@@ -1,19 +1,11 @@
 {
-  "name": "ffxiv-tts-inworld",
-  "module": "index.ts",
-  "type": "module",
-  "devDependencies": {
-    "@types/bun": "latest",
-    "@types/ws": "^8.18.1"
-  },
-  "peerDependencies": {
-    "typescript": "^6.0.3"
-  },
-  "dependencies": {
-    "@inworld/tts": "^1.0.1",
-    "speaker": "^0.5.5",
-    "ws": "^8.20.0"
-  },
+  "name": "xiv-tts-app",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "frontend-shared",
+    "tts-client"
+  ],
   "trustedDependencies": [
     "node-gyp",
     "rebuild",
