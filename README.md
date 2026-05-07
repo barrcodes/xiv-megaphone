@@ -6,6 +6,47 @@
   A Windows desktop application for managing TTS presets for FFXIV, built with Electron + React + Vite.
 </div>
 
+## How it works
+
+TextToTalk intercepts NPC dialogue and emits it over a local WebSocket as JSON messages containing the speaker name, race, gender, and dialogue text. This app connects to that socket, selects a voice from the configured preset based on the NPC's race/gender, streams audio from the Inworld TTS API chunk by chunk, and plays it through your system speakers in real time. A cancel message from TextToTalk immediately stops playback.
+
+## Why Inworld?
+
+Inworld TTS consistently ranks among the top TTS models according to ELO. It's also surprisingly cheap, especially the mini model. Additionally, they provide $10 in free credits per month for evaluation purposes. It's an amazing deal! I fell in love with them months ago, and this was a fun opportunity for me to learn more about audio streaming while supporting one of my favorite models.
+
+## Prerequisites
+
+- **Final Fantasy XIV**
+- **[XIVLauncher](https://goatcorp.github.io/)** — custom launcher that enables Dalamud plugins ([GitHub](https://github.com/goatcorp/FFXIVQuickLauncher))
+- **[TextToTalk](https://github.com/karashiiro/TextToTalk)** — Dalamud plugin (install from the in-game plugin installer via XIVLauncher)
+
+### TextToTalk Settings
+
+In the TextToTalk plugin settings (`/tttconfig`):
+
+#### General
+
+**Synthesizer Settings** — enable:
+- Read NPC dialogue from the dialogue window
+- Cancel current speech when new text is available or advanced
+- Skip reading voice-acted NPC dialogue
+- Read NPC dialogue from the battle dialogue window
+- Skip reading voice-acted NPC dialogue (battle)
+
+Disable everything else. The "X says:" prefix is unnecessary noise.
+
+<img alt="Synth Settings" src="screenshots/synth-settings.png" width="640px" />
+
+#### Backend
+
+set to **WebSocket** and configure the port (e.g. `57575`).
+
+<img alt="Socket Settings" src="screenshots/socket-settings.png" width="640px" />
+
+#### Channels
+
+When starting out, I recommend in the Channel Settings tab, enable **NPC Dialogue** only. Disabling other channels avoids reading chat, emotes, and system messages.
+
 ## Installation
 
 1. Go to the [Releases](../../releases) page.
@@ -33,7 +74,7 @@ Inworld currently includes **$10 of free evaluation credits per month**, which s
 
 Open the app settings and paste your Inworld API key (and port, if different than the default).
 
-![Settings Page](screenshots/server-settings.png)
+<img alt="Settings Page" src="screenshots/server-settings.png" width="640px" />
 
 ### 3. Apply and restart
 
@@ -54,10 +95,28 @@ After changing settings, click Apply and restart the app.
 
 A default preset ships with the app and is selected by default. It has voices for all of the race/gender combos. These are stock inworld voices, so they won't match the game voice actors. I picked them somewhat at random, so feel free to change them by creating a new preset! **Have Fun!**
 
-## Prerequisites
+## Voice selection
 
-- [Node.js](https://nodejs.org/) 20.19+ (required by electron-vite)
-- [Bun](https://bun.sh/) (package manager and script runner)
+Voices are selected per-NPC using a priority chain:
+
+1. Named speaker match (by speaker name, lowercased)
+2. Race + gender match (e.g. `"au ra female"`)
+3. Gender-only fallback (`male` / `female`)
+4. Default voice
+
+## Notes
+
+- After any FFXIV patch, Dalamud becomes temporarily incompatible and plugins stop working for a few days — longer after an expansion launch. This is normal; wait for Dalamud and plugin updates to catch up before using this.
+- The app must be running before you enter a dialogue that triggers speech. It does not replay missed lines.
+- Only one instance should be running at a time.
+
+# Development and Contributing
+
+## Development Prerequisites
+
+- [Node.js](https://nodejs.org/) 20.19+ required by electron-vite
+- [Bun](https://bun.sh/) recommended package manager and script runner
+- [Inworld account](https://platform.inworld.ai/signup) with an API key
 
 ## Install
 
@@ -88,22 +147,11 @@ Compiles all three processes to `out/`.
 bun run package:win
 ```
 
-Produces an NSIS installer in `dist/`.
+Produces an NSIS installer in `out/make/[platform]`.
 
 ## Lint
 
 ```sh
 bun run lint       # check
 bun run lint:fix   # auto-fix
-```
-
-## Project structure
-
-```
-frontend/
-  src/
-    main/         # Electron main process (Node.js)
-    preload/      # Preload script + window.electronAPI types
-    mainview/     # React renderer (Vite + Tailwind + shadcn)
-frontend-shared/  # Shared TypeScript types
 ```
