@@ -10,9 +10,5 @@
     "types": ["electron-vite/node", "node"],
     "baseUrl": "."
   },
-  "include": [
-    "src/main/**/*",
-    "src/preload/**/*",
-    "electron.vite.config.ts"
-  ]
+  "include": ["src/main/**/*", "src/preload/**/*", "src/shared/**/*", "src/tts-client/**/*"]
 }

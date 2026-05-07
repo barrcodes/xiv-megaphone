@@ -1,7 +1,10 @@
 {
-	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
-	"organizeImports": {
-		"enabled": true
+	"$schema": "https://biomejs.dev/schemas/2.4.14/schema.json",
+	"assist": { "actions": { "source": { "organizeImports": "on" } } },
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
+		}
 	},
 	"formatter": {
 		"enabled": true,
@@ -13,7 +16,8 @@
 		"enabled": true,
 		"rules": {
 			"recommended": true
-		}
+		},
+		"includes": ["src/**/*", "shared/**/*", "!dist", "!node_modules"]
 	},
 	"javascript": {
 		"formatter": {
@@ -21,7 +25,6 @@
 		}
 	},
 	"files": {
-		"include": ["src/**/*", "shared/**/*"],
-		"ignore": ["dist", "node_modules"]
+		"includes": ["src/**/*", "shared/**/*", "!dist", "!node_modules"]
 	}
 }

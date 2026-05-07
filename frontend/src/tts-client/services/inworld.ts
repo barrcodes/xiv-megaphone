@@ -1,4 +1,4 @@
-import { InworldTTS } from "@inworld/tts";
+import { InworldTTS, type InworldTTSClient } from "@inworld/tts";
 
 export interface InworldCallbacks {
   onAudioChunk?: (requestId: number, chunk: Buffer) => Promise<void>;
@@ -9,7 +9,11 @@ export interface InworldCallbacks {
 export class InworldTTSService {
   private callbacks: InworldCallbacks = {};
   private abortController: AbortController | null = null;
-  private tts = InworldTTS();
+  private tts: InworldTTSClient | null = null;
+
+  constructor(apiKey: string) {
+    this.tts = InworldTTS({ apiKey });
+  }
 
   setCallbacks(callbacks: InworldCallbacks): void {
     this.callbacks = callbacks;
@@ -22,7 +26,7 @@ export class InworldTTSService {
     model: string,
     speakingRate: number
   ): Promise<void> {
-    if (!Bun.env.INWORLD_API_KEY && !Bun.env.INWORLD_KEY) {
+    if (!this.tts) {
       throw new Error("INWORLD_API_KEY environment variable is not set");
     }
 
@@ -60,6 +64,10 @@ export class InworldTTSService {
   cancel(): void {
     this.abortController?.abort();
     this.abortController = null;
+  }
+
+  updateApiKey(apiKey: string): void {
+    this.tts = InworldTTS({ apiKey });
   }
 
   close(): void {

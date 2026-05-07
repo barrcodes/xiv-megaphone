@@ -1,5 +1,5 @@
-appId: com.barrcodes.xiv-tts-app
-productName: xiv-tts-app
+appId: com.barrcodes.xiv-megaphone
+productName: xiv-megaphone
 directories:
   output: dist
   buildResources: build

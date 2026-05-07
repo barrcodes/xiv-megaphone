@@ -1,4 +1,4 @@
-import { Settings } from "lucide-react";
+import { ScrollText, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "../store";
 import { Badge } from "./ui/badge";
@@ -17,14 +17,19 @@ export function AppHeader() {
 	return (
 		<div className="flex items-center justify-between px-4 py-2 border-b shrink-0">
 			{statusBadge}
-			<Button
-				variant="ghost"
-				size="icon-sm"
-				onClick={() => navigate("/settings")}
-				aria-label="Settings"
-			>
-				<Settings />
-			</Button>
+			<div className="flex items-center gap-1">
+				<Button variant="ghost" size="icon-sm" onClick={() => navigate("/logs")} aria-label="Logs">
+					<ScrollText />
+				</Button>
+				<Button
+					variant="ghost"
+					size="icon-sm"
+					onClick={() => navigate("/settings")}
+					aria-label="Settings"
+				>
+					<Settings />
+				</Button>
+			</div>
 		</div>
 	);
 }

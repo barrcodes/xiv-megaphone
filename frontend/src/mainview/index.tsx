@@ -1,10 +1,11 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { RouterProvider, createHashRouter } from "react-router-dom";
+import { createHashRouter, RouterProvider } from "react-router-dom";
+import { App } from "./components/app";
+import { LogsPage } from "./components/LogsPage";
 import { PresetEditPage } from "./components/PresetEditPage";
 import { PresetList } from "./components/PresetList";
 import { SettingsPage } from "./components/SettingsPage";
-import { App } from "./components/app";
 import "./index.css";
 
 const router = createHashRouter([
@@ -16,6 +17,7 @@ const router = createHashRouter([
 			{ path: "preset/new", element: <PresetEditPage /> },
 			{ path: "preset/:id", element: <PresetEditPage /> },
 			{ path: "settings", element: <SettingsPage /> },
+			{ path: "logs", element: <LogsPage /> },
 		],
 	},
 ]);

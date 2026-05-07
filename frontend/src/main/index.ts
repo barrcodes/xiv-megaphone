@@ -1,102 +1,152 @@
-import { join } from 'node:path'
-import { app, BrowserWindow, Tray, Menu, nativeImage } from 'electron'
-import type { ConnectionStatus } from '../../../frontend-shared/types'
-import { getStartOnStartup, setStartOnStartup } from './config'
-import { ConnectionManager } from './connection'
-import { bootstrap } from './presets'
-import { registerIpcHandlers, pushConnectionChanged } from './ipc'
-import connectedIcon from '../../resources/connected.ico?asset'
-import disconnectedIcon from '../../resources/disconnected.ico?asset'
-import appIcon from '../../art-assets/icon-cait-sith-wake-256.png?asset'
+import { join } from "node:path";
+import { app, BrowserWindow, Menu, nativeImage, Tray } from "electron";
+import type { ConnectionStatus } from "../shared/types";
+import appIcon from "../../art-assets/icon-cait-sith-wake-256.png?asset";
+import { getNativeImage } from "./utils/resources";
+import {
+  getApiKey,
+  getModel,
+  getStartOnStartup,
+  setStartOnStartup,
+} from "./config";
+import { pushConnectionChanged, registerIpcHandlers } from "./ipc";
+import { initLogger } from "./logger";
+import { bootstrap } from "./presets";
+import { TtsManager } from "./tts-manager";
+import SquirrelStartup from "electron-squirrel-startup";
 
-let presetWindow: BrowserWindow | null = null
-let tray: Tray | null = null
+if (SquirrelStartup) {
+  process.exit(0);
+}
+
+let presetWindow: BrowserWindow | null = null;
+let tray: Tray | null = null;
 
 function getWindow() {
-  return presetWindow
+  return presetWindow;
 }
 
 function createPresetWindow() {
   presetWindow = new BrowserWindow({
-    title: 'Preset Editor',
+    title: "Preset Editor",
     width: 800,
     height: 600,
     x: 150,
     y: 150,
     icon: nativeImage.createFromPath(appIcon),
     webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
+      preload: join(__dirname, "../preload/index.js"),
       contextIsolation: true,
       nodeIntegration: false,
     },
-  })
+  });
 
   if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
-    presetWindow.loadURL(process.env.ELECTRON_RENDERER_URL)
+    presetWindow.loadURL(process.env.ELECTRON_RENDERER_URL);
   } else {
-    presetWindow.loadFile(join(__dirname, '../renderer/index.html'))
+    presetWindow.loadFile(join(__dirname, "../renderer/index.html"));
   }
 
-  presetWindow.on('closed', () => {
-    presetWindow = null
-  })
+  presetWindow.on("closed", () => {
+    presetWindow = null;
+  });
 }
 
 function openPresetEditor() {
   if (presetWindow) {
-    presetWindow.show()
+    presetWindow.show();
   } else {
-    createPresetWindow()
+    createPresetWindow();
   }
 }
 
 function buildTrayMenu(status: ConnectionStatus) {
   return Menu.buildFromTemplate([
-    { label: 'Change Preset', click: () => openPresetEditor() },
-    { type: 'separator' },
+    { label: "Change Preset", click: () => openPresetEditor() },
+    { type: "separator" },
     {
-      label: 'Disconnect',
-      enabled: status === 'connected',
-      click: () => connection.disconnect(),
+      label: "Disconnect",
+      enabled: status === "connected",
+      click: () => ttsManager.disconnect(),
     },
     {
-      label: 'Reconnect',
-      enabled: status === 'disconnected',
-      click: () => connection.connect(),
+      label: "Reconnect",
+      enabled: status === "disconnected",
+      click: () => reconnect(),
     },
-    { type: 'separator' },
-    { label: 'Exit', click: () => app.quit() },
-  ])
+    { type: "separator" },
+    { label: "Exit", click: () => app.quit() },
+  ]);
 }
 
-const connection = new ConnectionManager((status) => {
+const ttsManager = new TtsManager((status) => {
   if (tray) {
-    tray.setImage(nativeImage.createFromPath(status === 'connected' ? connectedIcon : disconnectedIcon))
-    tray.setContextMenu(buildTrayMenu(status))
+    tray.setImage(
+      getNativeImage(
+        status === "connected" ? "connected.ico" : "disconnected.ico"
+      )
+    );
+    tray.setContextMenu(buildTrayMenu(status));
   }
-  pushConnectionChanged(presetWindow, status)
-})
+  pushConnectionChanged(getWindow, status);
+});
 
-app.whenReady().then(async () => {
-  bootstrap()
+async function reconnect() {
+  const { getPort, getApiKey, getModel } = await import("./config");
+  const { loadPresets, getActivePresetId } = await import("./presets");
+  const port = await getPort();
+  const apiKey = await getApiKey();
+  const model = await getModel();
+  const presets = loadPresets();
+  const activeId = getActivePresetId();
+  const active = presets.find((p) => p.id === activeId);
+  if (!active) {
+    console.warn("Reconnect skipped: no active preset configured.");
+    return;
+  }
+  if (!apiKey) {
+    console.warn("Reconnect skipped: no API key set.");
+    return;
+  }
+  ttsManager.connect({ port, preset: active, apiKey, model });
+}
 
-  const startOnStartup = await getStartOnStartup()
-  await setStartOnStartup(startOnStartup)
+app
+  .whenReady()
+  .then(async () => {
+    bootstrap();
 
-  registerIpcHandlers(getWindow, connection)
+    initLogger(getWindow);
 
-  tray = new Tray(nativeImage.createFromPath(disconnectedIcon))
-  tray.setToolTip('xiv-tts-app')
-  tray.setContextMenu(buildTrayMenu(connection.getStatus()))
+    const startOnStartup = await getStartOnStartup();
+    await setStartOnStartup(startOnStartup);
 
-  tray.on('click', () => openPresetEditor())
+    const apiKey = await getApiKey();
+    const model = await getModel();
+    registerIpcHandlers(getWindow, ttsManager);
 
-  console.log('xiv-tts-app started')
-}).catch((err) => {
-  console.error('Failed to start:', err)
-  app.quit()
-})
+    const port = await (await import("./config")).getPort();
+    const presets = (await import("./presets")).loadPresets();
+    const activeId = (await import("./presets")).getActivePresetId();
+    const active = presets.find((p) => p.id === activeId);
 
-app.on('window-all-closed', (e: Event) => {
-  e.preventDefault()
-})
+    if (active && apiKey) {
+      ttsManager.connect({ port, preset: active, apiKey, model });
+    }
+
+    tray = new Tray(getNativeImage("disconnected.ico"));
+    tray.setToolTip("xiv-megaphone");
+    tray.setContextMenu(buildTrayMenu(ttsManager.getStatus()));
+
+    tray.on("click", () => openPresetEditor());
+
+    console.log("xiv-megaphone started");
+  })
+  .catch((err) => {
+    console.error("Failed to start:", err);
+    app.quit();
+  });
+
+app.on("window-all-closed", () => {
+  // Prevent app from quitting when all windows are closed
+});

@@ -1,6 +1,7 @@
 import type { Preset } from "./types";
 
 export const DEFAULT_PORT = 57575;
+export const DEFAULT_MODEL = "inworld-tts-1.5-mini";
 
 export const DEFAULT_PRESET: Preset = {
 	id: "default",

@@ -1,4 +1,4 @@
-# xiv-tts-app
+# xiv-megaphone
 
 A Windows desktop application for managing TTS presets for FFXIV, built with Electron + React + Vite.
 

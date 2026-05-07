@@ -15,13 +15,9 @@
     "isolatedModules": true,
     "paths": {
       "@/*": ["./src/mainview/*"],
-      "shared/*": ["../frontend-shared/*"]
+      "shared/*": ["./src/shared/*"]
     },
     "baseUrl": "."
   },
-  "include": [
-    "src/mainview/**/*",
-    "src/preload/index.d.ts",
-    "../frontend-shared/**/*"
-  ]
+  "include": ["src/mainview/**/*", "src/preload/index.d.ts", "src/shared/**/*"]
 }

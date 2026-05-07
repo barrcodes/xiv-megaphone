@@ -1,3 +1,9 @@
+export interface LogLine {
+  level: 'log' | 'warn' | 'error';
+  message: string;
+  timestamp: string;
+}
+
 export type ConnectionStatus = "disconnected" | "connecting" | "connected";
 
 export interface NamedVoice {
