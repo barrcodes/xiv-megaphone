@@ -49,6 +49,8 @@ module.exports = {
           name: "xiv-megaphone",
         },
       },
+      prerelease: false,
+      draft: true,
     },
   ],
   plugins: [
