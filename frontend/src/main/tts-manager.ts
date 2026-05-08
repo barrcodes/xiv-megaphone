@@ -15,7 +15,7 @@ class ConfigurablePreset extends BasePreset {
     female: string,
     defaultVoice: string,
     namedVoices: Record<string, string>,
-    speakingRate: number = 1.2
+    speakingRate: number = 1.5
   ) {
     super();
     this.male = male;
@@ -57,7 +57,8 @@ export class TtsManager {
       opts.preset.male,
       opts.preset.female,
       opts.preset.default,
-      opts.preset.namedVoices
+      opts.preset.namedVoices,
+      opts.preset.speakingRate
     );
     this.socket = new TtsSocket({
       port: opts.port,
@@ -96,7 +97,8 @@ export class TtsManager {
       preset.male,
       preset.female,
       preset.default,
-      preset.namedVoices
+      preset.namedVoices,
+      preset.speakingRate
     );
     this.socket.updatePreset(basePreset);
   }

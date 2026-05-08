@@ -29,9 +29,17 @@ export function registerIpcHandlers(
     if (preset.id === getActivePresetId()) {
       ttsManager.updatePreset(preset);
     }
+    const win = getWindow();
+    if (win && !win.isDestroyed()) {
+      win.webContents.send("onPresetsChanged", loadPresets());
+    }
   });
   ipcMain.handle("deletePreset", async (_, id) => {
     deletePreset(id);
+    const win = getWindow();
+    if (win && !win.isDestroyed()) {
+      win.webContents.send("onPresetsChanged", loadPresets());
+    }
   });
   ipcMain.handle("setActivePreset", async (_, id) => {
     setActivePresetId(id);
@@ -39,6 +47,10 @@ export function registerIpcHandlers(
     const active = presets.find((p) => p.id === id);
     if (active) {
       ttsManager.updatePreset(active);
+    }
+    const win = getWindow();
+    if (win && !win.isDestroyed()) {
+      win.webContents.send("onPresetsChanged", loadPresets());
     }
   });
   ipcMain.handle("getActivePreset", () => getActivePresetId());

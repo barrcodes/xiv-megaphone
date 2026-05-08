@@ -2,7 +2,7 @@ export abstract class BasePreset {
   abstract male: string;
   abstract female: string;
   abstract default: string;
-  speakingRate = 1.2;
+  speakingRate = 2;
   namedVoices: Record<string, string> = {};
 
   getVoice(
@@ -20,8 +20,8 @@ export abstract class BasePreset {
       gender?.toLowerCase() === "male"
         ? this.male
         : gender?.toLowerCase() === "female"
-        ? this.female
-        : undefined;
+          ? this.female
+          : undefined;
 
     const raceVoice =
       race && gender ? this.namedVoices[`${race} ${gender}`] : undefined;

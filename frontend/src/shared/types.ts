@@ -18,5 +18,6 @@ export interface Preset {
 	female: string;
 	default: string;
 	namedVoices: Record<string, string>;
+	speakingRate: number;
 	isDefault?: boolean;
 }

@@ -10,6 +10,7 @@ export type PresetFormValues = {
 	male: string;
 	female: string;
 	default: string;
+	speakingRate: number;
 	namedVoices: { name: string; voice: string }[];
 };
 
@@ -35,6 +36,7 @@ export function PresetForm({ preset, onSave, onCancel }: Props) {
 			male: preset.male,
 			female: preset.female,
 			default: preset.default,
+			speakingRate: preset.speakingRate,
 			namedVoices: Object.entries(preset.namedVoices).map(([name, voice]) => ({ name, voice })),
 		},
 	});
@@ -55,7 +57,7 @@ export function PresetForm({ preset, onSave, onCancel }: Props) {
 				<Input id="name" {...register("name", { required: true })} />
 			</div>
 
-			<div className="grid grid-cols-3 gap-3">
+			<div className="grid grid-cols-4 gap-3">
 				<div className="space-y-1">
 					<Label htmlFor="male">Male Voice</Label>
 					<Input id="male" {...register("male", { required: true })} />
@@ -67,6 +69,22 @@ export function PresetForm({ preset, onSave, onCancel }: Props) {
 				<div className="space-y-1">
 					<Label htmlFor="default">Default Voice</Label>
 					<Input id="default" {...register("default", { required: true })} />
+				</div>
+				<div className="space-y-1">
+					<Label htmlFor="speakingRate">Speed ({preset.speakingRate}x)</Label>
+					<Input
+						id="speakingRate"
+						type="number"
+						step={0.1}
+						min={0.5}
+						max={3}
+						{...register("speakingRate", {
+							required: true,
+							valueAsNumber: true,
+							min: 0.5,
+							max: 3,
+						})}
+					/>
 				</div>
 			</div>
 

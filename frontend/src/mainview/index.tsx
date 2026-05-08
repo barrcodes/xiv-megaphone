@@ -9,24 +9,23 @@ import { SettingsPage } from "./components/SettingsPage";
 import "./index.css";
 
 const router = createHashRouter([
-	{
-		path: "/",
-		element: <App />,
-		children: [
-			{ index: true, element: <PresetList /> },
-			{ path: "preset/new", element: <PresetEditPage /> },
-			{ path: "preset/:id", element: <PresetEditPage /> },
-			{ path: "settings", element: <SettingsPage /> },
-			{ path: "logs", element: <LogsPage /> },
-		],
-	},
+  {
+    path: "/",
+    element: <App />,
+    children: [
+      { index: true, element: <PresetList /> },
+      { path: "preset/:id", element: <PresetEditPage /> },
+      { path: "settings", element: <SettingsPage /> },
+      { path: "logs", element: <LogsPage /> },
+    ],
+  },
 ]);
 
 const rootElement = document.getElementById("root");
 if (!rootElement) throw new Error("Root element not found");
 
 createRoot(rootElement).render(
-	<StrictMode>
-		<RouterProvider router={router} />
-	</StrictMode>,
+  <StrictMode>
+    <RouterProvider router={router} />
+  </StrictMode>
 );
