@@ -13,6 +13,7 @@ export abstract class SocketManager {
 
   connect() {
     if (this._destroyed) return;
+    if (this.ws) return;
     console.log(`Connecting to WebSocket at ${this.url}...`);
     this.ws = new WebSocket(this.url);
     this.ws.on("open", () => {
@@ -59,6 +60,7 @@ export abstract class SocketManager {
   protected abstract _onClose(): void;
 
   private reconnect() {
+    if (this.reconnectInterval) clearInterval(this.reconnectInterval);
     this.reconnectInterval = setInterval(() => {
       console.log(`Reconnecting to WebSocket at ${this.url}`);
       this.connect();
