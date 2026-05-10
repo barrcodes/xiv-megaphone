@@ -3,7 +3,7 @@
   "icon": "resources/app.ico",
   "author": "barrcodes",
   "description": "A websocket text-to-speech client app for Final Fantasy XIV using Inworld AI",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "./build/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",
