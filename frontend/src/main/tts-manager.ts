@@ -1,30 +1,8 @@
-import { BasePreset, TtsSocket } from "../tts-client/index";
+import { TtsSocket } from "../tts-client/index";
 import type { ConnectionStatus, Preset } from "../shared/types";
+import { ConfigurablePreset } from "../tts-client/presets/configurable";
 
 type ConnectionChangeHandler = (status: ConnectionStatus) => void;
-
-class ConfigurablePreset extends BasePreset {
-  male: string;
-  female: string;
-  default: string;
-  namedVoices: Record<string, string>;
-  speakingRate: number;
-
-  constructor(
-    male: string,
-    female: string,
-    defaultVoice: string,
-    namedVoices: Record<string, string>,
-    speakingRate: number = 1.5
-  ) {
-    super();
-    this.male = male;
-    this.female = female;
-    this.default = defaultVoice;
-    this.namedVoices = namedVoices;
-    this.speakingRate = speakingRate;
-  }
-}
 
 export class TtsManager {
   private socket: TtsSocket | null = null;
@@ -53,13 +31,7 @@ export class TtsManager {
     this.currentPort = opts.port;
     this.currentApiKey = opts.apiKey;
     this.currentModel = opts.model ?? "inworld-tts-1.5-mini";
-    const basePreset = new ConfigurablePreset(
-      opts.preset.male,
-      opts.preset.female,
-      opts.preset.default,
-      opts.preset.namedVoices,
-      opts.preset.speakingRate
-    );
+    const basePreset = new ConfigurablePreset(opts.preset);
     this.socket = new TtsSocket({
       port: opts.port,
       preset: basePreset,
@@ -93,13 +65,7 @@ export class TtsManager {
   updatePreset(preset: Preset) {
     if (!this.socket) return;
     this.currentPreset = preset;
-    const basePreset = new ConfigurablePreset(
-      preset.male,
-      preset.female,
-      preset.default,
-      preset.namedVoices,
-      preset.speakingRate
-    );
+    const basePreset = new ConfigurablePreset(preset);
     this.socket.updatePreset(basePreset);
   }
 

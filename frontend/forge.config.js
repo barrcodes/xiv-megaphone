@@ -48,9 +48,9 @@ module.exports = {
           owner: "barrcodes",
           name: "xiv-megaphone",
         },
+        draft: true,
+        generateReleaseNotes: true,
       },
-      prerelease: false,
-      draft: true,
     },
   ],
   plugins: [

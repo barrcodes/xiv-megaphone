@@ -75,7 +75,7 @@ export function PresetList() {
                 size="sm"
                 onClick={() => navigate(`/preset/${preset.id}`)}
               >
-                Edit
+                {preset.isDefault ? "View" : "Edit"}
               </Button>
               {!preset.isDefault && (
                 <Button

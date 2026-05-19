@@ -1,0 +1,13 @@
+{
+  "name": "ffxiv-tts-inworld",
+  "type": "module",
+  "workspaces": [
+    "frontend"
+  ],
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

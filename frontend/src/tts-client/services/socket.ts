@@ -38,7 +38,7 @@ export abstract class SocketManager {
       }
     });
     this.ws.on("error", (error) => {
-      console.error("WebSocket error:", error);
+      console.error("Couldn't reach destination WebSocket at %s, retrying in 5 seconds...", this.url);
     });
   }
 

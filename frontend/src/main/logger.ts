@@ -12,6 +12,8 @@ import type { LogLine } from "../shared/types";
 
 let getWindow: () => BrowserWindow | null = () => null;
 let logFilePath: string | null = null;
+let currentLineCount = 0;
+const LINE_THRESHOLD = 5000;
 
 function getLogsDir() {
   const logsDir = join(app.getPath("userData"), "logs");
@@ -28,6 +30,7 @@ function getCurrentLogFile() {
 function getOrCreateLogFile(): string {
   if (!logFilePath) {
     logFilePath = getCurrentLogFile();
+    currentLineCount = 0;
   }
   return logFilePath;
 }
@@ -52,6 +55,11 @@ function formatLine(level: LogLine["level"], message: string): string {
 function writeToFile(message: string) {
   const file = getOrCreateLogFile();
   appendFileSync(file, message);
+  currentLineCount++;
+  if (currentLineCount >= LINE_THRESHOLD) {
+    logFilePath = null;
+    currentLineCount = 0;
+  }
 }
 
 function pushToRenderer(line: LogLine) {

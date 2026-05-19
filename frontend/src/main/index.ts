@@ -33,6 +33,7 @@ function createPresetWindow() {
     height: 600,
     x: 150,
     y: 150,
+    show: false,
     icon: nativeImage.createFromPath(appIcon),
     webPreferences: {
       preload: join(__dirname, "../preload/index.js"),
@@ -46,6 +47,10 @@ function createPresetWindow() {
   } else {
     presetWindow.loadFile(join(__dirname, "../renderer/index.html"));
   }
+
+  presetWindow.once("ready-to-show", () => {
+    presetWindow?.show();
+  });
 
   presetWindow.on("closed", () => {
     presetWindow = null;
@@ -117,6 +122,7 @@ app
     bootstrap();
 
     initLogger(getWindow);
+    console.log("xiv-megaphone started");
 
     const startOnStartup = await getStartOnStartup();
     await setStartOnStartup(startOnStartup);
@@ -139,8 +145,6 @@ app
     tray.setContextMenu(buildTrayMenu(ttsManager.getStatus()));
 
     tray.on("click", () => openPresetEditor());
-
-    console.log("xiv-megaphone started");
   })
   .catch((err) => {
     console.error("Failed to start:", err);

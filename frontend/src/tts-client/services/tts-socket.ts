@@ -40,7 +40,9 @@ export class TtsSocket extends SocketManager {
       onDone: async (requestId: number, audioChunks: Buffer[]) => {
         console.log("Audio stream completed");
         if (audioChunks.length === 0) return;
-        console.log(`Playing audio (${Buffer.concat(audioChunks).length} bytes)`);
+        console.log(
+          `Playing audio (${Buffer.concat(audioChunks).length} bytes)`
+        );
         await this.player.endStream(requestId, audioChunks);
       },
       onError: async (requestId: number, error: Error) => {
@@ -95,8 +97,15 @@ export class TtsSocket extends SocketManager {
     );
 
     this.player.beginStream(++this.requestId);
+    const lexiconText = this.preset.applyLexicon(text);
     this.inworld
-      .speak(this.requestId, text, voice, this.model, this.preset.speakingRate)
+      .speak(
+        this.requestId,
+        lexiconText,
+        voice,
+        this.model,
+        this.preset.speakingRate
+      )
       .catch((error) => {
         console.error("Error during TTS processing:", error);
       });

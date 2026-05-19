@@ -20,4 +20,5 @@ export interface Preset {
 	namedVoices: Record<string, string>;
 	speakingRate: number;
 	isDefault?: boolean;
+	lexicon?: Record<string, string>;
 }

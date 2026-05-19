@@ -1,9 +1,10 @@
-import { useFieldArray, useForm } from "react-hook-form";
+import { useState } from "react";
+import { useForm, FormProvider } from "react-hook-form";
 import type { Preset } from "shared/types";
-import { NamedVoiceRow } from "./NamedVoiceRow";
+import { GeneralTab } from "./GeneralTab";
+import { NamedVoicesTab } from "./NamedVoicesTab";
+import { LexiconTab } from "./LexiconTab";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
 
 export type PresetFormValues = {
 	name: string;
@@ -12,6 +13,7 @@ export type PresetFormValues = {
 	default: string;
 	speakingRate: number;
 	namedVoices: { name: string; voice: string }[];
+	lexicon: { term: string; pronunciation: string }[];
 };
 
 interface Props {
@@ -22,13 +24,9 @@ interface Props {
 
 export function PresetForm({ preset, onSave, onCancel }: Props) {
 	const isEditable = !preset.isDefault;
+	const [activeTab, setActiveTab] = useState<"general" | "namedVoices" | "lexicon">("general");
 
-	const {
-		register,
-		handleSubmit,
-		control,
-		formState: { isDirty, isValid },
-	} = useForm<PresetFormValues>({
+	const methods = useForm<PresetFormValues>({
 		mode: "onChange",
 		disabled: !isEditable,
 		defaultValues: {
@@ -38,82 +36,73 @@ export function PresetForm({ preset, onSave, onCancel }: Props) {
 			default: preset.default,
 			speakingRate: preset.speakingRate,
 			namedVoices: Object.entries(preset.namedVoices).map(([name, voice]) => ({ name, voice })),
+			lexicon: Object.entries(preset.lexicon ?? {}).map(([term, pronunciation]) => ({ term, pronunciation })),
 		},
 	});
 
-	const { fields, append, remove } = useFieldArray({ control, name: "namedVoices" });
+	const {
+		handleSubmit,
+		formState: { isDirty, isValid },
+	} = methods;
 
 	function onSubmit(data: PresetFormValues) {
 		const namedVoices = Object.fromEntries(
 			data.namedVoices.map(({ name, voice }) => [name, voice]),
 		);
-		onSave({ ...preset, ...data, namedVoices });
+		const lexicon = Object.fromEntries(
+			data.lexicon.map(({ term, pronunciation }) => [term, pronunciation]),
+		);
+		onSave({ ...preset, ...data, namedVoices, lexicon });
 	}
 
 	return (
-		<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-			<div className="space-y-1">
-				<Label htmlFor="name">Preset Name</Label>
-				<Input id="name" {...register("name", { required: true })} />
+		<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col min-h-[calc(100vh-8rem)]">
+			<div className="flex border-b mb-4">
+				<button
+					type="button"
+					onClick={() => setActiveTab("general")}
+					className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+						activeTab === "general"
+							? "border-primary text-foreground"
+							: "border-transparent text-muted-foreground hover:text-foreground"
+					}`}
+				>
+					General
+				</button>
+				<button
+					type="button"
+					onClick={() => setActiveTab("namedVoices")}
+					className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+						activeTab === "namedVoices"
+							? "border-primary text-foreground"
+							: "border-transparent text-muted-foreground hover:text-foreground"
+					}`}
+				>
+					Named Voices
+				</button>
+				<button
+					type="button"
+					onClick={() => setActiveTab("lexicon")}
+					className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+						activeTab === "lexicon"
+							? "border-primary text-foreground"
+							: "border-transparent text-muted-foreground hover:text-foreground"
+					}`}
+				>
+					Lexicon
+				</button>
 			</div>
 
-			<div className="grid grid-cols-4 gap-3">
-				<div className="space-y-1">
-					<Label htmlFor="male">Male Voice</Label>
-					<Input id="male" {...register("male", { required: true })} />
-				</div>
-				<div className="space-y-1">
-					<Label htmlFor="female">Female Voice</Label>
-					<Input id="female" {...register("female", { required: true })} />
-				</div>
-				<div className="space-y-1">
-					<Label htmlFor="default">Default Voice</Label>
-					<Input id="default" {...register("default", { required: true })} />
-				</div>
-				<div className="space-y-1">
-					<Label htmlFor="speakingRate">Speed ({preset.speakingRate}x)</Label>
-					<Input
-						id="speakingRate"
-						type="number"
-						step={0.1}
-						min={0.5}
-						max={3}
-						{...register("speakingRate", {
-							required: true,
-							valueAsNumber: true,
-							min: 0.5,
-							max: 3,
-						})}
-					/>
-				</div>
-			</div>
-
-			<div className="flex flex-col gap-2">
-				<Label>Named Voices</Label>
-				{fields.map((field, index) => (
-					<NamedVoiceRow
-						key={field.id}
-						index={index}
-						register={register}
-						onRemove={() => remove(index)}
-						disabled={!isEditable}
-					/>
-				))}
-				{isEditable && (
-					<Button
-						type="button"
-						variant="outline"
-						size="sm"
-						className="mr-11"
-						onClick={() => append({ name: "", voice: "" })}
-					>
-						+ Add
-					</Button>
-				)}
+			<div className="flex-1 overflow-auto">
+				<FormProvider {...methods}>
+					{activeTab === "general" && <GeneralTab disabled={!isEditable} />}
+					{activeTab === "namedVoices" && <NamedVoicesTab disabled={!isEditable} />}
+					{activeTab === "lexicon" && <LexiconTab disabled={!isEditable} />}
+				</FormProvider>
 			</div>
 
 			{isEditable && (
-				<div className="flex gap-2 justify-end pt-2">
+				<div className="flex gap-2 justify-end border-t p-4 sticky bottom-0 bg-background mt-4">
 					<Button type="button" variant="outline" onClick={onCancel}>
 						Cancel
 					</Button>
