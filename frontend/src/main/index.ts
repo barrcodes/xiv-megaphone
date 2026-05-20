@@ -24,6 +24,7 @@ if (SquirrelStartup) {
 
 let presetWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
+let isQuitting = false;
 
 function getWindow() {
   return presetWindow;
@@ -53,8 +54,12 @@ function createPresetWindow() {
   }
 
   presetWindow.on("close", (e) => {
-    e.preventDefault();
-    presetWindow?.hide();
+    if (isQuitting) {
+      presetWindow = null;
+    } else {
+      e.preventDefault();
+      presetWindow?.hide();
+    }
   });
 
   presetWindow.on("closed", () => {
@@ -77,7 +82,7 @@ function buildTrayMenu(status: ConnectionStatus) {
       click: () => reconnect(),
     },
     { type: "separator" },
-    { label: "Exit", click: () => app.quit() },
+    { label: "Exit", click: () => { isQuitting = true; app.quit(); } },
   ]);
 }
 
@@ -159,6 +164,10 @@ app
     console.error("Failed to start:", err);
     app.quit();
   });
+
+app.on("before-quit", () => {
+  isQuitting = true;
+});
 
 app.on("window-all-closed", () => {
   // Prevent app from quitting when all windows are closed
