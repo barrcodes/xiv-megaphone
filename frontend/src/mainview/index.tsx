@@ -6,7 +6,16 @@ import { LogsPage } from "./components/LogsPage";
 import { PresetEditPage } from "./components/PresetEditPage";
 import { PresetList } from "./components/PresetList";
 import { SettingsPage } from "./components/SettingsPage";
+import { AudioService } from "./audio";
 import "./index.css";
+
+const audioService = new AudioService();
+audioService.init().then(() => {
+  window.electronAPI.onAudioStart(() => audioService.handleStart());
+  window.electronAPI.onAudioChunk((chunk) => audioService.handleChunk(chunk));
+  window.electronAPI.onAudioEnd(() => audioService.handleEnd());
+  window.electronAPI.onAudioStop(() => audioService.handleStop());
+});
 
 const router = createHashRouter([
   {

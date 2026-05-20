@@ -22,6 +22,10 @@ declare global {
       setApiKey(key: string): Promise<void>;
       getModel(): Promise<{ model: string }>;
       setModel(model: string): Promise<void>;
+      onAudioStart(cb: () => void): void;
+      onAudioChunk(cb: (chunk: Uint8Array) => void): void;
+      onAudioEnd(cb: () => void): void;
+      onAudioStop(cb: () => void): void;
     };
   }
 }

@@ -1,16 +1,18 @@
 import WebSocket from "ws";
+import type { WebContents } from "electron";
 import { SocketManager } from "./socket";
 import type { IpcMessage } from "../models/IpcMessage";
 import { InworldTTSService } from "./inworld";
 import type { BasePreset } from "../presets/base";
 import type { AudioPlayer } from "./audio-player";
-import { StreamSpeakerPlayer } from "./speaker-streamed";
+import { SpeakerRendererPlayer } from "./speaker-renderer";
 
 export interface TtsSocketOptions {
   port: number;
   preset: BasePreset;
   apiKey: string;
   model?: string;
+  webContents: WebContents;
   onConnected?: () => void;
   onDisconnected?: () => void;
 }
@@ -27,7 +29,7 @@ export class TtsSocket extends SocketManager {
     this.preset = options.preset;
     this.model = options.model ?? "inworld-tts-1.5-mini";
     this.inworld = new InworldTTSService(options.apiKey);
-    this.player = new StreamSpeakerPlayer();
+    this.player = new SpeakerRendererPlayer(options.webContents);
 
     this.onOpen = options.onConnected ?? null;
     this.onClose = options.onDisconnected ?? null;

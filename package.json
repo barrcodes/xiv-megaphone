@@ -1,9 +1,9 @@
 {
   "name": "ffxiv-tts-inworld",
   "type": "module",
-  "workspaces": [
-    "frontend"
-  ],
+  "scripts": {
+    "postinstall": "cd frontend && bun install"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },

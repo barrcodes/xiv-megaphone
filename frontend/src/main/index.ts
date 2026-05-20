@@ -14,6 +14,9 @@ import { initLogger } from "./logger";
 import { bootstrap } from "./presets";
 import { TtsManager } from "./tts-manager";
 import SquirrelStartup from "electron-squirrel-startup";
+import { updateElectronApp } from "update-electron-app";
+
+updateElectronApp();
 
 if (SquirrelStartup) {
   process.exit(0);
@@ -39,6 +42,7 @@ function createPresetWindow() {
       preload: join(__dirname, "../preload/index.js"),
       contextIsolation: true,
       nodeIntegration: false,
+      autoplayPolicy: "no-user-gesture-required",
     },
   });
 
@@ -48,21 +52,14 @@ function createPresetWindow() {
     presetWindow.loadFile(join(__dirname, "../renderer/index.html"));
   }
 
-  presetWindow.once("ready-to-show", () => {
-    presetWindow?.show();
+  presetWindow.on("close", (e) => {
+    e.preventDefault();
+    presetWindow?.hide();
   });
 
   presetWindow.on("closed", () => {
     presetWindow = null;
   });
-}
-
-function openPresetEditor() {
-  if (presetWindow) {
-    presetWindow.show();
-  } else {
-    createPresetWindow();
-  }
 }
 
 function buildTrayMenu(status: ConnectionStatus) {
@@ -96,6 +93,15 @@ const ttsManager = new TtsManager((status) => {
   pushConnectionChanged(getWindow, status);
 });
 
+function openPresetEditor() {
+  if (presetWindow) {
+    if (presetWindow.isMinimized()) presetWindow.restore();
+    presetWindow.show();
+  } else {
+    createPresetWindow();
+  }
+}
+
 async function reconnect() {
   const { getPort, getApiKey, getModel } = await import("./config");
   const { loadPresets, getActivePresetId } = await import("./presets");
@@ -123,6 +129,9 @@ app
 
     initLogger(getWindow);
     console.log("xiv-megaphone started");
+
+    createPresetWindow();
+    ttsManager.setWebContents(presetWindow!.webContents);
 
     const startOnStartup = await getStartOnStartup();
     await setStartOnStartup(startOnStartup);

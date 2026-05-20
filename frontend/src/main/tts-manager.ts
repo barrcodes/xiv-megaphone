@@ -1,4 +1,5 @@
 import { TtsSocket } from "../tts-client/index";
+import type { WebContents } from "electron";
 import type { ConnectionStatus, Preset } from "../shared/types";
 import { ConfigurablePreset } from "../tts-client/presets/configurable";
 
@@ -12,9 +13,14 @@ export class TtsManager {
   private currentPort = 0;
   private currentApiKey = "";
   private currentModel = "";
+  private webContents: WebContents | null = null;
 
   constructor(onChange: ConnectionChangeHandler) {
     this.onChange = onChange;
+  }
+
+  setWebContents(wc: WebContents) {
+    this.webContents = wc;
   }
 
   connect(opts: {
@@ -37,6 +43,7 @@ export class TtsManager {
       preset: basePreset,
       apiKey: opts.apiKey,
       model: opts.model,
+      webContents: this.webContents!,
       onConnected: () => {
         this.status = "connected";
         this.onChange(this.status);

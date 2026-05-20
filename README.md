@@ -121,13 +121,13 @@ Voices are selected per-NPC using a priority chain:
 ## Install
 
 ```sh
-cd frontend
 bun install
 ```
 
 ## Dev (with HMR)
 
 ```sh
+cd frontend
 bun run dev
 ```
 
@@ -144,7 +144,7 @@ Compiles all three processes to `out/`.
 ## Package (Windows installer)
 
 ```sh
-bun run package:win
+bun run build:make
 ```
 
 Produces an NSIS installer in `out/make/[platform]`.

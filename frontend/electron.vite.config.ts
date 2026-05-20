@@ -8,7 +8,7 @@ export default defineConfig({
       outDir: resolve(__dirname, "build/main"),
       rollupOptions: {
         input: { index: resolve(__dirname, "src/main/index.ts") },
-        external: ["speaker", "ws", "@inworld/tts"],
+        external: ["ws", "@inworld/tts"],
       },
     },
     resolve: {

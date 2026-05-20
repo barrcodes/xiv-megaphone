@@ -25,4 +25,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
   setApiKey: (key: string) => ipcRenderer.invoke("setApiKey", key),
   getModel: () => ipcRenderer.invoke("getModel"),
   setModel: (model: string) => ipcRenderer.invoke("setModel", model),
+  onAudioStart: (cb: () => void) =>
+    ipcRenderer.on("audio-start", () => cb()),
+  onAudioChunk: (cb: (chunk: Uint8Array) => void) =>
+    ipcRenderer.on("audio-chunk", (_, chunk) => cb(chunk)),
+  onAudioEnd: (cb: () => void) =>
+    ipcRenderer.on("audio-end", () => cb()),
+  onAudioStop: (cb: () => void) =>
+    ipcRenderer.on("audio-stop", () => cb()),
 });
