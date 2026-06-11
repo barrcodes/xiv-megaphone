@@ -22,14 +22,18 @@
     "publish": "electron-forge publish"
   },
   "dependencies": {
-    "@inworld/tts": "^1.0.1",
+    "@supabase/ssr": "^0.10.3",
+    "@supabase/supabase-js": "^2.106.1",
+    "@tailwindcss/typography": "^0.5.20",
     "electron-squirrel-startup": "^1.0.1",
     "lucide-react": "^1.14.0",
-    "radix-ui": "^1.4.3",
+    "radix-ui": "^1.5.0",
     "react-hook-form": "^7.75.0",
+    "react-markdown": "^10.1.0",
     "react-router-dom": "^7.15.0",
     "update-electron-app": "^3.2.0",
     "ws": "^8.20.0",
+    "zod": "^4.4.3",
     "zustand": "^5.0.12"
   },
   "devDependencies": {

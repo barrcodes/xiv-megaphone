@@ -2,63 +2,32 @@ import WebSocket from "ws";
 import type { WebContents } from "electron";
 import { SocketManager } from "./socket";
 import type { IpcMessage } from "../models/IpcMessage";
-import { InworldTTSService } from "./inworld";
 import type { BasePreset } from "../presets/base";
-import type { AudioPlayer } from "./audio-player";
 import { SpeakerRendererPlayer } from "./speaker-renderer";
 
 export interface TtsSocketOptions {
   port: number;
   preset: BasePreset;
-  apiKey: string;
-  model?: string;
   webContents: WebContents;
   onConnected?: () => void;
   onDisconnected?: () => void;
 }
 
 export class TtsSocket extends SocketManager {
-  private inworld: InworldTTSService;
   private preset: BasePreset;
-  private player: AudioPlayer;
-  private model: string;
-  private requestId = 0;
+  private player: SpeakerRendererPlayer;
 
   constructor(options: TtsSocketOptions) {
     super(`ws://localhost:${options.port}/Messages`);
     this.preset = options.preset;
-    this.model = options.model ?? "inworld-tts-1.5-mini";
-    this.inworld = new InworldTTSService(options.apiKey);
     this.player = new SpeakerRendererPlayer(options.webContents);
 
     this.onOpen = options.onConnected ?? null;
     this.onClose = options.onDisconnected ?? null;
-
-    this.inworld.setCallbacks({
-      onAudioChunk: async (requestId: number, chunk: Buffer) => {
-        console.log(`Received audio chunk (${chunk.length} bytes)`);
-        await this.player.appendStream(requestId, chunk);
-      },
-      onDone: async (requestId: number, audioChunks: Buffer[]) => {
-        console.log("Audio stream completed");
-        if (audioChunks.length === 0) return;
-        console.log(
-          `Playing audio (${Buffer.concat(audioChunks).length} bytes)`
-        );
-        await this.player.endStream(requestId, audioChunks);
-      },
-      onError: async (requestId: number, error: Error) => {
-        console.error("Inworld error:", error);
-      },
-    });
   }
 
   updatePreset(preset: BasePreset): void {
     this.preset = preset;
-  }
-
-  updateApiKey(apiKey: string): void {
-    this.inworld.updateApiKey(apiKey);
   }
 
   protected _onOpen(): void {
@@ -74,10 +43,9 @@ export class TtsSocket extends SocketManager {
     }
   }
 
-  private handleMessage(message: IpcMessage): void {
+  private async handleMessage(message: IpcMessage): Promise<void> {
     if (message.Type === "Cancel") {
       console.log("cancel message received, stopping playback");
-      this.inworld.cancel();
       this.player.stop();
       return;
     }
@@ -88,29 +56,27 @@ export class TtsSocket extends SocketManager {
     }
 
     console.log(
-      `Received message: ${message.Speaker} (${message.Voice?.Name} ${message.Race}) says "${message.Payload}""`
+      `Received message: ${message.Speaker} (${message.Voice?.Name} ${message.Race}) says "${message.Payload}"`,
     );
 
     const text = message.Payload;
     const voice = this.preset.getVoice(
       message.Speaker?.toLowerCase(),
       message.Voice?.Name.toLocaleLowerCase(),
-      message.Race?.toLocaleLowerCase()
+      message.Race?.toLocaleLowerCase(),
     );
 
-    this.player.beginStream(++this.requestId);
     const lexiconText = this.preset.applyLexicon(text);
-    this.inworld
-      .speak(
-        this.requestId,
-        lexiconText,
+
+    try {
+      await this.player.createStream({
+        text: lexiconText,
         voice,
-        this.model,
-        this.preset.speakingRate
-      )
-      .catch((error) => {
-        console.error("Error during TTS processing:", error);
+        speakingRate: this.preset.speakingRate,
       });
+    } catch (error) {
+      console.error("Error during TTS processing:", error);
+    }
   }
 
   protected _onClose(): void {

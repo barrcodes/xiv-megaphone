@@ -11,8 +11,6 @@ export class TtsManager {
   private onChange: ConnectionChangeHandler;
   private currentPreset: Preset | null = null;
   private currentPort = 0;
-  private currentApiKey = "";
-  private currentModel = "";
   private webContents: WebContents | null = null;
 
   constructor(onChange: ConnectionChangeHandler) {
@@ -26,8 +24,6 @@ export class TtsManager {
   connect(opts: {
     port: number;
     preset: Preset;
-    apiKey: string;
-    model?: string;
   }) {
     if (this.status === "connected" || this.status === "connecting") return;
     this.status = "connecting";
@@ -35,14 +31,10 @@ export class TtsManager {
 
     this.currentPreset = opts.preset;
     this.currentPort = opts.port;
-    this.currentApiKey = opts.apiKey;
-    this.currentModel = opts.model ?? "inworld-tts-1.5-mini";
     const basePreset = new ConfigurablePreset(opts.preset);
     this.socket = new TtsSocket({
       port: opts.port,
       preset: basePreset,
-      apiKey: opts.apiKey,
-      model: opts.model,
       webContents: this.webContents!,
       onConnected: () => {
         this.status = "connected";
@@ -74,24 +66,5 @@ export class TtsManager {
     this.currentPreset = preset;
     const basePreset = new ConfigurablePreset(preset);
     this.socket.updatePreset(basePreset);
-  }
-
-  updatePort(port: number, apiKey: string, model?: string) {
-    const preset = this.currentPreset;
-    const key = apiKey || this.currentApiKey;
-    const mod = model ?? this.currentModel;
-    this.disconnect();
-    if (preset && key) {
-      this.connect({ port, preset, apiKey: key, model: mod });
-    }
-  }
-
-  updateApiKey(apiKey: string) {
-    this.currentApiKey = apiKey;
-    this.socket?.updateApiKey(apiKey);
-  }
-
-  updateModel(model: string) {
-    this.currentModel = model;
   }
 }

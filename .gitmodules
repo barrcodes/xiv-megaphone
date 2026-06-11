@@ -1,0 +1,3 @@
+[submodule "svc/backend"]
+	path = svc/backend
+	url = git@github.com:barrcodes/xiv-megaphone-backend.git

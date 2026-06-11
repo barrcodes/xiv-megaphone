@@ -1,5 +1,5 @@
 {
-  "name": "ffxiv-tts-inworld",
+  "name": "xiv-megaphone-project",
   "type": "module",
   "scripts": {
     "postinstall": "cd frontend && bun install"

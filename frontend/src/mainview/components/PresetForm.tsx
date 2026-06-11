@@ -1,10 +1,12 @@
+import { BookOpen, Settings, Users } from "lucide-react";
 import { useState } from "react";
-import { useForm, FormProvider } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import type { Preset } from "shared/types";
 import { GeneralTab } from "./GeneralTab";
-import { NamedVoicesTab } from "./NamedVoicesTab";
 import { LexiconTab } from "./LexiconTab";
+import { NamedVoicesTab } from "./NamedVoicesTab";
 import { Button } from "./ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 export type PresetFormValues = {
 	name: string;
@@ -24,7 +26,7 @@ interface Props {
 
 export function PresetForm({ preset, onSave, onCancel }: Props) {
 	const isEditable = !preset.isDefault;
-	const [activeTab, setActiveTab] = useState<"general" | "namedVoices" | "lexicon">("general");
+	const [activeTab, setActiveTab] = useState("general");
 
 	const methods = useForm<PresetFormValues>({
 		mode: "onChange",
@@ -36,7 +38,10 @@ export function PresetForm({ preset, onSave, onCancel }: Props) {
 			default: preset.default,
 			speakingRate: preset.speakingRate,
 			namedVoices: Object.entries(preset.namedVoices).map(([name, voice]) => ({ name, voice })),
-			lexicon: Object.entries(preset.lexicon ?? {}).map(([term, pronunciation]) => ({ term, pronunciation })),
+			lexicon: Object.entries(preset.lexicon ?? {}).map(([term, pronunciation]) => ({
+				term,
+				pronunciation,
+			})),
 		},
 	});
 
@@ -56,58 +61,47 @@ export function PresetForm({ preset, onSave, onCancel }: Props) {
 	}
 
 	return (
-		<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col min-h-[calc(100vh-8rem)]">
-			<div className="flex border-b mb-4">
-				<button
-					type="button"
-					onClick={() => setActiveTab("general")}
-					className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-						activeTab === "general"
-							? "border-primary text-foreground"
-							: "border-transparent text-muted-foreground hover:text-foreground"
-					}`}
-				>
-					General
-				</button>
-				<button
-					type="button"
-					onClick={() => setActiveTab("namedVoices")}
-					className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-						activeTab === "namedVoices"
-							? "border-primary text-foreground"
-							: "border-transparent text-muted-foreground hover:text-foreground"
-					}`}
-				>
-					Named Voices
-				</button>
-				<button
-					type="button"
-					onClick={() => setActiveTab("lexicon")}
-					className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-						activeTab === "lexicon"
-							? "border-primary text-foreground"
-							: "border-transparent text-muted-foreground hover:text-foreground"
-					}`}
-				>
-					Lexicon
-				</button>
-			</div>
+		<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col min-h-[calc(100vh-10rem)]">
+			<Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
+				<TabsList variant="line" className="mb-6">
+					<TabsTrigger value="general" className="gap-2">
+						<Settings className="size-3.5" />
+						General
+					</TabsTrigger>
+					<TabsTrigger value="namedVoices" className="gap-2">
+						<Users className="size-3.5" />
+						Named Voices
+					</TabsTrigger>
+					<TabsTrigger value="lexicon" className="gap-2">
+						<BookOpen className="size-3.5" />
+						Lexicon
+					</TabsTrigger>
+				</TabsList>
 
-			<div className="flex-1 overflow-auto">
-				<FormProvider {...methods}>
-					{activeTab === "general" && <GeneralTab disabled={!isEditable} />}
-					{activeTab === "namedVoices" && <NamedVoicesTab disabled={!isEditable} />}
-					{activeTab === "lexicon" && <LexiconTab disabled={!isEditable} />}
-				</FormProvider>
-			</div>
+				<TabsContent value="general">
+					<FormProvider {...methods}>
+						<GeneralTab disabled={!isEditable} />
+					</FormProvider>
+				</TabsContent>
+				<TabsContent value="namedVoices">
+					<FormProvider {...methods}>
+						<NamedVoicesTab disabled={!isEditable} />
+					</FormProvider>
+				</TabsContent>
+				<TabsContent value="lexicon">
+					<FormProvider {...methods}>
+						<LexiconTab disabled={!isEditable} />
+					</FormProvider>
+				</TabsContent>
+			</Tabs>
 
 			{isEditable && (
-				<div className="flex gap-2 justify-end border-t p-4 sticky bottom-0 bg-background mt-4">
+				<div className="flex gap-3 justify-end border-t border-border/40 pt-4 mt-6 sticky bottom-0 glass-panel -mx-6 px-6">
 					<Button type="button" variant="outline" onClick={onCancel}>
 						Cancel
 					</Button>
 					<Button type="submit" disabled={!isDirty || !isValid}>
-						Save
+						Save Changes
 					</Button>
 				</div>
 			)}

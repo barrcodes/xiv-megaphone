@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { type PropsWithChildren, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import {
 	getActivePreset,
@@ -7,10 +7,12 @@ import {
 	getPresets,
 	getStartOnStartup,
 } from "@/lib/ipc";
+import { AudioPlayer } from "../audio/audio-player";
 import { useStore } from "../store";
-import { AppHeader } from "./AppHeader";
+import { Sidebar } from "./Sidebar";
+import { TooltipProvider } from "./ui/tooltip";
 
-export function App() {
+export const App: React.FC<PropsWithChildren> = () => {
 	const { setPresets, setActivePresetId, setConnectionStatus, setPort, setStartOnStartup } =
 		useStore();
 
@@ -31,11 +33,14 @@ export function App() {
 	}, [setPresets, setActivePresetId, setConnectionStatus, setPort, setStartOnStartup]);
 
 	return (
-		<div className="h-full flex flex-col overflow-hidden bg-background text-foreground">
-			<AppHeader />
-			<div className="flex-1 overflow-y-auto">
-				<Outlet />
+		<TooltipProvider>
+			<div className="flex h-full overflow-hidden mesh-bg text-foreground">
+				<AudioPlayer />
+				<Sidebar />
+				<div className="flex-1 overflow-y-auto">
+					<Outlet />
+				</div>
 			</div>
-		</div>
+		</TooltipProvider>
 	);
-}
+};

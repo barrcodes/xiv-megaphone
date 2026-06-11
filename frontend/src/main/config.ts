@@ -3,7 +3,7 @@ import { existsSync } from "node:fs";
 import * as fs from "node:fs/promises";
 import { join } from "node:path";
 import { app } from "electron";
-import { DEFAULT_PORT, DEFAULT_MODEL } from "../shared/defaults";
+import { DEFAULT_PORT } from "../shared/defaults";
 
 const configFile = join(app.getPath("userData"), "config.json");
 
@@ -34,48 +34,6 @@ export async function setPort(port: number): Promise<void> {
 
 const STARTUP_KEY = "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run";
 const STARTUP_VALUE = "xiv-megaphone";
-
-export async function getApiKey(): Promise<string> {
-  if (!existsSync(configFile)) return "";
-  const data = JSON.parse(await fs.readFile(configFile, "utf-8")) as {
-    apiKey?: string;
-  };
-  return data.apiKey ?? "";
-}
-
-export async function setApiKey(apiKey: string): Promise<void> {
-  const current = existsSync(configFile)
-    ? (JSON.parse(await fs.readFile(configFile, "utf-8")) as Record<
-        string,
-        unknown
-      >)
-    : {};
-  await fs.writeFile(
-    configFile,
-    JSON.stringify({ ...current, apiKey }, null, 2)
-  );
-}
-
-export async function getModel(): Promise<string> {
-  if (!existsSync(configFile)) return DEFAULT_MODEL;
-  const data = JSON.parse(await fs.readFile(configFile, "utf-8")) as {
-    model?: string;
-  };
-  return data.model ?? DEFAULT_MODEL;
-}
-
-export async function setModel(model: string): Promise<void> {
-  const current = existsSync(configFile)
-    ? (JSON.parse(await fs.readFile(configFile, "utf-8")) as Record<
-        string,
-        unknown
-      >)
-    : {};
-  await fs.writeFile(
-    configFile,
-    JSON.stringify({ ...current, model }, null, 2)
-  );
-}
 
 export async function getStartOnStartup(): Promise<boolean> {
   if (!existsSync(configFile)) return false;

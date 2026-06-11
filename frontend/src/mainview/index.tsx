@@ -6,26 +6,31 @@ import { LogsPage } from "./components/LogsPage";
 import { PresetEditPage } from "./components/PresetEditPage";
 import { PresetList } from "./components/PresetList";
 import { SettingsPage } from "./components/SettingsPage";
-import { AudioService } from "./audio";
+import { AuthProvider } from "./lib/auth-provider";
 import "./index.css";
-
-const audioService = new AudioService();
-audioService.init().then(() => {
-  window.electronAPI.onAudioStart(() => audioService.handleStart());
-  window.electronAPI.onAudioChunk((chunk) => audioService.handleChunk(chunk));
-  window.electronAPI.onAudioEnd(() => audioService.handleEnd());
-  window.electronAPI.onAudioStop(() => audioService.handleStop());
-});
+import { RequireAuth } from "./components/RequireAuth";
+import { LoginPage } from "./components/LoginPage";
+import { AccountPage } from "./components/AccountPage";
 
 const router = createHashRouter([
   {
-    path: "/",
-    element: <App />,
+    path: "/login",
+    element: <LoginPage />,
+  },
+  {
+    element: <RequireAuth />,
     children: [
-      { index: true, element: <PresetList /> },
-      { path: "preset/:id", element: <PresetEditPage /> },
-      { path: "settings", element: <SettingsPage /> },
-      { path: "logs", element: <LogsPage /> },
+      {
+        path: "/",
+        element: <App />,
+        children: [
+          { index: true, element: <PresetList /> },
+          { path: "preset/:id", element: <PresetEditPage /> },
+          { path: "settings", element: <SettingsPage /> },
+          { path: "logs", element: <LogsPage /> },
+          { path: "account", element: <AccountPage /> },
+        ],
+      },
     ],
   },
 ]);
@@ -35,6 +40,8 @@ if (!rootElement) throw new Error("Root element not found");
 
 createRoot(rootElement).render(
   <StrictMode>
-    <RouterProvider router={router} />
-  </StrictMode>
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  </StrictMode>,
 );

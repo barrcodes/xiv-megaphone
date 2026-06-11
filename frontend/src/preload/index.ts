@@ -2,6 +2,11 @@ import { contextBridge, ipcRenderer } from "electron";
 import type { ConnectionStatus, LogLine, Preset } from "../shared/types";
 
 contextBridge.exposeInMainWorld("electronAPI", {
+  authCallback: (cb: (url: string) => void) => {
+    const handler = (_, url) => cb(url);
+    ipcRenderer.on("authCallback", handler);
+    return () => ipcRenderer.removeListener("authCallback", handler);
+  },
   getPresets: () => ipcRenderer.invoke("getPresets"),
   savePreset: (preset: Preset) => ipcRenderer.invoke("savePreset", preset),
   deletePreset: (id: string) => ipcRenderer.invoke("deletePreset", id),
@@ -15,22 +20,42 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getStartOnStartup: () => ipcRenderer.invoke("getStartOnStartup"),
   setStartOnStartup: (enabled: boolean) =>
     ipcRenderer.invoke("setStartOnStartup", enabled),
-  onPresetsChanged: (cb: (presets: Preset[]) => void) =>
-    ipcRenderer.on("onPresetsChanged", (_, d) => cb(d)),
-  onConnectionChanged: (cb: (status: ConnectionStatus) => void) =>
-    ipcRenderer.on("onConnectionChanged", (_, d) => cb(d)),
-  onLogLine: (cb: (line: LogLine) => void) =>
-    ipcRenderer.on("onLogLine", (_, d) => cb(d)),
-  getApiKey: () => ipcRenderer.invoke("getApiKey"),
-  setApiKey: (key: string) => ipcRenderer.invoke("setApiKey", key),
-  getModel: () => ipcRenderer.invoke("getModel"),
-  setModel: (model: string) => ipcRenderer.invoke("setModel", model),
-  onAudioStart: (cb: () => void) =>
-    ipcRenderer.on("audio-start", () => cb()),
-  onAudioChunk: (cb: (chunk: Uint8Array) => void) =>
-    ipcRenderer.on("audio-chunk", (_, chunk) => cb(chunk)),
-  onAudioEnd: (cb: () => void) =>
-    ipcRenderer.on("audio-end", () => cb()),
-  onAudioStop: (cb: () => void) =>
-    ipcRenderer.on("audio-stop", () => cb()),
+  onPresetsChanged: (cb: (presets: Preset[]) => void) => {
+    const handler = (_, d) => cb(d);
+    ipcRenderer.on("onPresetsChanged", handler);
+    return () => ipcRenderer.removeListener("onPresetsChanged", handler);
+  },
+  onConnectionChanged: (cb: (status: ConnectionStatus) => void) => {
+    const handler = (_, d) => cb(d);
+    ipcRenderer.on("onConnectionChanged", handler);
+    return () => ipcRenderer.removeListener("onConnectionChanged", handler);
+  },
+  onLogLine: (cb: (line: LogLine) => void) => {
+    const handler = (_, d) => cb(d);
+    ipcRenderer.on("onLogLine", handler);
+    return () => ipcRenderer.removeListener("onLogLine", handler);
+  },
+  createStream: (
+    cb: (payload: { streamId: string; backendUrl: string }) => void,
+  ) => {
+    const handler = (_, d) => cb(d);
+    ipcRenderer.on("createStream", handler);
+    return () => ipcRenderer.removeListener("createStream", handler);
+  },
+  cancelStream: (cb: () => void) => {
+    const handler = () => cb();
+    ipcRenderer.on("cancelStream", handler);
+    return () => ipcRenderer.removeListener("cancelStream", handler);
+  },
+  setAuthState: (authenticated: boolean) =>
+    ipcRenderer.invoke("setAuthState", authenticated),
+  onCheckoutComplete: (
+    cb: (data: { status: "success" | "cancel" }) => void,
+  ) => {
+    const handler = (_, d) => cb(d);
+    ipcRenderer.on("checkoutComplete", handler);
+    return () => ipcRenderer.removeListener("checkoutComplete", handler);
+  },
+  shellOpenExternal: (url: string) => ipcRenderer.invoke("shellOpenExternal", url),
+  showPolicyDialog: () => ipcRenderer.invoke("policy:show-dialog"),
 });

@@ -1,12 +1,8 @@
-import { type BrowserWindow, ipcMain } from "electron";
+import { type BrowserWindow, ipcMain, shell } from "electron";
 import type { ConnectionStatus } from "../shared/types";
 import {
-  getApiKey,
-  getModel,
   getPort,
   getStartOnStartup,
-  setApiKey,
-  setModel,
   setPort,
   setStartOnStartup,
 } from "./config";
@@ -21,7 +17,8 @@ import type { TtsManager } from "./tts-manager";
 
 export function registerIpcHandlers(
   getWindow: () => BrowserWindow | null,
-  ttsManager: TtsManager
+  ttsManager: TtsManager,
+  reconnect: () => void,
 ) {
   ipcMain.handle("getPresets", () => loadPresets());
   ipcMain.handle("savePreset", async (_, preset) => {
@@ -58,52 +55,43 @@ export function registerIpcHandlers(
     status: ttsManager.getStatus(),
   }));
   ipcMain.handle("reconnect", async () => {
-    const port = await getPort();
-    const apiKey = await getApiKey();
-    const model = await getModel();
-    const presets = loadPresets();
-    const activeId = getActivePresetId();
-    const active = presets.find((p) => p.id === activeId);
-    if (!active) {
-      console.warn("Reconnect skipped: no active preset configured.");
-      return;
-    }
-    if (!apiKey) {
-      console.warn("Reconnect skipped: no API key set.");
-      return;
-    }
-    ttsManager.connect({ port, preset: active, apiKey, model });
+    reconnect();
   });
   ipcMain.handle("disconnect", () => ttsManager.disconnect());
   ipcMain.handle("getPort", async () => ({ port: await getPort() }));
   ipcMain.handle("setPort", async (_, p) => {
     await setPort(p);
-    const presets = loadPresets();
-    const activeId = getActivePresetId();
-    const active = presets.find((pr) => pr.id === activeId);
-    if (active) {
-      ttsManager.updatePort(p, await getApiKey(), await getModel());
-    }
   });
   ipcMain.handle("getStartOnStartup", async () => ({
     enabled: await getStartOnStartup(),
   }));
   ipcMain.handle("setStartOnStartup", async (_, en) => setStartOnStartup(en));
-  ipcMain.handle("getApiKey", async () => ({ apiKey: await getApiKey() }));
-  ipcMain.handle("setApiKey", async (_, key) => {
-    await setApiKey(key);
-    ttsManager.updateApiKey(key);
+
+  ipcMain.handle("setAuthState", async (_, authenticated: boolean) => {
+    if (authenticated) {
+      reconnect();
+    } else {
+      ttsManager.disconnect();
+      getWindow()?.show();
+    }
   });
-  ipcMain.handle("getModel", async () => ({ model: await getModel() }));
-  ipcMain.handle("setModel", async (_, m) => {
-    await setModel(m);
-    ttsManager.updateModel(m);
+
+  ipcMain.handle("policy:show-dialog", () => {
+    const win = getWindow();
+    if (win && !win.isDestroyed()) {
+      win.focus();
+      win.show();
+    }
+  });
+
+  ipcMain.handle("shellOpenExternal", async (_, url: string) => {
+    await shell.openExternal(url);
   });
 }
 
 export function pushConnectionChanged(
   getWindow: () => BrowserWindow | null,
-  status: ConnectionStatus
+  status: ConnectionStatus,
 ) {
   const win = getWindow();
   if (win && !win.isDestroyed()) {
