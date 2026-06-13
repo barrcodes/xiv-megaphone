@@ -16,7 +16,6 @@ const currentEnv =
 
 export const Environment = z.object({
   VITE_BACKEND_URL: z.string(),
-  VITE_LOCAL_PORT: z.coerce.number().default(57577),
   VITE_SUPABASE_URL: z.string(),
   VITE_SUPABASE_PUBLISHABLE_KEY: z.string(),
 });

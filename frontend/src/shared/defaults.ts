@@ -3,11 +3,11 @@ import type { Preset } from "./types";
 export const DEFAULT_PORT = 57575;
 
 /**
- * As reasonable of defaults as I could come up with from Inworld's built-in voices.
+ * Reasonable defaults
  */
 export const DEFAULT_PRESET: Preset = {
   id: "default",
-  name: "Default Premium",
+  name: "Default",
   isDefault: true,
   male: "Graham",
   female: "Wendy",
