@@ -1,0 +1,7 @@
+procs:
+  backend:
+    cmd: ["bun", "dev"]
+    cwd: "svc/backend/backend"
+  frontend:
+    cmd: ["bun", "dev"]
+    cwd: "frontend"

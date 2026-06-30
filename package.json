@@ -1,0 +1,13 @@
+{
+  "name": "xiv-megaphone-project",
+  "type": "module",
+  "scripts": {
+    "postinstall": "cd frontend && bun install"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
