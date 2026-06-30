@@ -1,4 +1,4 @@
-import { CreateStreamRequest } from "shared/models";
+import { CreateStreamRequest } from "../shared/models";
 import type { ConnectionStatus, LogLine, Preset } from "../shared/types";
 
 interface StreamCreatedPayload {
@@ -10,7 +10,11 @@ declare global {
   interface Window {
     electronAPI: {
       authCallback(
-        cb: (tokens: { access_token: string; refresh_token: string }) => void,
+        cb: (data: {
+          access_token: string;
+          refresh_token: string;
+          type?: string;
+        }) => void,
       ): () => void;
       getPresets(): Promise<Preset[]>;
       savePreset(preset: Preset): Promise<void>;
@@ -37,7 +41,9 @@ declare global {
       createStream(cb: (payload: CreateStreamRequest) => void): () => void;
       cancelStream(cb: () => void): () => void;
       setAuthState(authenticated: boolean): Promise<void>;
-      onCheckoutComplete(cb: (data: { status: "success" | "cancel" }) => void): () => void;
+      onCheckoutComplete(
+        cb: (data: { status: "success" | "cancel" }) => void,
+      ): () => void;
       showPolicyDialog(): Promise<void>;
       shellOpenExternal(url: string): Promise<void>;
     };

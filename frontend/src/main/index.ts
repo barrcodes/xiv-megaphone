@@ -50,6 +50,7 @@ function handleDeepLink(url: string) {
     const hashParams = new URLSearchParams(parsed.hash.slice(1));
     const access_token = hashParams.get("access_token");
     const refresh_token = hashParams.get("refresh_token");
+    const type = hashParams.get("type");
     if (!access_token || !refresh_token) {
       console.error("Auth callback missing one or more tokens");
       return;
@@ -57,6 +58,7 @@ function handleDeepLink(url: string) {
     mainWindow.webContents.send("authCallback", {
       access_token,
       refresh_token,
+      type,
     });
     mainWindow.focus();
   } else if (parsed.hostname === "checkout") {

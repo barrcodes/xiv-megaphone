@@ -16,8 +16,7 @@
     "paths": {
       "@/*": ["./src/mainview/*"],
       "shared/*": ["./src/shared/*"]
-    },
-    "baseUrl": "."
+    }
   },
   "include": ["src/mainview/**/*", "src/preload/index.d.ts", "src/shared/**/*"]
 }

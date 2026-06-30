@@ -10,12 +10,17 @@ import { AuthProvider } from "./lib/auth-provider";
 import "./index.css";
 import { RequireAuth } from "./components/RequireAuth";
 import { LoginPage } from "./components/LoginPage";
+import { ResetPasswordPage } from "./components/ResetPasswordPage";
 import { AccountPage } from "./components/AccountPage";
 
 const router = createHashRouter([
   {
     path: "/login",
     element: <LoginPage />,
+  },
+  {
+    path: "/reset-password",
+    element: <ResetPasswordPage />,
   },
   {
     element: <RequireAuth />,

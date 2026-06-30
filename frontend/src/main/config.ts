@@ -52,7 +52,7 @@ export async function setStartOnStartup(enabled: boolean): Promise<void> {
     : {};
   await fs.writeFile(
     configFile,
-    JSON.stringify({ ...current, startOnStartup: enabled }, null, 2)
+    JSON.stringify({ ...current, startOnStartup: enabled }, null, 2),
   );
 
   if (process.platform === "win32") {
@@ -66,7 +66,7 @@ export async function setStartOnStartup(enabled: boolean): Promise<void> {
           "/t",
           "REG_SZ",
           "/d",
-          process.execPath,
+          `"${process.execPath}"`,
           "/f",
         ]);
       } else {

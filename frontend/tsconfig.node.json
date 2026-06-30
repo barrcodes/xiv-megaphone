@@ -7,8 +7,7 @@
     "strict": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "types": ["electron-vite/node", "node"],
-    "baseUrl": "."
+    "types": ["electron-vite/node", "node"]
   },
   "include": [
     "src/main/**/*",

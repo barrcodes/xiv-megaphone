@@ -2,8 +2,8 @@ import { contextBridge, ipcRenderer } from "electron";
 import type { ConnectionStatus, LogLine, Preset } from "../shared/types";
 
 contextBridge.exposeInMainWorld("electronAPI", {
-  authCallback: (cb: (url: string) => void) => {
-    const handler = (_, url) => cb(url);
+  authCallback: (cb: (data: { access_token: string; refresh_token: string; type?: string }) => void) => {
+    const handler = (_, data) => cb(data);
     ipcRenderer.on("authCallback", handler);
     return () => ipcRenderer.removeListener("authCallback", handler);
   },
