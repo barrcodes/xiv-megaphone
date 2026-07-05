@@ -1,4 +1,4 @@
-import { Clock, CreditCard, Crown, RefreshCw } from "lucide-react";
+import { Clock, CreditCard, Crown } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import {
   type AccountStatus,
@@ -6,8 +6,6 @@ import {
   createPortalSession,
   getAccountStatus,
   getBalance,
-  getUsageLog,
-  type UsageEntry,
 } from "../api";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -39,11 +37,8 @@ export function AccountPage() {
   const [accountStatus, setAccountStatus] = useState<AccountStatus | null>(
     null,
   );
-  const [usageLog, setUsageLog] = useState<UsageEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
 
   const fetchBalance = useCallback(async () => {
     try {
@@ -63,23 +58,9 @@ export function AccountPage() {
     }
   }, []);
 
-  const fetchUsage = useCallback(async (offset = 0) => {
-    try {
-      const { entries } = await getUsageLog(20, offset);
-      if (offset === 0) {
-        setUsageLog(entries);
-      } else {
-        setUsageLog((prev) => [...prev, ...entries]);
-      }
-      setHasMore(entries.length === 20);
-    } catch (err) {
-      console.error("Failed to fetch usage log:", err);
-    }
-  }, []);
-
   const refresh = useCallback(async () => {
-    await Promise.all([fetchBalance(), fetchStatus(), fetchUsage()]);
-  }, [fetchBalance, fetchStatus, fetchUsage]);
+    await Promise.all([fetchBalance(), fetchStatus()]);
+  }, [fetchBalance, fetchStatus]);
 
   useEffect(() => {
     setLoading(true);
@@ -126,12 +107,6 @@ export function AccountPage() {
     } catch (err) {
       console.error("Failed to create portal session:", err);
     }
-  };
-
-  const handleLoadMore = async () => {
-    setLoadingMore(true);
-    await fetchUsage(usageLog.length);
-    setLoadingMore(false);
   };
 
   const accountTypeBadge = {
