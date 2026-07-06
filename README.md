@@ -1,7 +1,7 @@
 <div align="center">
   <h1>xiv-megaphone</h1>
 
-  ![Icon](frontend/art-assets/icon-cait-sith-wake-256.png)
+  ![Icon](frontend/art-assets/icon-wake-256.png)
 
   A Windows desktop application to simplify AI TTS for FFXIV, built with Electron + React + Vite.
 </div>
@@ -10,23 +10,43 @@
 
 - **Final Fantasy XIV**
 - **[XIVLauncher](https://goatcorp.github.io/)** — custom launcher that enables Dalamud plugins ([GitHub](https://github.com/goatcorp/FFXIVQuickLauncher))
-- **[xiv-megaphone-plugin](https://github.com/barrcodes/xiv-megaphone-plugin)** — Dalamud plugin (install via the Dalamud plugin manager)
+- **[TextToTalk](https://github.com/karashiiro/TextToTalk)** — Dalamud plugin (install via the Dalamud plugin manager)
 
 ## Installation
 
 1. Go to the [Releases](../../releases) page.
 2. Download the latest `.exe` installer.
 3. Run the installer and launch the application.
+4. Create an account
 
 ## Setup
 
 ### Dalamud Setup
 
-Install the **xiv-megaphone-plugin** via the Dalamud plugin manager in-game. The app will connect automatically once the plugin is enabled and you are in-game.
+Install the **TextToTalk** via the Dalamud plugin manager in-game. In the plug-in settings, the following are recommended:
+
+#### Websocket Settings
+
+Set the server to websocket with port 57575, and restart the server.
+
+![ttt-voices](screenshots/ttt-voices.png)
+
+#### General Settings
+
+The following are my recommended defaults.
+
+![ttt-general](screenshots/ttt-general.png)
+
+#### Channel Settings
+
+I recommend **only** selecting Npc voices in the channel settings.
+
+![ttt-channel](screenshots/ttt-channel.png)
+
 
 ### Presets
 
-A default preset ships with the app and is selected automatically. It provides voices for all race/gender combinations as well as beast tribes out of the box. More voices and presets to come.
+A default preset ships with the app and is selected automatically. It provides voices for all race/gender combinations as well as beast tribes out of the box. More voices and features to come.
 
 ## Voice selection
 

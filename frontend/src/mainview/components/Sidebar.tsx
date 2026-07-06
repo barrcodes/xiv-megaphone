@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { useStore } from "../store";
 import { Separator } from "./ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import myIconUrl from "../../../art-assets/icon-cait-sith-wake-256.png";
+import myIconUrl from "../../../art-assets/icon-wake-256.png";
 
 const navItems = [
   { path: "/", label: "Presets", icon: LayoutList },
