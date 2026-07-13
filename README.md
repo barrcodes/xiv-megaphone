@@ -4,6 +4,8 @@
   ![Icon](frontend/art-assets/icon-wake-256.png)
 
   A Windows desktop application to simplify AI TTS for FFXIV, built with Electron + React + Vite.
+
+  [![Join our Discord](https://img.shields.io/badge/JOIN%20DISCORD-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/GSEuGqAGAf) [![Latest Release](https://img.shields.io/github/v/release/barrcodes/xiv-megaphone?style=for-the-badge&logo=github&label=Latest%20Release)](https://github.com/barrcodes/xiv-megaphone/releases/latest)
 </div>
 
 ## Prerequisites
