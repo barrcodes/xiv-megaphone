@@ -2,6 +2,7 @@ import { LayoutList, LogOut, ScrollText, Settings, User } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth-provider";
 import { cn } from "@/lib/utils";
+import { env } from "../../shared/env";
 import { useStore } from "../store";
 import { Separator } from "./ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
@@ -10,7 +11,7 @@ import myIconUrl from "../../../art-assets/icon-wake-256.png";
 const navItems = [
   { path: "/", label: "Presets", icon: LayoutList },
   { path: "/account", label: "Account", icon: User },
-  { path: "/logs", label: "Logs", icon: ScrollText },
+  { path: "/logs", label: "Logs", icon: ScrollText, debugOnly: true },
   { path: "/settings", label: "Settings", icon: Settings },
 ];
 
@@ -70,6 +71,8 @@ export function Sidebar() {
 
       <nav className="flex-1 space-y-0.5 px-3 py-3">
         {navItems.map((item) => {
+          if (item.debugOnly && !env.VITE_DEBUG) return null;
+
           const isActive =
             item.path === "/"
               ? location.pathname === "/"

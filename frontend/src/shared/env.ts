@@ -18,6 +18,10 @@ export const Environment = z.object({
   VITE_BACKEND_URL: z.string(),
   VITE_SUPABASE_URL: z.string(),
   VITE_SUPABASE_PUBLISHABLE_KEY: z.string(),
+  VITE_DEBUG: z
+    .string()
+    .default("false")
+    .transform((value) => value === "true"),
 });
 
 export type Environment = z.infer<typeof Environment>;

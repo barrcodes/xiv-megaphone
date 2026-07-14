@@ -79,7 +79,5 @@ export class TtsSocket extends SocketManager {
     }
   }
 
-  protected _onClose(): void {
-    console.log("TTS WebSocket disconnected");
-  }
+  protected _onClose(): void {}
 }

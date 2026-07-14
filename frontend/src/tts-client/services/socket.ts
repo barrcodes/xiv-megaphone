@@ -3,7 +3,8 @@ import WebSocket from "ws";
 export abstract class SocketManager {
   private ws: WebSocket | null = null;
   private reconnectInterval: NodeJS.Timeout | null = null;
-  private _destroyed = false;
+  private connected = false;
+  private destroyed = false;
   protected onOpen: (() => void) | null = null;
   protected onClose: (() => void) | null = null;
 
@@ -12,11 +13,11 @@ export abstract class SocketManager {
   }
 
   connect() {
-    if (this._destroyed) return;
+    if (this.destroyed) return;
     if (this.ws) return;
-    console.log(`Connecting to WebSocket at ${this.url}...`);
     this.ws = new WebSocket(this.url);
     this.ws.on("open", () => {
+      this.connected = true;
       console.log(`Connected to WebSocket at ${this.url}`);
       if (this.reconnectInterval) {
         clearInterval(this.reconnectInterval);
@@ -29,21 +30,24 @@ export abstract class SocketManager {
       this._onMessage(data);
     });
     this.ws.on("close", () => {
+      if (this.connected) {
+        console.log(`Disconnected from WebSocket at ${this.url}`);
+      }
+      this.connected = false;
       this._onClose();
-      console.log(`Disconnected from WebSocket at ${this.url}`);
       this.ws = null;
       if (this.onClose) this.onClose();
-      if (!this._destroyed) {
+      if (!this.destroyed) {
         this.reconnect();
       }
     });
-    this.ws.on("error", (error) => {
-      console.error("Couldn't reach destination WebSocket at %s, retrying in 5 seconds...", this.url);
+    this.ws.on("error", () => {
+      // Reconnection is scheduled by the close handler.
     });
   }
 
   disconnect() {
-    this._destroyed = true;
+    this.destroyed = true;
     if (this.reconnectInterval) {
       clearInterval(this.reconnectInterval);
       this.reconnectInterval = null;
@@ -62,7 +66,6 @@ export abstract class SocketManager {
   private reconnect() {
     if (this.reconnectInterval) clearInterval(this.reconnectInterval);
     this.reconnectInterval = setInterval(() => {
-      console.log(`Reconnecting to WebSocket at ${this.url}`);
       this.connect();
     }, 5000);
   }

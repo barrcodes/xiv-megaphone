@@ -12,6 +12,7 @@ import { RequireAuth } from "./components/RequireAuth";
 import { LoginPage } from "./components/LoginPage";
 import { ResetPasswordPage } from "./components/ResetPasswordPage";
 import { AccountPage } from "./components/AccountPage";
+import { RequireDebug } from "./guards/RequireDebug";
 
 const router = createHashRouter([
   {
@@ -32,7 +33,10 @@ const router = createHashRouter([
           { index: true, element: <PresetList /> },
           { path: "preset/:id", element: <PresetEditPage /> },
           { path: "settings", element: <SettingsPage /> },
-          { path: "logs", element: <LogsPage /> },
+          {
+            element: <RequireDebug />,
+            children: [{ path: "logs", element: <LogsPage /> }],
+          },
           { path: "account", element: <AccountPage /> },
         ],
       },

@@ -9,7 +9,7 @@ type LogLevel = "all" | "log" | "warn" | "error";
 
 export function LogsPage() {
 	const logs = useStore((s) => s.logs);
-	const bottomRef = useRef<HTMLDivElement>(null);
+	const logContainerRef = useRef<HTMLDivElement>(null);
 	const [filter, setFilter] = useState<LogLevel>("all");
 	const [search, setSearch] = useState("");
 	const [autoScroll, setAutoScroll] = useState(true);
@@ -23,10 +23,9 @@ export function LogsPage() {
 	}, [logs, filter, search]);
 
 	useEffect(() => {
-		if (autoScroll) {
-			bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-		}
-	}, [autoScroll]);
+		if (!autoScroll || filteredLogs.length === 0 || !logContainerRef.current) return;
+		logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
+	}, [autoScroll, filteredLogs]);
 
 	const levelConfig = {
 		log: {
@@ -110,7 +109,7 @@ export function LogsPage() {
 				</div>
 			</div>
 
-			<div className="flex-1 overflow-y-auto font-mono text-xs">
+			<div ref={logContainerRef} className="flex-1 overflow-y-auto font-mono text-xs">
 				{filteredLogs.length === 0 ? (
 					<div className="flex flex-col items-center justify-center h-full gap-2">
 						<p className="text-sm text-muted-foreground">
@@ -141,7 +140,6 @@ export function LogsPage() {
 						})}
 					</div>
 				)}
-				<div ref={bottomRef} />
 			</div>
 		</div>
 	);
