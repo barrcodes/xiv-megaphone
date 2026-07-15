@@ -16,7 +16,7 @@ export const DEFAULT_PRESET: Preset = {
   namedVoices: {
     "hyur male": "Graham",
     "hyur female": "Wendy",
-    "elezen male": "Clive",
+    "elezen male": "Lorian",
     "elezen female": "Claire",
     "lalafell male": "Abby",
     "lalafell female": "Pixie",
@@ -47,7 +47,7 @@ export const DEFAULT_PRESET: Preset = {
     qiqirn: "Blitzkin",
     matanga: "Hades",
     omicron: "Dominus",
-    goblin: "Blitzkin",
+    goblin: "Kobby",
     mamool_ja: "Xartan",
     dragon: "Smaug",
     lupin: "Hades",

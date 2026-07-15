@@ -1,5 +1,4 @@
 import { beastTribeNpcs, beastTribes } from "./beastTribeNpcs";
-import { customVoices } from "./customVoices";
 
 export abstract class BasePreset {
   abstract male: string;
@@ -19,10 +18,10 @@ export abstract class BasePreset {
   getVoice(
     speaker?: string | null,
     gender?: string | null,
-    race?: string | null
+    race?: string | null,
   ): string {
     console.log(
-      `Selecting voice for speaker="${speaker}", gender="${gender}", race="${race}"`
+      `Selecting voice for speaker="${speaker}", gender="${gender}", race="${race}"`,
     );
 
     const voice =
@@ -43,7 +42,7 @@ export abstract class BasePreset {
 
   getRaceVoice(
     race?: string | null,
-    gender?: string | null
+    gender?: string | null,
   ): string | undefined {
     return race && gender ? this.namedVoices[`${race} ${gender}`] : undefined;
   }
@@ -51,11 +50,11 @@ export abstract class BasePreset {
   getBeastVoice(speaker?: string | null): string | undefined {
     if (!speaker) return undefined;
     const beastNpc = beastTribeNpcs.find(
-      (npc) => npc.name.toLowerCase() === speaker?.toLowerCase()
+      (npc) => npc.name.toLowerCase() === speaker?.toLowerCase(),
     );
     const race = beastNpc ? beastNpc.race.toLowerCase() : undefined;
     const voiceName = race ? this.namedVoices[race] : undefined;
-    return customVoices[voiceName ?? ""] ?? voiceName;
+    return voiceName;
   }
 
   getGenderFallbackVoice(gender?: string | null): string | undefined {
