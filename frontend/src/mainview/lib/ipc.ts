@@ -3,6 +3,24 @@ import { useStore } from "../store";
 
 const api = window.electronAPI;
 
+let cachedDefault: Preset | null = null;
+
+async function ensureDefaultPreset(): Promise<Preset | null> {
+  if (cachedDefault) return cachedDefault;
+  try {
+    const { getDefaultPreset } = await import("../api");
+    cachedDefault = await getDefaultPreset();
+    return cachedDefault;
+  } catch {
+    return null;
+  }
+}
+
+function mergePresets(localPresets: Preset[], defaultPreset: Preset | null): Preset[] {
+  if (!defaultPreset) return localPresets;
+  return [defaultPreset, ...localPresets.filter((p) => p.id !== "default")];
+}
+
 export const authCallback = (
   cb: (tokens: { access_token: string; refresh_token: string }) => void,
 ) => api.authCallback(cb);
@@ -31,7 +49,10 @@ export const getUseLocalBackend = (): Promise<{ enabled: boolean }> =>
 export const setUseLocalBackend = (en: boolean): Promise<void> =>
   api.setUseLocalBackend(en);
 
-api.onPresetsChanged((presets) => useStore.getState().setPresets(presets));
+api.onPresetsChanged(async (localPresets) => {
+  const defaultPreset = await ensureDefaultPreset();
+  useStore.getState().setPresets(mergePresets(localPresets, defaultPreset));
+});
 api.onConnectionChanged((status) =>
   useStore.getState().setConnectionStatus(status),
 );

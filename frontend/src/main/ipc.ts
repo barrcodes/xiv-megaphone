@@ -21,7 +21,7 @@ export function registerIpcHandlers(
 	registered = true;
 
 	ipcMain.handle("getPresets", () => loadPresets());
-	ipcMain.handle("savePreset", async (_, preset) => {
+	ipcMain.handle("savePreset", (_, preset) => {
 		savePreset(preset);
 		if (preset.id === getActivePresetId()) {
 			ttsManager.updatePreset(preset);
@@ -31,14 +31,14 @@ export function registerIpcHandlers(
 			win.webContents.send("onPresetsChanged", loadPresets());
 		}
 	});
-	ipcMain.handle("deletePreset", async (_, id) => {
+	ipcMain.handle("deletePreset", (_, id) => {
 		deletePreset(id);
 		const win = getWindow();
 		if (win && !win.isDestroyed()) {
 			win.webContents.send("onPresetsChanged", loadPresets());
 		}
 	});
-	ipcMain.handle("setActivePreset", async (_, id) => {
+	ipcMain.handle("setActivePreset", (_, id) => {
 		setActivePresetId(id);
 		const presets = loadPresets();
 		const active = presets.find((p) => p.id === id);

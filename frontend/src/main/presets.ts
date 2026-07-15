@@ -8,11 +8,21 @@ import {
 } from "node:fs";
 import { join } from "node:path";
 import { app } from "electron";
-import { DEFAULT_PRESET } from "../shared/defaults";
 import type { Preset } from "../shared/types";
 
 const presetsDir = join(app.getPath("userData"), "presets");
 const activeFile = join(app.getPath("userData"), "active.json");
+
+export const MINIMAL_DEFAULT: Preset = {
+  id: "default",
+  name: "Default",
+  isDefault: true,
+  male: "Graham",
+  female: "Wendy",
+  default: "Luna",
+  speakingRate: 1.25,
+  namedVoices: {},
+};
 
 export function bootstrap() {
   mkdirSync(presetsDir, { recursive: true });
@@ -20,7 +30,7 @@ export function bootstrap() {
   if (!existsSync(activeFile)) {
     writeFileSync(
       activeFile,
-      JSON.stringify({ activePresetId: "default" }, null, 2)
+      JSON.stringify({ activePresetId: "default" }, null, 2),
     );
   }
 }
@@ -28,15 +38,15 @@ export function bootstrap() {
 export function loadPresets(): Preset[] {
   const files = readdirSync(presetsDir).filter((f) => f.endsWith(".json"));
   const presets = files.map(
-    (f) => JSON.parse(readFileSync(join(presetsDir, f), "utf-8")) as Preset
+    (f) => JSON.parse(readFileSync(join(presetsDir, f), "utf-8")) as Preset,
   );
-  return [DEFAULT_PRESET, ...presets];
+  return presets;
 }
 
 export function savePreset(preset: Preset): void {
   writeFileSync(
     join(presetsDir, `${preset.id}.json`),
-    JSON.stringify(preset, null, 2)
+    JSON.stringify(preset, null, 2),
   );
 }
 

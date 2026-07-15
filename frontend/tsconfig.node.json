@@ -13,7 +13,6 @@
     "src/main/**/*",
     "src/preload/**/*",
     "src/shared/**/*",
-    "src/tts-client/**/*",
-    "src/mainview/api.ts"
+    "src/tts-client/**/*"
   ]
 }

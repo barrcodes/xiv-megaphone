@@ -1,6 +1,7 @@
 import { supabase } from "./lib/supabase";
 import { CreateStreamRequest } from "../shared/models";
 import { env } from "../shared/env";
+import type { Preset } from "../shared/types";
 
 export async function authFetch(
   input: RequestInfo | URL,
@@ -23,7 +24,12 @@ export async function authFetch(
 }
 
 export const createStream = async (request: CreateStreamRequest) => {
-  console.log("Creating stream with request:", request, "Base URL:", env.VITE_BACKEND_URL);
+  console.log(
+    "Creating stream with request:",
+    request,
+    "Base URL:",
+    env.VITE_BACKEND_URL,
+  );
   const res = await authFetch(`${env.VITE_BACKEND_URL}/tts/stream`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -42,10 +48,18 @@ export async function streamAudio(
   streamId: string,
   abortController: AbortController,
 ) {
-  console.log("Starting audio stream with ID:", streamId, "Base URL:", env.VITE_BACKEND_URL);
-  const res = await authFetch(`${env.VITE_BACKEND_URL}/tts/stream/${streamId}`, {
-    signal: abortController.signal,
-  });
+  console.log(
+    "Starting audio stream with ID:",
+    streamId,
+    "Base URL:",
+    env.VITE_BACKEND_URL,
+  );
+  const res = await authFetch(
+    `${env.VITE_BACKEND_URL}/tts/stream/${streamId}`,
+    {
+      signal: abortController.signal,
+    },
+  );
 
   if (!res.ok) {
     throw new Error(`Failed to fetch audio stream: ${res.status}`);
@@ -100,9 +114,12 @@ export async function getAccountStatus(): Promise<AccountStatus> {
 export async function createCheckoutSession(
   mode: "payment" | "subscription",
 ): Promise<string> {
-  const res = await authFetch(`${env.VITE_BACKEND_URL}/shop/checkout?mode=${mode}`, {
-    method: "POST",
-  });
+  const res = await authFetch(
+    `${env.VITE_BACKEND_URL}/shop/checkout?mode=${mode}`,
+    {
+      method: "POST",
+    },
+  );
   if (!res.ok)
     throw new Error(`Failed to create checkout session: ${res.status}`);
   const { url } = await res.json();
@@ -153,4 +170,10 @@ export async function acceptPolicies(
     const { error } = await res.json();
     throw new Error(error ?? "Failed to accept policies");
   }
+}
+
+export async function getDefaultPreset(): Promise<Preset> {
+  const res = await authFetch(`${env.VITE_BACKEND_URL}/presets/default`);
+  if (!res.ok) throw new Error(`Failed to fetch default preset: ${res.status}`);
+  return res.json();
 }

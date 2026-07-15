@@ -194,11 +194,11 @@ function openMainWindow() {
 
 async function reconnect() {
   const { getPort } = await import("./config");
-  const { loadPresets, getActivePresetId } = await import("./presets");
+  const { loadPresets, getActivePresetId, MINIMAL_DEFAULT } = await import("./presets");
   const port = await getPort();
   const presets = loadPresets();
   const activeId = getActivePresetId();
-  const active = presets.find((p) => p.id === activeId);
+  const active = presets.find((p) => p.id === activeId) ?? MINIMAL_DEFAULT;
   if (!active) {
     console.warn("Reconnect skipped: no active preset configured.");
     return;
