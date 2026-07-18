@@ -1,4 +1,5 @@
 import { LayoutList, LogOut, ScrollText, Settings, User } from "lucide-react";
+import { SimpleIcon } from "./SimpleIcon";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth-provider";
 import { cn } from "@/lib/utils";
@@ -99,6 +100,23 @@ export function Sidebar() {
             </button>
           );
         })}
+        <Separator className="mt-4 bg-border/40" />
+        <button
+          type="button"
+          onClick={() =>
+            window.electronAPI.shellOpenExternal(
+              "https://discord.gg/GSEuGqAGAf",
+            )
+          }
+          className={cn(
+            "group relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
+            "text-muted-foreground hover:bg-secondary/60 hover:text-foreground",
+          )}
+        >
+          <SimpleIcon slug="discord" className="size-4 shrink-0" />
+          <span>Join Discord</span>
+        </button>
       </nav>
 
       <Separator className="bg-border/40" />
