@@ -99,6 +99,10 @@ export function AudioPlayer() {
           if (ms.readyState === "open") {
             ms.endOfStream();
           }
+
+          window.dispatchEvent(
+            new CustomEvent("xiv:stream-event", { detail: "complete" }),
+          );
         } catch (err: unknown) {
           if (err instanceof Error && err.name !== "AbortError") {
             console.warn("stream error:", err);
@@ -124,6 +128,9 @@ export function AudioPlayer() {
       if (gainNodeRef.current) {
         gainNodeRef.current.gain.value = 1.0;
       }
+      window.dispatchEvent(
+        new CustomEvent("xiv:stream-event", { detail: "cancel" }),
+      );
     });
   }, []);
 

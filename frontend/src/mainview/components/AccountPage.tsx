@@ -1,12 +1,8 @@
 import { Clock, CreditCard, Crown } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-import {
-  type AccountStatus,
-  createCheckoutSession,
-  createPortalSession,
-  getAccountStatus,
-  getBalance,
-} from "../api";
+import { useState } from "react";
+import { createCheckoutSession, createPortalSession } from "../api";
+import { useAccountStatus } from "../queries/useAccountStatus";
+import { useBalance } from "../queries/useBalance";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import {
@@ -33,48 +29,9 @@ function formatDate(dateStr: string): string {
 }
 
 export function AccountPage() {
-  const [balance, setBalance] = useState<number>(0);
-  const [accountStatus, setAccountStatus] = useState<AccountStatus | null>(
-    null,
-  );
-  const [loading, setLoading] = useState(true);
+  const { data: balance, isLoading: balanceLoading } = useBalance();
+  const { data: accountStatus, isLoading: statusLoading } = useAccountStatus();
   const [purchasing, setPurchasing] = useState(false);
-
-  const fetchBalance = useCallback(async () => {
-    try {
-      const b = await getBalance();
-      setBalance(b);
-    } catch (err) {
-      console.error("Failed to fetch balance:", err);
-    }
-  }, []);
-
-  const fetchStatus = useCallback(async () => {
-    try {
-      const s = await getAccountStatus();
-      setAccountStatus(s);
-    } catch (err) {
-      console.error("Failed to fetch account status:", err);
-    }
-  }, []);
-
-  const refresh = useCallback(async () => {
-    await Promise.all([fetchBalance(), fetchStatus()]);
-  }, [fetchBalance, fetchStatus]);
-
-  useEffect(() => {
-    setLoading(true);
-    refresh().finally(() => setLoading(false));
-  }, [refresh]);
-
-  useEffect(() => {
-    const cleanup = window.electronAPI.onCheckoutComplete((data) => {
-      if (data.status === "success") {
-        refresh();
-      }
-    });
-    return cleanup;
-  }, [refresh]);
 
   const handlePurchaseCredits = async () => {
     setPurchasing(true);
@@ -108,6 +65,8 @@ export function AccountPage() {
       console.error("Failed to create portal session:", err);
     }
   };
+
+  const loading = balanceLoading || statusLoading;
 
   const accountTypeBadge = {
     free: <Badge variant="secondary">Free</Badge>,
@@ -153,7 +112,7 @@ export function AccountPage() {
                 Credit Balance
               </p>
               <p className="font-display text-3xl font-bold text-foreground">
-                {loading ? "..." : formatDollars(balance)}
+                {loading ? "..." : formatDollars(balance ?? 0)}
               </p>
             </div>
           </div>
