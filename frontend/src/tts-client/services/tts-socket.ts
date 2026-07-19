@@ -74,6 +74,7 @@ export class TtsSocket extends SocketManager {
         race: message.Race?.toLocaleLowerCase(),
         voiceOverrides: this.preset.voiceOverrides,
         speakingRate: this.preset.speakingRate,
+        volume: message.Volume ?? 1,
       });
     } catch (error) {
       console.error("Error during TTS processing:", error);

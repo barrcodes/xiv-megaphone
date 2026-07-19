@@ -22,7 +22,14 @@ export async function authFetch(
   });
 }
 
-export const createStream = async (request: CreateStreamRequest) => {
+interface CreateStreamResponse {
+  streamId: string;
+  gain: number;
+}
+
+export const createStream = async (
+  request: CreateStreamRequest,
+): Promise<CreateStreamResponse> => {
   console.log(
     "Creating stream with request:",
     request,
@@ -39,8 +46,7 @@ export const createStream = async (request: CreateStreamRequest) => {
     throw new Error(`Failed to create stream: ${res.status}`);
   }
 
-  const { streamId }: { streamId: string } = await res.json();
-  return streamId;
+  return await res.json();
 };
 
 export async function streamAudio(

@@ -6,6 +6,29 @@ export function AudioPlayer() {
   const abortRef = useRef<AbortController | null>(null);
   const urlRef = useRef<string | null>(null);
   const genRef = useRef(0);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const gainNodeRef = useRef<GainNode | null>(null);
+
+  const getAudioGraph = () => {
+    if (audioCtxRef.current && gainNodeRef.current) {
+      return { audioCtx: audioCtxRef.current, gainNode: gainNodeRef.current };
+    }
+
+    const audioCtx = new AudioContext();
+    const gainNode = audioCtx.createGain();
+    gainNode.gain.value = 1.0;
+
+    const el = audioRef.current;
+    if (el) {
+      const source = audioCtx.createMediaElementSource(el);
+      source.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+    }
+
+    audioCtxRef.current = audioCtx;
+    gainNodeRef.current = gainNode;
+    return { audioCtx, gainNode };
+  };
 
   useEffect(() => {
     const cleanup = () => {
@@ -21,13 +44,16 @@ export function AudioPlayer() {
 
     window.electronAPI.createStream(async (request) => {
       console.log("Creating stream with request:", request);
-      const streamId = await createStream(request);
+      const { streamId, gain } = await createStream(request);
 
       const gen = ++genRef.current;
       cleanup();
 
       const el = audioRef.current;
       if (!el) return;
+
+      const { gainNode } = getAudioGraph();
+      gainNode.gain.value = gain;
 
       const ms = new MediaSource();
       const url = URL.createObjectURL(ms);
@@ -95,6 +121,9 @@ export function AudioPlayer() {
       el.pause();
       el.removeAttribute("src");
       el.load();
+      if (gainNodeRef.current) {
+        gainNodeRef.current.gain.value = 1.0;
+      }
     });
   }, []);
 
