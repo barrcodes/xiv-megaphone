@@ -45,11 +45,7 @@ export function PresetEditPage() {
         </Button>
         <div>
           <h2 className="font-display text-xl font-bold text-foreground">
-            {preset.name
-              ? preset.isDefault
-                ? "View Preset"
-                : "Edit Preset"
-              : "New Preset"}
+            {preset.id === "default" ? "View Preset" : preset.name ? "Edit Preset" : "New Preset"}
           </h2>
           {preset.name && (
             <p className="text-xs text-muted-foreground mt-0.5">
@@ -62,6 +58,7 @@ export function PresetEditPage() {
         preset={preset}
         onSave={handleSave}
         onCancel={() => navigate("/")}
+        readOnly={preset.id === "default"}
       />
     </div>
   );

@@ -1,7 +1,6 @@
-import { supabase } from "./lib/supabase";
-import { CreateStreamRequest } from "../shared/models";
 import { env } from "../shared/env";
-import type { Preset } from "../shared/types";
+import type { CreateStreamRequest } from "../shared/models";
+import { supabase } from "./lib/supabase";
 
 export async function authFetch(
   input: RequestInfo | URL,
@@ -170,10 +169,4 @@ export async function acceptPolicies(
     const { error } = await res.json();
     throw new Error(error ?? "Failed to accept policies");
   }
-}
-
-export async function getDefaultPreset(): Promise<Preset> {
-  const res = await authFetch(`${env.VITE_BACKEND_URL}/presets/default`);
-  if (!res.ok) throw new Error(`Failed to fetch default preset: ${res.status}`);
-  return res.json();
 }

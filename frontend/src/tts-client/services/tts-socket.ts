@@ -2,19 +2,19 @@ import WebSocket from "ws";
 import type { WebContents } from "electron";
 import { SocketManager } from "./socket";
 import type { IpcMessage } from "../models/IpcMessage";
-import type { BasePreset } from "../presets/base";
+import type { Preset } from "../../shared/types";
 import { SpeakerRendererPlayer } from "./speaker-renderer";
 
 export interface TtsSocketOptions {
   port: number;
-  preset: BasePreset;
+  preset: Preset;
   webContents: WebContents;
   onConnected?: () => void;
   onDisconnected?: () => void;
 }
 
 export class TtsSocket extends SocketManager {
-  private preset: BasePreset;
+  private preset: Preset;
   private player: SpeakerRendererPlayer;
 
   constructor(options: TtsSocketOptions) {
@@ -26,7 +26,7 @@ export class TtsSocket extends SocketManager {
     this.onClose = options.onDisconnected ?? null;
   }
 
-  updatePreset(preset: BasePreset): void {
+  updatePreset(preset: Preset): void {
     this.preset = preset;
   }
 
@@ -56,22 +56,23 @@ export class TtsSocket extends SocketManager {
     }
 
     console.log(
-      `Received message: ${message.Speaker} (${message.Voice?.Name} ${message.Race}) says "${message.Payload}"`,
+      `Received message: ${message.Speaker} (${message.Voice?.Name} ${message.Race}) says "${message.Payload}" @ volume = ${message.Volume}.`,
     );
 
-    const text = message.Payload;
-    const voice = this.preset.getVoice(
-      message.Speaker?.toLowerCase(),
-      message.Voice?.Name.toLocaleLowerCase(),
-      message.Race?.toLocaleLowerCase(),
-    );
-
-    const lexiconText = this.preset.applyLexicon(text);
+    let text = message.Payload;
+    if (this.preset.lexicon) {
+      for (const [word, replacement] of Object.entries(this.preset.lexicon)) {
+        text = text.replaceAll(word, replacement);
+      }
+    }
 
     try {
       await this.player.createStream({
-        text: lexiconText,
-        voice,
+        text,
+        speaker: message.Speaker?.toLowerCase(),
+        gender: message.Voice?.Name?.toLocaleLowerCase(),
+        race: message.Race?.toLocaleLowerCase(),
+        voiceOverrides: this.preset.voiceOverrides,
         speakingRate: this.preset.speakingRate,
       });
     } catch (error) {

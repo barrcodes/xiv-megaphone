@@ -18,4 +18,5 @@ export interface IpcMessage {
   Source: TextSource;
   ChatType: number | null;
   Language: string | null;
+  Volume: number;
 }

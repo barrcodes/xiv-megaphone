@@ -1,6 +1,8 @@
 export interface CreateStreamRequest {
   text: string;
-  voice: string;
-  model?: string;
+  speaker?: string;
+  gender?: string;
+  race?: string;
+  voiceOverrides?: Record<string, string>;
   speakingRate?: number;
 }

@@ -13,15 +13,11 @@ import type { Preset } from "../shared/types";
 const presetsDir = join(app.getPath("userData"), "presets");
 const activeFile = join(app.getPath("userData"), "active.json");
 
-export const MINIMAL_DEFAULT: Preset = {
+export const DEFAULT_PRESET: Preset = {
   id: "default",
   name: "Default",
-  isDefault: true,
-  male: "Graham",
-  female: "Wendy",
-  default: "Luna",
   speakingRate: 1.25,
-  namedVoices: {},
+  voiceOverrides: {},
 };
 
 export function bootstrap() {
@@ -37,10 +33,14 @@ export function bootstrap() {
 
 export function loadPresets(): Preset[] {
   const files = readdirSync(presetsDir).filter((f) => f.endsWith(".json"));
-  const presets = files.map(
+  const filePresets = files.map(
     (f) => JSON.parse(readFileSync(join(presetsDir, f), "utf-8")) as Preset,
   );
-  return presets;
+  const hasDefault = filePresets.some((p) => p.id === "default");
+  if (!hasDefault) {
+    return [DEFAULT_PRESET, ...filePresets];
+  }
+  return filePresets;
 }
 
 export function savePreset(preset: Preset): void {
@@ -55,7 +55,7 @@ export function deletePreset(id: string): void {
   if (!existsSync(path)) return;
 
   const preset = JSON.parse(readFileSync(path, "utf-8")) as Preset;
-  if (preset.isDefault) return;
+  if (preset.id === "default") return;
 
   unlinkSync(path);
 }

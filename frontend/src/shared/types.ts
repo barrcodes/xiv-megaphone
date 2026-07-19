@@ -6,19 +6,10 @@ export interface LogLine {
 
 export type ConnectionStatus = "disconnected" | "connecting" | "connected";
 
-export interface NamedVoice {
-	name: string;
-	voice: string;
-}
-
 export interface Preset {
-	id: string;
-	name: string;
-	male: string;
-	female: string;
-	default: string;
-	namedVoices: Record<string, string>;
-	speakingRate: number;
-	isDefault?: boolean;
-	lexicon?: Record<string, string>;
+  id: string;
+  name: string;
+  speakingRate: number;
+  lexicon?: Record<string, string>;
+  voiceOverrides: Record<string, string>;
 }

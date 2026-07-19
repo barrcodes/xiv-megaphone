@@ -1,7 +1,6 @@
 import { TtsSocket } from "../tts-client/index";
 import type { WebContents } from "electron";
 import type { ConnectionStatus, Preset } from "../shared/types";
-import { ConfigurablePreset } from "../tts-client/presets/configurable";
 
 type ConnectionChangeHandler = (status: ConnectionStatus) => void;
 
@@ -21,20 +20,16 @@ export class TtsManager {
     this.webContents = wc;
   }
 
-  connect(opts: {
-    port: number;
-    preset: Preset;
-  }) {
+  connect(opts: { port: number; preset: Preset }) {
     if (this.status === "connected" || this.status === "connecting") return;
     this.status = "connecting";
     this.onChange(this.status);
 
     this.currentPreset = opts.preset;
     this.currentPort = opts.port;
-    const basePreset = new ConfigurablePreset(opts.preset);
     this.socket = new TtsSocket({
       port: opts.port,
-      preset: basePreset,
+      preset: opts.preset,
       webContents: this.webContents!,
       onConnected: () => {
         this.status = "connected";
@@ -64,7 +59,6 @@ export class TtsManager {
   updatePreset(preset: Preset) {
     if (!this.socket) return;
     this.currentPreset = preset;
-    const basePreset = new ConfigurablePreset(preset);
-    this.socket.updatePreset(basePreset);
+    this.socket.updatePreset(preset);
   }
 }
