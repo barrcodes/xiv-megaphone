@@ -4,6 +4,7 @@ import { createCheckoutSession, createPortalSession } from "../api";
 import { useAccountStatus } from "../queries/useAccountStatus";
 import { useBalance } from "../queries/useBalance";
 import { Badge } from "./ui/badge";
+import { DISCORD_INVITE_URL } from "../lib/links";
 import { Button } from "./ui/button";
 import {
   Card,
@@ -118,6 +119,36 @@ export function AccountPage() {
           </div>
         </CardContent>
       </Card>
+
+      {accountStatus?.accountType === "free" && (
+        <Card className="animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="flex size-12 items-center justify-center rounded-xl bg-muted">
+                <Crown className="size-6 text-muted-foreground" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-foreground">
+                  Want to try before subscribing?
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Join our{" "}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      window.electronAPI.shellOpenExternal(DISCORD_INVITE_URL)
+                    }
+                    className="underline underline-offset-2 hover:text-foreground transition-colors"
+                  >
+                    Discord
+                  </button>{" "}
+                  and ask for a limited trial.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Card className="animate-fade-in-up" style={{ animationDelay: "0.1s" }}>

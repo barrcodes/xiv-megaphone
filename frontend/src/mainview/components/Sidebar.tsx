@@ -1,5 +1,6 @@
 import { LayoutList, LogOut, ScrollText, Settings, User } from "lucide-react";
 import { SimpleIcon } from "./SimpleIcon";
+import { DISCORD_INVITE_URL } from "../lib/links";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth-provider";
 import { cn } from "@/lib/utils";
@@ -105,7 +106,7 @@ export function Sidebar() {
           type="button"
           onClick={() =>
             window.electronAPI.shellOpenExternal(
-              "https://discord.gg/GSEuGqAGAf",
+              DISCORD_INVITE_URL,
             )
           }
           className={cn(
