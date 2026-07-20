@@ -3,7 +3,7 @@ import type { WebContents } from "electron";
 import { SocketManager } from "./socket";
 import type { IpcMessage } from "../models/IpcMessage";
 import type { Preset } from "../../shared/types";
-import { SpeakerRendererPlayer } from "./speaker-renderer";
+import { WebAudioPlayer } from "./web-audio";
 
 export interface TtsSocketOptions {
   port: number;
@@ -15,12 +15,12 @@ export interface TtsSocketOptions {
 
 export class TtsSocket extends SocketManager {
   private preset: Preset;
-  private player: SpeakerRendererPlayer;
+  private player: WebAudioPlayer;
 
   constructor(options: TtsSocketOptions) {
     super(`ws://localhost:${options.port}/Messages`);
     this.preset = options.preset;
-    this.player = new SpeakerRendererPlayer(options.webContents);
+    this.player = new WebAudioPlayer(options.webContents);
 
     this.onOpen = options.onConnected ?? null;
     this.onClose = options.onDisconnected ?? null;

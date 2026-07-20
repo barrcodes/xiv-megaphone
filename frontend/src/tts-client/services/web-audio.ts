@@ -1,13 +1,11 @@
 import type { WebContents } from "electron";
-import { AudioPlayer } from "./audio-player";
 import type { CreateStreamRequest } from "../../shared/models";
 
-export class SpeakerRendererPlayer extends AudioPlayer {
+export class WebAudioPlayer {
   supportsStreaming = true;
   private webContents: WebContents;
 
   constructor(webContents: WebContents) {
-    super();
     this.webContents = webContents;
   }
 
