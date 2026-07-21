@@ -21,16 +21,16 @@ Three providers are configured:
 | Discord | Discord OAuth app |
 | Twitch | Twitch OAuth app |
 
-Social auth uses the custom protocol `xiv-megaphone://`:
-- `xiv-megaphone://auth/callback?code=...` — OAuth code exchange
-- `xiv-megaphone://auth/callback#access_token=...&refresh_token=...` — OAuth implicit flow
+Social auth uses a callback wrapper from the megaphone.barr.codes web app `https://megaphone.barr.codes/callback`:
+- `https://megaphone.barr.codes/callback/auth/redirect?code=...` — OAuth code exchange
+- `https://megaphone.barr.codes/callback/auth/redirect#access_token=...&refresh_token=...` — OAuth implicit flow
 
-The Electron main process registers as the default handler for this protocol and forwards callbacks to the renderer via IPC (`authCallback`).
+This gets forwarded to the deep link handler.
 
 ## Deep Link Protocol
 
 The app registers `xiv-megaphone://` as a custom protocol handler during installation. Handles:
-- `auth/callback` — OAuth flow completion
+- `auth/redirect` — OAuth flow completion
 - `checkout/success` — payment provider checkout success
 - `checkout/cancel` — payment provider checkout cancellation
 

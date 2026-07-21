@@ -46,7 +46,7 @@ function handleDeepLink(url: string) {
 
   const parsed = new URL(url);
 
-  if (parsed.hostname === "auth" && parsed.pathname === "/callback") {
+  if (parsed.hostname === "auth" && parsed.pathname === "/redirect") {
     const code = parsed.searchParams.get("code");
 
     if (code) {
@@ -71,8 +71,9 @@ function handleDeepLink(url: string) {
   } else if (parsed.hostname === "checkout") {
     const status = parsed.pathname === "/success" ? "success" : "cancel";
     mainWindow.webContents.send("checkoutComplete", { status });
-    mainWindow.focus();
   }
+
+  mainWindow.focus();
 }
 
 app.on("open-url", (event, url) => {
