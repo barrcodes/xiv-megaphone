@@ -199,9 +199,9 @@ async function reconnect() {
   const port = await getPort();
   const presets = loadPresets();
   const activeId = getActivePresetId();
-  const active = presets.find((p) => p.id === activeId);
+  const active = presets.find((p) => p.id === activeId) ?? presets.find((p) => p.id === "default");
   if (!active) {
-    console.warn("Reconnect skipped: active preset not found.");
+    console.warn("Reconnect skipped: no presets available.");
     return;
   }
   ttsManager?.connect({ port, preset: active });

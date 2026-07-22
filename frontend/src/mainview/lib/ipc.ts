@@ -33,6 +33,8 @@ export const setUseLocalBackend = (en: boolean): Promise<void> =>
 
 api.onPresetsChanged(async (localPresets) => {
   useStore.getState().setPresets(localPresets);
+  const activePresetId = await getActivePreset();
+  useStore.getState().setActivePresetId(activePresetId);
 });
 api.onConnectionChanged((status) =>
   useStore.getState().setConnectionStatus(status),

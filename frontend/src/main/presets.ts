@@ -58,6 +58,10 @@ export function deletePreset(id: string): void {
   if (preset.id === "default") return;
 
   unlinkSync(path);
+
+  if (getActivePresetId() === id) {
+    setActivePresetId("default");
+  }
 }
 
 export function getActivePresetId(): string {

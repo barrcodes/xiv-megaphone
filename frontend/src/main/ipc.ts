@@ -33,6 +33,12 @@ export function registerIpcHandlers(
 	});
 	ipcMain.handle("deletePreset", (_, id) => {
 		deletePreset(id);
+		const presets = loadPresets();
+		const activeId = getActivePresetId();
+		const active = presets.find((p) => p.id === activeId);
+		if (active) {
+			ttsManager.updatePreset(active);
+		}
 		const win = getWindow();
 		if (win && !win.isDestroyed()) {
 			win.webContents.send("onPresetsChanged", loadPresets());
@@ -50,7 +56,15 @@ export function registerIpcHandlers(
 			win.webContents.send("onPresetsChanged", loadPresets());
 		}
 	});
-	ipcMain.handle("getActivePreset", () => getActivePresetId());
+	ipcMain.handle("getActivePreset", () => {
+		const id = getActivePresetId();
+		const presets = loadPresets();
+		if (!presets.some((p) => p.id === id)) {
+			setActivePresetId("default");
+			return "default";
+		}
+		return id;
+	});
 	ipcMain.handle("getConnectionState", () => ({
 		status: ttsManager.getStatus(),
 	}));
