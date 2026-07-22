@@ -8,6 +8,12 @@
   [![Join our Discord](https://img.shields.io/badge/JOIN%20DISCORD-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/GSEuGqAGAf) [![Latest Release](https://img.shields.io/github/v/release/barrcodes/xiv-megaphone?style=for-the-badge&logo=github&label=Latest%20Release)](https://github.com/barrcodes/xiv-megaphone/releases/latest)
 </div>
 
+## Trial Credits
+
+This app is brand new, built solely by me, and completely bootstrapped with very minimal budget - hence there is no easy free trial sign-up. But if you want to help me beta test the app, I can spare a couple bucks in credit in return for feedback and testing!
+
+[![trial](screenshots/trial.png)](https://discord.com/invite/GSEuGqAGAf)
+
 ## Prerequisites
 
 - **Final Fantasy XIV**
@@ -25,40 +31,27 @@
 
 ### Dalamud Setup
 
-Install the **TextToTalk** via the Dalamud plugin manager in-game. In the plug-in settings, the following are recommended:
+Install **TextToTalk** via the Dalamud plugin manager in-game. Starting with TextToTalk 1.39.2, Megaphone support is built in.
 
-#### Websocket Settings
+In the plugin settings, select **"megaphone"** from the provider dropdown in the Voices section — no other settings need to change out of the box.
 
-Set the server to websocket with port 57575, and restart the server.
-
-![ttt-voices](screenshots/ttt-voices.png)
-
-#### General Settings
-
-The following are my recommended defaults.
-
-![ttt-general](screenshots/ttt-general.png)
-
-#### Channel Settings
-
-I recommend **only** selecting Npc voices in the channel settings.
-
-![ttt-channel](screenshots/ttt-channel.png)
-
+![text-to-talk](screenshots/ttt-megaphone.png)
 
 ### Presets
 
-A default preset ships with the app and is selected automatically. It provides voices for all race/gender combinations as well as beast tribes out of the box. More voices and features to come.
+A default preset ships with the app and is selected automatically. It provides custom voices for all race/gender combinations as well as beast tribes and a few notable named NPCs out of the box. More voices and features to come!
 
-## Voice selection
+### Custom Voice Assignments & Lexicon
 
-Voices are selected per-NPC using a priority chain:
+![preset-list](screenshots/megaphone-preset-list.png)
 
-1. Named speaker match (by speaker name, lowercased)
-2. Beast tribe NPC lookup (matches speaker to tribe, then resolves tribe voice)
-3. Race + gender match (e.g. `"au ra female"`)
-4. Gender-only fallback (`male` / `female`)
-5. Default voice
+You can create a preset to add your own custom voices overrides! Make one character sound like another. Here I've set Alphinaud to sound like a Lalafell.
+
+![voice-override](screenshots/megaphone-voice-override.png)
+
+You can also add your own lexicon to make things sound the way you want them to! Get opinionated! My personal favorite is to change my character's name to something fun.
+
+![lexicon](screenshots/megaphone-lexicon.png)
 
 ## Notes
 
