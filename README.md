@@ -14,6 +14,10 @@ This app is brand new, built solely by me, and completely bootstrapped with very
 
 [![trial](screenshots/trial.png)](https://discord.com/invite/GSEuGqAGAf)
 
+### Watch the teaser
+
+[<img src="./screenshots/megaphone-teaser.png" width="360" />](https://www.youtube.com/watch?v=SIuOKiCDvGE)
+
 ## Prerequisites
 
 - **Final Fantasy XIV**
