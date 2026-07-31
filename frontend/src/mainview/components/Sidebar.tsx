@@ -1,14 +1,14 @@
 import { LayoutList, LogOut, ScrollText, Settings, User } from "lucide-react";
-import { SimpleIcon } from "./SimpleIcon";
-import { DISCORD_INVITE_URL } from "../lib/links";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth-provider";
 import { cn } from "@/lib/utils";
+import myIconUrl from "../../../art-assets/icon-wake-256.png";
 import { env } from "../../shared/env";
+import { DISCORD_INVITE_URL } from "../lib/links";
 import { useStore } from "../store";
+import { SimpleIcon } from "./SimpleIcon";
 import { Separator } from "./ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import myIconUrl from "../../../art-assets/icon-wake-256.png";
 
 const navItems = [
   { path: "/", label: "Presets", icon: LayoutList },
@@ -42,7 +42,7 @@ export function Sidebar() {
     <aside className="flex h-full w-52 shrink-0 flex-col border-r border-border/40 bg-sidebar">
       <div className="flex items-center gap-2.5 px-5 py-5">
         <div className="flex size-12 items-center justify-center rounded-lg bg-primary/10">
-          <img src={myIconUrl} className="size-10" />
+          <img src={myIconUrl} className="size-10" alt="" />
         </div>
         <div className="flex flex-col">
           <span className="font-display text-base font-bold leading-tight tracking-wide text-foreground">
@@ -63,9 +63,7 @@ export function Sidebar() {
               statusConfig.pulse && "animate-pulse-glow",
             )}
           />
-          <span className="text-xs font-medium text-muted-foreground">
-            {statusConfig.label}
-          </span>
+          <span className="text-xs font-medium text-muted-foreground">{statusConfig.label}</span>
         </div>
       </div>
 
@@ -76,9 +74,7 @@ export function Sidebar() {
           if (item.debugOnly && !env.VITE_DEBUG) return null;
 
           const isActive =
-            item.path === "/"
-              ? location.pathname === "/"
-              : location.pathname.startsWith(item.path);
+            item.path === "/" ? location.pathname === "/" : location.pathname.startsWith(item.path);
 
           return (
             <button
@@ -104,11 +100,7 @@ export function Sidebar() {
         <Separator className="mt-4 bg-border/40" />
         <button
           type="button"
-          onClick={() =>
-            window.electronAPI.shellOpenExternal(
-              DISCORD_INVITE_URL,
-            )
-          }
+          onClick={() => window.electronAPI.shellOpenExternal(DISCORD_INVITE_URL)}
           className={cn(
             "group relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
@@ -127,9 +119,7 @@ export function Sidebar() {
           {user?.email?.[0]?.toUpperCase() ?? "?"}
         </div>
         <div className="flex-1 overflow-hidden">
-          <p className="truncate text-xs font-medium text-foreground">
-            {user?.email ?? "Unknown"}
-          </p>
+          <p className="truncate text-xs font-medium text-foreground">{user?.email ?? "Unknown"}</p>
         </div>
         <Tooltip>
           <TooltipTrigger asChild>

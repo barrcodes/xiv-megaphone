@@ -1,11 +1,10 @@
+import { SpanKind, SpanStatusCode } from "@opentelemetry/api";
 import { env } from "../shared/env";
 import type { CreateStreamRequest } from "../shared/models";
 import { supabase } from "./lib/supabase";
+import { context, propagation, tracer } from "./telemetry";
 
-export async function authFetch(
-  input: RequestInfo | URL,
-  init: RequestInit = {},
-) {
+export async function authFetch(input: RequestInfo | URL, init: RequestInit = {}) {
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -14,6 +13,12 @@ export async function authFetch(
 
   if (session?.access_token) {
     headers.set("Authorization", `Bearer ${session.access_token}`);
+  }
+
+  const carrier: Record<string, string> = {};
+  propagation.inject(context.active(), carrier);
+  for (const [key, value] of Object.entries(carrier)) {
+    headers.set(key, value);
   }
 
   return fetch(input, {
@@ -27,54 +32,90 @@ interface CreateStreamResponse {
   gain: number;
 }
 
-export const createStream = async (
-  request: CreateStreamRequest,
-): Promise<CreateStreamResponse> => {
-  console.log(
-    "Creating stream with request:",
-    request,
-    "Base URL:",
-    env.VITE_BACKEND_URL,
-  );
-  const res = await authFetch(`${env.VITE_BACKEND_URL}/tts/stream`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(request),
+export const createStream = async (request: CreateStreamRequest): Promise<CreateStreamResponse> => {
+  return tracer.startActiveSpan("POST /tts/stream", { kind: SpanKind.CLIENT }, async (span) => {
+    span.setAttributes({
+      "tts.provider": "inworld",
+      "http.request.method": "POST",
+      "http.route": "/tts/stream",
+      "url.scheme": new URL(env.VITE_BACKEND_URL).protocol.replace(":", ""),
+      "server.address": new URL(env.VITE_BACKEND_URL).hostname,
+    });
+    try {
+      const res = await authFetch(`${env.VITE_BACKEND_URL}/tts/stream`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(request),
+      });
+
+      span.setAttribute("http.response.status_code", res.status);
+
+      if (!res.ok) {
+        span.setStatus({ code: SpanStatusCode.ERROR });
+        span.setAttribute("tts.outcome", "rejected");
+        throw new Error(`Failed to create stream: ${res.status}`);
+      }
+
+      span.setStatus({ code: SpanStatusCode.OK });
+      span.setAttribute("tts.outcome", "created");
+
+      return await res.json();
+    } catch (err) {
+      if (err instanceof Error) {
+        span.recordException(err);
+        span.setStatus({ code: SpanStatusCode.ERROR, message: err.message });
+      }
+      throw err;
+    } finally {
+      span.end();
+    }
   });
-
-  if (!res.ok) {
-    throw new Error(`Failed to create stream: ${res.status}`);
-  }
-
-  return await res.json();
 };
 
-export async function streamAudio(
-  streamId: string,
-  abortController: AbortController,
-) {
-  console.log(
-    "Starting audio stream with ID:",
-    streamId,
-    "Base URL:",
-    env.VITE_BACKEND_URL,
-  );
-  const res = await authFetch(
-    `${env.VITE_BACKEND_URL}/tts/stream/${streamId}`,
-    {
-      signal: abortController.signal,
+export async function streamAudio(streamId: string, abortController: AbortController) {
+  return tracer.startActiveSpan(
+    "GET /tts/stream/:streamId",
+    { kind: SpanKind.CLIENT },
+    async (span) => {
+      span.setAttributes({
+        "http.request.method": "GET",
+        "http.route": "/tts/stream/:streamId",
+        "url.scheme": new URL(env.VITE_BACKEND_URL).protocol.replace(":", ""),
+        "server.address": new URL(env.VITE_BACKEND_URL).hostname,
+        "tts.stream_id": streamId,
+      });
+      try {
+        const res = await authFetch(`${env.VITE_BACKEND_URL}/tts/stream/${streamId}`, {
+          signal: abortController.signal,
+        });
+
+        span.setAttribute("http.response.status_code", res.status);
+
+        if (!res.ok) {
+          span.setStatus({ code: SpanStatusCode.ERROR });
+          throw new Error(`Failed to fetch audio stream: ${res.status}`);
+        }
+
+        if (!res.body) {
+          span.setStatus({ code: SpanStatusCode.ERROR });
+          throw new Error("Failed to fetch audio stream: Response body is null");
+        }
+
+        span.setStatus({ code: SpanStatusCode.OK });
+        span.setAttribute("tts.outcome", "streaming");
+
+        return res.body.getReader();
+      } catch (err) {
+        if (err instanceof Error) {
+          span.recordException(err);
+          span.setStatus({ code: SpanStatusCode.ERROR, message: err.message });
+        }
+        throw err;
+      } finally {
+        span.end();
+      }
     },
   );
-
-  if (!res.ok) {
-    throw new Error(`Failed to fetch audio stream: ${res.status}`);
-  }
-
-  if (!res.body) {
-    throw new Error("Failed to fetch audio stream: Response body is null");
-  }
-
-  return res.body.getReader();
 }
 
 export async function getBalance(): Promise<number> {
@@ -93,10 +134,7 @@ export interface UsageEntry {
   created_at: string;
 }
 
-export async function getUsageLog(
-  limit = 20,
-  offset = 0,
-): Promise<{ entries: UsageEntry[] }> {
+export async function getUsageLog(limit = 20, offset = 0): Promise<{ entries: UsageEntry[] }> {
   const res = await authFetch(
     `${env.VITE_BACKEND_URL}/credits/usage?limit=${limit}&offset=${offset}`,
   );
@@ -116,17 +154,11 @@ export async function getAccountStatus(): Promise<AccountStatus> {
   return res.json();
 }
 
-export async function createCheckoutSession(
-  mode: "payment" | "subscription",
-): Promise<string> {
-  const res = await authFetch(
-    `${env.VITE_BACKEND_URL}/shop/checkout?mode=${mode}`,
-    {
-      method: "POST",
-    },
-  );
-  if (!res.ok)
-    throw new Error(`Failed to create checkout session: ${res.status}`);
+export async function createCheckoutSession(mode: "payment" | "subscription"): Promise<string> {
+  const res = await authFetch(`${env.VITE_BACKEND_URL}/shop/checkout?mode=${mode}`, {
+    method: "POST",
+  });
+  if (!res.ok) throw new Error(`Failed to create checkout session: ${res.status}`);
   const { url } = await res.json();
   return url;
 }
@@ -135,8 +167,7 @@ export async function createPortalSession(): Promise<string> {
   const res = await authFetch(`${env.VITE_BACKEND_URL}/shop/portal`, {
     method: "POST",
   });
-  if (!res.ok)
-    throw new Error(`Failed to create portal session: ${res.status}`);
+  if (!res.ok) throw new Error(`Failed to create portal session: ${res.status}`);
   const { url } = await res.json();
   return url;
 }
@@ -147,9 +178,7 @@ export interface PolicyData {
   versionId: string;
 }
 
-export async function getPolicy(
-  policyId: "tos" | "privacy-policy",
-): Promise<PolicyData> {
+export async function getPolicy(policyId: "tos" | "privacy-policy"): Promise<PolicyData> {
   const res = await fetch(`${env.VITE_BACKEND_URL}/policies/${policyId}`);
   if (!res.ok) throw new Error(`Failed to fetch policy: ${res.status}`);
   return res.json();

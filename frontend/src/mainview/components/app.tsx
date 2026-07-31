@@ -10,10 +10,11 @@ import {
 } from "@/lib/ipc";
 import { queryClient } from "@/lib/query-client";
 import { AudioPlayer } from "../audio/audio-player";
+import { useRefreshBalanceOnStream } from "../queries/useRefreshBalanceOnStream";
 import { useStore } from "../store";
+import { initTelemetry } from "../telemetry";
 import { Sidebar } from "./Sidebar";
 import { TooltipProvider } from "./ui/tooltip";
-import { useRefreshBalanceOnStream } from "../queries/useRefreshBalanceOnStream";
 
 export const App: React.FC = () => {
   const { setPresets, setActivePresetId, setConnectionStatus, setPort, setStartOnStartup } =
@@ -22,6 +23,7 @@ export const App: React.FC = () => {
   useRefreshBalanceOnStream();
 
   useEffect(() => {
+    initTelemetry();
     Promise.all([
       getPresets(),
       getActivePreset(),
@@ -37,17 +39,17 @@ export const App: React.FC = () => {
     });
   }, [setPresets, setActivePresetId, setConnectionStatus, setPort, setStartOnStartup]);
 
-	return (
-		<TooltipProvider>
-			<QueryClientProvider client={queryClient}>
-				<div className="flex h-full overflow-hidden mesh-bg text-foreground">
-					<AudioPlayer />
-					<Sidebar />
-					<div className="flex-1 overflow-y-auto">
-						<Outlet />
-					</div>
-				</div>
-			</QueryClientProvider>
-		</TooltipProvider>
-	);
+  return (
+    <TooltipProvider>
+      <QueryClientProvider client={queryClient}>
+        <div className="flex h-full overflow-hidden mesh-bg text-foreground">
+          <AudioPlayer />
+          <Sidebar />
+          <div className="flex-1 overflow-y-auto">
+            <Outlet />
+          </div>
+        </div>
+      </QueryClientProvider>
+    </TooltipProvider>
+  );
 };

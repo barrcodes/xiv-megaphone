@@ -47,11 +47,7 @@ export function PresetEditPage() {
           <h2 className="font-display text-xl font-bold text-foreground">
             {preset.id === "default" ? "View Preset" : preset.name ? "Edit Preset" : "New Preset"}
           </h2>
-          {preset.name && (
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {preset.name}
-            </p>
-          )}
+          {preset.name && <p className="text-xs text-muted-foreground mt-0.5">{preset.name}</p>}
         </div>
       </div>
       <PresetForm

@@ -1,1 +1,1 @@
-export { TtsSocket as TtsSocket, type TtsSocketOptions } from "./services/tts-socket";
+export { TtsSocket, type TtsSocketOptions } from "./services/tts-socket";

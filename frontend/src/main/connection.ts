@@ -5,7 +5,6 @@ type ConnectionChangeHandler = (status: ConnectionStatus) => void;
 
 export class ConnectionManager {
   private status: ConnectionStatus = "disconnected";
-  private presetId = "";
   private port = DEFAULT_PORT;
   private onChange: ConnectionChangeHandler;
 

@@ -24,10 +24,7 @@ export function bootstrap() {
   mkdirSync(presetsDir, { recursive: true });
 
   if (!existsSync(activeFile)) {
-    writeFileSync(
-      activeFile,
-      JSON.stringify({ activePresetId: "default" }, null, 2),
-    );
+    writeFileSync(activeFile, JSON.stringify({ activePresetId: "default" }, null, 2));
   }
 }
 
@@ -44,10 +41,7 @@ export function loadPresets(): Preset[] {
 }
 
 export function savePreset(preset: Preset): void {
-  writeFileSync(
-    join(presetsDir, `${preset.id}.json`),
-    JSON.stringify(preset, null, 2),
-  );
+  writeFileSync(join(presetsDir, `${preset.id}.json`), JSON.stringify(preset, null, 2));
 }
 
 export function deletePreset(id: string): void {

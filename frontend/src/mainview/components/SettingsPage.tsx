@@ -57,9 +57,7 @@ export function SettingsPage() {
   return (
     <div className="p-6 max-w-2xl mx-auto space-y-6 animate-fade-in-up">
       <div>
-        <h1 className="font-display text-2xl font-bold text-foreground">
-          Settings
-        </h1>
+        <h1 className="font-display text-2xl font-bold text-foreground">Settings</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Configure application behavior and connection options.
         </p>
@@ -75,10 +73,7 @@ export function SettingsPage() {
         <CardContent className="space-y-5">
           <div className="flex items-center justify-between">
             <div>
-              <Label
-                htmlFor="startup-toggle"
-                className="text-sm font-medium cursor-pointer"
-              >
+              <Label htmlFor="startup-toggle" className="text-sm font-medium cursor-pointer">
                 Launch on startup
               </Label>
               <p className="text-xs text-muted-foreground mt-0.5">
@@ -138,9 +133,7 @@ export function SettingsPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium">
-                {connectionStatus === "connected"
-                  ? "Force Disconnect"
-                  : "Reconnect"}
+                {connectionStatus === "connected" ? "Force Disconnect" : "Reconnect"}
               </p>
               <p className="text-xs text-muted-foreground mt-0.5">
                 {connectionStatus === "connected"
@@ -152,11 +145,7 @@ export function SettingsPage() {
               variant="outline"
               size="sm"
               disabled={connectionStatus === "connecting"}
-              onClick={
-                connectionStatus === "connected"
-                  ? handleDisconnect
-                  : handleReconnect
-              }
+              onClick={connectionStatus === "connected" ? handleDisconnect : handleReconnect}
               className="gap-1.5"
             >
               {connectionStatus === "connected" ? (
@@ -188,12 +177,7 @@ export function SettingsPage() {
                 Log out of your current session.
               </p>
             </div>
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={handleLogout}
-              className="gap-1.5"
-            >
+            <Button variant="destructive" size="sm" onClick={handleLogout} className="gap-1.5">
               <Power className="size-3.5" />
               Logout
             </Button>

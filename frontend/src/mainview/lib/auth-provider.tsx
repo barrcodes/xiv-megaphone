@@ -1,17 +1,17 @@
+import type { Session, User } from "@supabase/supabase-js";
 import {
   createContext,
+  type ReactNode,
   useCallback,
   useContext,
   useEffect,
   useMemo,
   useRef,
   useState,
-  type ReactNode,
 } from "react";
-import type { Session, User } from "@supabase/supabase-js";
-import { supabase } from "./supabase";
 import { checkPolicyStatus } from "@/api";
 import { PolicyAcceptanceDialog } from "@/components/PolicyAcceptanceDialog";
+import { supabase } from "./supabase";
 
 type AuthContextValue = {
   session: Session | null;
@@ -45,27 +45,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let alive = true;
 
     const normalizeSession = (session: Session | null) => {
-      const expired =
-        session?.expires_at != null && session.expires_at <= Date.now() / 1000;
+      const expired = session?.expires_at != null && session.expires_at <= Date.now() / 1000;
       return expired ? null : session;
     };
 
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, nextSession) => {
-        if (!alive) return;
-        const session = normalizeSession(nextSession);
-        const authenticated = session != null;
-        setSession(session);
-        setLoading(false);
-        if (lastAuthState.current !== authenticated) {
-          lastAuthState.current = authenticated;
-          window.electronAPI.setAuthState(authenticated);
-        }
-        if (authenticated) {
-          checkPolicies();
-        }
-      },
-    );
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      if (!alive) return;
+      const session = normalizeSession(nextSession);
+      const authenticated = session != null;
+      setSession(session);
+      setLoading(false);
+      if (lastAuthState.current !== authenticated) {
+        lastAuthState.current = authenticated;
+        window.electronAPI.setAuthState(authenticated);
+      }
+      if (authenticated) {
+        checkPolicies();
+      }
+    });
 
     const handleFocus = () => {
       checkPolicies();
@@ -105,10 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider value={value}>
       {children}
-      <PolicyAcceptanceDialog
-        open={policiesAccepted === false}
-        onAccepted={handleAccepted}
-      />
+      <PolicyAcceptanceDialog open={policiesAccepted === false} onAccepted={handleAccepted} />
     </AuthContext.Provider>
   );
 }

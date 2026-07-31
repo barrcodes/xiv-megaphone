@@ -1,6 +1,6 @@
-import { TtsSocket } from "../tts-client/index";
 import type { WebContents } from "electron";
 import type { ConnectionStatus, Preset } from "../shared/types";
+import { TtsSocket } from "../tts-client/index";
 
 type ConnectionChangeHandler = (status: ConnectionStatus) => void;
 
@@ -8,8 +8,6 @@ export class TtsManager {
   private socket: TtsSocket | null = null;
   private status: ConnectionStatus = "disconnected";
   private onChange: ConnectionChangeHandler;
-  private currentPreset: Preset | null = null;
-  private currentPort = 0;
   private webContents: WebContents | null = null;
 
   constructor(onChange: ConnectionChangeHandler) {
@@ -27,10 +25,14 @@ export class TtsManager {
 
     this.currentPreset = opts.preset;
     this.currentPort = opts.port;
+    if (!this.webContents) {
+      throw new Error("WebContents not set. Call setWebContents first.");
+    }
+
     this.socket = new TtsSocket({
       port: opts.port,
       preset: opts.preset,
-      webContents: this.webContents!,
+      webContents: this.webContents,
       onConnected: () => {
         this.status = "connected";
         this.onChange(this.status);

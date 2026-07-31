@@ -1,4 +1,4 @@
-import { Eye, EyeOff, KeyRound, LogIn, Mail, UserPlus } from "lucide-react";
+import { Eye, EyeOff, KeyRound, Mail } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { type SocialProvider, signInWithProvider } from "../lib/social-auth";
@@ -24,11 +24,9 @@ export function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
-  const [submittedResetEmail, setSubmittedResetEmail] = useState<string | null>(
-    null,
-  );
+  const [submittedResetEmail, setSubmittedResetEmail] = useState<string | null>(null);
 
-  const from = (location.state as any)?.from?.pathname ?? "/";
+  const from = (location.state as { from?: { pathname?: string } })?.from?.pathname ?? "/";
   const passwordValidation = usePasswordValidation(password);
 
   useEffect(() => {
@@ -76,8 +74,7 @@ export function LoginPage() {
             email,
             password,
             options: {
-              emailRedirectTo:
-                "https://megaphone.barr.codes/callback/auth/redirect",
+              emailRedirectTo: "https://megaphone.barr.codes/callback/auth/redirect",
             },
           });
 
@@ -145,12 +142,9 @@ export function LoginPage() {
     if (!submittedResetEmail) return;
     setError(null);
     setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(
-      submittedResetEmail,
-      {
-        redirectTo: "https://megaphone.barr.codes/callback/auth/redirect",
-      },
-    );
+    const { error } = await supabase.auth.resetPasswordForEmail(submittedResetEmail, {
+      redirectTo: "https://megaphone.barr.codes/callback/auth/redirect",
+    });
     setLoading(false);
     if (error) setError(error.message);
   }
@@ -189,9 +183,7 @@ export function LoginPage() {
                 <p className="text-sm text-muted-foreground mt-2 text-center">
                   We sent a password reset link to
                   <br />
-                  <span className="font-medium text-foreground">
-                    {submittedResetEmail}
-                  </span>
+                  <span className="font-medium text-foreground">{submittedResetEmail}</span>
                 </p>
                 <p className="text-xs text-muted-foreground mt-4 text-center max-w-xs">
                   Click the link in that email to reset your password.
@@ -236,9 +228,7 @@ export function LoginPage() {
                 <p className="text-sm text-muted-foreground mt-2 text-center">
                   We sent a confirmation link to
                   <br />
-                  <span className="font-medium text-foreground">
-                    {submittedEmail}
-                  </span>
+                  <span className="font-medium text-foreground">{submittedEmail}</span>
                 </p>
                 <p className="text-xs text-muted-foreground mt-4 text-center max-w-xs">
                   Click the link in that email to finish creating your account.
@@ -337,11 +327,7 @@ export function LoginPage() {
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder={
-                        mode === "sign-in"
-                          ? "Enter your password"
-                          : "Create a password"
-                      }
+                      placeholder={mode === "sign-in" ? "Enter your password" : "Create a password"}
                       value={password}
                       onChange={(event) => setPassword(event.target.value)}
                       required
@@ -353,16 +339,10 @@ export function LoginPage() {
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                       tabIndex={-1}
                     >
-                      {showPassword ? (
-                        <EyeOff className="size-4" />
-                      ) : (
-                        <Eye className="size-4" />
-                      )}
+                      {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                     </button>
                   </div>
-                  {mode === "sign-up" && (
-                    <PasswordRequirements validation={passwordValidation} />
-                  )}
+                  {mode === "sign-up" && <PasswordRequirements validation={passwordValidation} />}
                 </div>
 
                 {error && (
@@ -373,17 +353,10 @@ export function LoginPage() {
 
                 <Button
                   type="submit"
-                  disabled={
-                    loading ||
-                    (mode === "sign-up" && !passwordValidation.isValid)
-                  }
+                  disabled={loading || (mode === "sign-up" && !passwordValidation.isValid)}
                   className="w-full h-11 font-medium"
                 >
-                  {loading
-                    ? "Working..."
-                    : mode === "sign-in"
-                      ? "Sign In"
-                      : "Create Account"}
+                  {loading ? "Working..." : mode === "sign-in" ? "Sign In" : "Create Account"}
                 </Button>
 
                 <div className="flex items-center justify-between pt-2">
@@ -391,15 +364,11 @@ export function LoginPage() {
                     type="button"
                     className="text-sm text-muted-foreground hover:text-primary transition-colors"
                     onClick={() => {
-                      setMode((current) =>
-                        current === "sign-in" ? "sign-up" : "sign-in",
-                      );
+                      setMode((current) => (current === "sign-in" ? "sign-up" : "sign-in"));
                       setError(null);
                     }}
                   >
-                    {mode === "sign-in"
-                      ? "Don't have an account? Sign up"
-                      : "Back to sign in"}
+                    {mode === "sign-in" ? "Don't have an account? Sign up" : "Back to sign in"}
                   </button>
                   {mode === "sign-in" && (
                     <button

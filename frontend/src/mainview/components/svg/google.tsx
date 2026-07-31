@@ -4,24 +4,13 @@ export interface GoogleIconProps {
 
 export const GoogleIcon = ({ className }: GoogleIconProps) => {
   return (
-    <svg viewBox="-0.5 0 48 48" fill="#000000" className={className}>
+    <svg viewBox="-0.5 0 48 48" fill="#000000" className={className} role="img" aria-label="Google">
       <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-      <g
-        id="SVGRepo_tracerCarrier"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      ></g>
+      <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
       <g id="SVGRepo_iconCarrier">
         {" "}
-        <title>Google-color</title> <desc>Created with Sketch.</desc>{" "}
-        <defs> </defs>{" "}
-        <g
-          id="Icons"
-          stroke="none"
-          stroke-width="1"
-          fill="none"
-          fill-rule="evenodd"
-        >
+        <title>Google-color</title> <desc>Created with Sketch.</desc> <defs> </defs>{" "}
+        <g id="Icons" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
           {" "}
           <g id="Color-" transform="translate(-401.000000, -860.000000)">
             {" "}

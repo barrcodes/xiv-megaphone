@@ -24,10 +24,7 @@ export async function getPort(): Promise<number> {
 
 export async function setPort(port: number): Promise<void> {
   const current = existsSync(configFile)
-    ? (JSON.parse(await fs.readFile(configFile, "utf-8")) as Record<
-        string,
-        unknown
-      >)
+    ? (JSON.parse(await fs.readFile(configFile, "utf-8")) as Record<string, unknown>)
     : {};
   await fs.writeFile(configFile, JSON.stringify({ ...current, port }, null, 2));
 }
@@ -45,15 +42,9 @@ export async function getStartOnStartup(): Promise<boolean> {
 
 export async function setStartOnStartup(enabled: boolean): Promise<void> {
   const current = existsSync(configFile)
-    ? (JSON.parse(await fs.readFile(configFile, "utf-8")) as Record<
-        string,
-        unknown
-      >)
+    ? (JSON.parse(await fs.readFile(configFile, "utf-8")) as Record<string, unknown>)
     : {};
-  await fs.writeFile(
-    configFile,
-    JSON.stringify({ ...current, startOnStartup: enabled }, null, 2),
-  );
+  await fs.writeFile(configFile, JSON.stringify({ ...current, startOnStartup: enabled }, null, 2));
 
   if (process.platform === "win32") {
     try {
@@ -70,13 +61,7 @@ export async function setStartOnStartup(enabled: boolean): Promise<void> {
           "/f",
         ]);
       } else {
-        await spawnAsync("reg", [
-          "delete",
-          STARTUP_KEY,
-          "/v",
-          STARTUP_VALUE,
-          "/f",
-        ]);
+        await spawnAsync("reg", ["delete", STARTUP_KEY, "/v", STARTUP_VALUE, "/f"]);
       }
     } catch {
       // reg delete exits 1 when key doesn't exist; reg add may fail without admin — non-fatal

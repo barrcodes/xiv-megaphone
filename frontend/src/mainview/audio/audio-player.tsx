@@ -1,5 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { createStream, streamAudio } from "../api";
+import { context } from "../telemetry";
+import { PlaybackTrace } from "./playback-trace";
 
 export function AudioPlayer() {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -9,7 +11,7 @@ export function AudioPlayer() {
   const audioCtxRef = useRef<AudioContext | null>(null);
   const gainNodeRef = useRef<GainNode | null>(null);
 
-  const getAudioGraph = () => {
+  const getAudioGraph = useCallback(() => {
     if (audioCtxRef.current && gainNodeRef.current) {
       return { audioCtx: audioCtxRef.current, gainNode: gainNodeRef.current };
     }
@@ -28,7 +30,7 @@ export function AudioPlayer() {
     audioCtxRef.current = audioCtx;
     gainNodeRef.current = gainNode;
     return { audioCtx, gainNode };
-  };
+  }, []);
 
   useEffect(() => {
     const cleanup = () => {
@@ -43,78 +45,106 @@ export function AudioPlayer() {
     };
 
     window.electronAPI.createStream(async (request) => {
-      console.log("Creating stream with request:", request);
-      const { streamId, gain } = await createStream(request);
+      const trace = new PlaybackTrace();
 
-      const gen = ++genRef.current;
-      cleanup();
+      try {
+        const { streamId, gain } = await context.with(trace.parentCtx, () => createStream(request));
 
-      const el = audioRef.current;
-      if (!el) return;
+        const gen = ++genRef.current;
+        cleanup();
 
-      const { gainNode } = getAudioGraph();
-      gainNode.gain.value = gain;
+        const el = audioRef.current;
+        if (!el) return;
 
-      const ms = new MediaSource();
-      const url = URL.createObjectURL(ms);
-      urlRef.current = url;
+        const { gainNode } = getAudioGraph();
+        gainNode.gain.value = gain;
 
-      const ac = new AbortController();
-      abortRef.current = ac;
+        const ms = new MediaSource();
+        const url = URL.createObjectURL(ms);
+        urlRef.current = url;
 
-      const onSourceOpen = async () => {
-        if (gen !== genRef.current) return;
-        if (ms.readyState !== "open") return;
+        const ac = new AbortController();
+        abortRef.current = ac;
 
-        const sb = ms.addSourceBuffer("audio/mpeg");
-        sb.mode = "sequence";
+        const onSourceOpen = async () => {
+          if (gen !== genRef.current) return;
+          if (ms.readyState !== "open") return;
 
-        el.play().catch(() => {});
+          const sb = ms.addSourceBuffer("audio/mpeg");
+          sb.mode = "sequence";
 
-        try {
-          const reader = await streamAudio(streamId, ac);
+          const onPlaying = () => trace.playing();
+          el.addEventListener("playing", onPlaying);
 
-          while (true) {
-            if (gen !== genRef.current) return;
-            const { done, value } = await reader.read();
-            if (done) break;
-            if (ac.signal.aborted) return;
+          el.play().catch(() => {});
+
+          try {
+            const reader = await context.with(trace.parentCtx, () => streamAudio(streamId, ac));
+
+            while (true) {
+              if (gen !== genRef.current) return;
+              const { done, value } = await reader.read();
+              if (done) break;
+              if (ac.signal.aborted) return;
+
+              if (gen === genRef.current) {
+                trace.chunkReceived(value.byteLength);
+                trace.decoding();
+              }
+
+              if (sb.updating) {
+                await new Promise<void>((resolve) => {
+                  sb.addEventListener(
+                    "updateend",
+                    () => {
+                      if (gen === genRef.current) trace.decoded();
+                      resolve();
+                    },
+                    { once: true },
+                  );
+                });
+              } else if (gen === genRef.current) {
+                trace.decoded();
+              }
+
+              sb.appendBuffer(value);
+            }
 
             if (sb.updating) {
               await new Promise<void>((resolve) => {
-                sb.addEventListener("updateend", () => resolve(), {
-                  once: true,
-                });
+                sb.addEventListener("updateend", () => resolve(), { once: true });
               });
             }
-            sb.appendBuffer(value);
-          }
 
-          if (sb.updating) {
-            await new Promise<void>((resolve) => {
-              sb.addEventListener("updateend", () => resolve(), { once: true });
-            });
-          }
+            if (ms.readyState === "open") {
+              ms.endOfStream();
+            }
 
-          if (ms.readyState === "open") {
-            ms.endOfStream();
-          }
+            trace.complete();
 
-          window.dispatchEvent(
-            new CustomEvent("xiv:stream-event", { detail: "complete" }),
-          );
-        } catch (err: unknown) {
-          if (err instanceof Error && err.name !== "AbortError") {
-            console.warn("stream error:", err);
+            window.dispatchEvent(
+              new CustomEvent("xiv:stream-event", {
+                detail: "complete",
+              }),
+            );
+          } catch (err: unknown) {
+            if (err instanceof Error && err.name !== "AbortError") {
+              trace.error(err);
+              console.warn("stream error:", err);
+            }
+          } finally {
+            el.removeEventListener("playing", onPlaying);
+            trace.finish();
           }
-        }
-        return () => {
-          ms.removeEventListener("sourceopen", onSourceOpen);
         };
-      };
 
-      ms.addEventListener("sourceopen", onSourceOpen);
-      el.src = url;
+        ms.addEventListener("sourceopen", onSourceOpen);
+        el.src = url;
+      } catch (err) {
+        trace.error(err as Error);
+        trace.finish();
+        console.error("createStream failed:", err);
+      }
     });
 
     window.electronAPI.cancelStream(() => {
@@ -128,11 +158,12 @@ export function AudioPlayer() {
       if (gainNodeRef.current) {
         gainNodeRef.current.gain.value = 1.0;
       }
-      window.dispatchEvent(
-        new CustomEvent("xiv:stream-event", { detail: "cancel" }),
-      );
+      window.dispatchEvent(new CustomEvent("xiv:stream-event", { detail: "cancel" }));
     });
-  }, []);
+  }, [getAudioGraph]);
 
-  return <audio ref={audioRef} preload="auto" style={{ display: "none" }} />;
+  return (
+    // biome-ignore lint/a11y/useMediaCaption: hidden TTS audio element, not user-facing content
+    <audio ref={audioRef} preload="auto" style={{ display: "none" }} />
+  );
 }

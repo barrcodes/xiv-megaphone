@@ -1,8 +1,8 @@
-import WebSocket from "ws";
 import type { WebContents } from "electron";
-import { SocketManager } from "./socket";
-import type { IpcMessage } from "../models/IpcMessage";
+import type WebSocket from "ws";
 import type { Preset } from "../../shared/types";
+import type { IpcMessage } from "../models/IpcMessage";
+import { SocketManager } from "./socket";
 import { WebAudioPlayer } from "./web-audio";
 
 export interface TtsSocketOptions {
@@ -55,18 +55,14 @@ export class TtsSocket extends SocketManager {
       return;
     }
 
-    console.log(
-      `Received message: ${message.Speaker} (${message.Voice?.Name} ${message.Race}) says "${message.Payload}" @ volume = ${message.Volume}.`,
-    );
-
-    let text = message.Payload;
-    if (this.preset.lexicon) {
-      for (const [word, replacement] of Object.entries(this.preset.lexicon)) {
-        text = text.replaceAll(word, replacement);
-      }
-    }
-
     try {
+      let text = message.Payload;
+      if (this.preset.lexicon) {
+        for (const [word, replacement] of Object.entries(this.preset.lexicon)) {
+          text = text.replaceAll(word, replacement);
+        }
+      }
+
       await this.player.createStream({
         text,
         speaker: message.Speaker?.toLowerCase(),
@@ -77,7 +73,7 @@ export class TtsSocket extends SocketManager {
         volume: message.Volume ?? 1,
       });
     } catch (error) {
-      console.error("Error during TTS processing:", error);
+      console.error("Error handling message:", error);
     }
   }
 

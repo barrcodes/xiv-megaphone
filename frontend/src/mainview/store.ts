@@ -1,6 +1,6 @@
+import { create } from "zustand";
 import { DEFAULT_PORT } from "../shared/defaults";
 import type { ConnectionStatus, LogLine, Preset } from "../shared/types";
-import { create } from "zustand";
 
 interface AppStore {
   presets: Preset[];

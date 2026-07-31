@@ -1,18 +1,12 @@
 import { Clock, CreditCard, Crown } from "lucide-react";
 import { useState } from "react";
 import { createCheckoutSession, createPortalSession } from "../api";
+import { DISCORD_INVITE_URL } from "../lib/links";
 import { useAccountStatus } from "../queries/useAccountStatus";
 import { useBalance } from "../queries/useBalance";
 import { Badge } from "./ui/badge";
-import { DISCORD_INVITE_URL } from "../lib/links";
 import { Button } from "./ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 
 const MICROCENTS_PER_DOLLAR = 100_000_000;
 
@@ -71,16 +65,8 @@ export function AccountPage() {
 
   const accountTypeBadge = {
     free: <Badge variant="secondary">Free</Badge>,
-    premium: (
-      <Badge className="bg-primary/15 text-primary border-primary/20">
-        Premium
-      </Badge>
-    ),
-    subscriber: (
-      <Badge className="bg-accent/15 text-accent border-accent/20">
-        Subscriber
-      </Badge>
-    ),
+    premium: <Badge className="bg-primary/15 text-primary border-primary/20">Premium</Badge>,
+    subscriber: <Badge className="bg-accent/15 text-accent border-accent/20">Subscriber</Badge>,
   }[accountStatus?.accountType ?? "free"];
 
   const isSubscriber = accountStatus?.accountType === "subscriber";
@@ -89,9 +75,7 @@ export function AccountPage() {
     <div className="p-6 max-w-2xl mx-auto space-y-6 animate-fade-in-up">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-foreground">
-            Account
-          </h1>
+          <h1 className="font-display text-2xl font-bold text-foreground">Account</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Manage your credits and subscription.
           </p>
@@ -99,10 +83,7 @@ export function AccountPage() {
         {accountTypeBadge}
       </div>
 
-      <Card
-        className="glow-border animate-fade-in-up"
-        style={{ animationDelay: "0.05s" }}
-      >
+      <Card className="glow-border animate-fade-in-up" style={{ animationDelay: "0.05s" }}>
         <CardContent className="pt-6">
           <div className="flex items-center gap-3">
             <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10">
@@ -135,9 +116,7 @@ export function AccountPage() {
                   Join our{" "}
                   <button
                     type="button"
-                    onClick={() =>
-                      window.electronAPI.shellOpenExternal(DISCORD_INVITE_URL)
-                    }
+                    onClick={() => window.electronAPI.shellOpenExternal(DISCORD_INVITE_URL)}
                     className="underline underline-offset-2 hover:text-foreground transition-colors"
                   >
                     Discord
@@ -157,25 +136,16 @@ export function AccountPage() {
               <CreditCard className="size-4 text-primary" />
               Buy Credits
             </CardTitle>
-            <CardDescription>
-              Pay-as-you-go with no subscription.
-            </CardDescription>
+            <CardDescription>Pay-as-you-go with no subscription.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button
-              onClick={handlePurchaseCredits}
-              disabled={purchasing}
-              className="w-full"
-            >
+            <Button onClick={handlePurchaseCredits} disabled={purchasing} className="w-full">
               {purchasing ? "Opening..." : "Purchase Credits"}
             </Button>
           </CardContent>
         </Card>
 
-        <Card
-          className="animate-fade-in-up"
-          style={{ animationDelay: "0.15s" }}
-        >
+        <Card className="animate-fade-in-up" style={{ animationDelay: "0.15s" }}>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
               <Crown className="size-4 text-accent" />
@@ -184,8 +154,7 @@ export function AccountPage() {
             {isSubscriber && accountStatus?.subscription && (
               <CardDescription className="flex items-center gap-1.5">
                 <Clock className="size-3" />
-                Next billing:{" "}
-                {formatDate(accountStatus.subscription.current_period_end)}
+                Next billing: {formatDate(accountStatus.subscription.current_period_end)}
               </CardDescription>
             )}
           </CardHeader>
@@ -195,11 +164,7 @@ export function AccountPage() {
                 <p className="text-sm text-muted-foreground">
                   Active subscription. Credits refresh monthly.
                 </p>
-                <Button
-                  variant="outline"
-                  onClick={handleManage}
-                  className="w-full"
-                >
+                <Button variant="outline" onClick={handleManage} className="w-full">
                   Manage Subscription
                 </Button>
               </div>

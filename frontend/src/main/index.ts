@@ -4,7 +4,7 @@ import SquirrelStartup from "electron-squirrel-startup";
 import { updateElectronApp } from "update-electron-app";
 import appIcon from "../../art-assets/icon-wake-256.png?asset";
 import type { ConnectionStatus } from "../shared/types";
-import { getPort, getStartOnStartup, setStartOnStartup } from "./config";
+import { getStartOnStartup, setStartOnStartup } from "./config";
 import { pushConnectionChanged, registerIpcHandlers } from "./ipc";
 import { initLogger } from "./logger";
 import { bootstrap } from "./presets";
@@ -27,9 +27,7 @@ const PROTOCOL = "xiv-megaphone";
 
 if (process.defaultApp) {
   if (process.argv.length >= 2) {
-    app.setAsDefaultProtocolClient(PROTOCOL, process.execPath, [
-      path.resolve(process.argv[1]),
-    ]);
+    app.setAsDefaultProtocolClient(PROTOCOL, process.execPath, [path.resolve(process.argv[1])]);
   }
 } else {
   app.setAsDefaultProtocolClient(PROTOCOL);
@@ -81,7 +79,7 @@ app.on("open-url", (event, url) => {
   handleDeepLink(url);
 });
 
-app.on("second-instance", (event, argv) => {
+app.on("second-instance", (_event, argv) => {
   // Windows / Linux sometimes pass deep links as argv
   const deepLink = argv.find((arg) => arg.startsWith(`${PROTOCOL}://`));
   if (deepLink) {
@@ -139,9 +137,7 @@ function createTray() {
 }
 
 function getTrayImage(status: ConnectionStatus) {
-  return getNativeImage(
-    status === "connected" ? "connected.ico" : "disconnected.ico",
-  );
+  return getNativeImage(status === "connected" ? "connected.ico" : "disconnected.ico");
 }
 
 function buildTrayMenu(status: ConnectionStatus) {
@@ -169,18 +165,15 @@ function buildTrayMenu(status: ConnectionStatus) {
   ]);
 }
 
-function createTtsManager() {
+function createTtsManager(): TtsManager {
   ttsManager = new TtsManager((status) => {
     if (tray) {
-      tray.setImage(
-        getNativeImage(
-          status === "connected" ? "connected.ico" : "disconnected.ico",
-        ),
-      );
+      tray.setImage(getNativeImage(status === "connected" ? "connected.ico" : "disconnected.ico"));
       tray.setContextMenu(buildTrayMenu(status));
     }
     pushConnectionChanged(getWindow, status);
   });
+  return ttsManager;
 }
 
 function openMainWindow() {
@@ -207,30 +200,24 @@ async function reconnect() {
   ttsManager?.connect({ port, preset: active });
 }
 
-app
-  .whenReady()
-  .then(async () => {
-    bootstrap();
+app.whenReady().then(async () => {
+  bootstrap();
 
-    initLogger(getWindow);
-    console.log("xiv-megaphone started");
+  initLogger(getWindow);
+  console.log("xiv-megaphone started");
 
-    const startOnStartup = await getStartOnStartup();
-    await setStartOnStartup(startOnStartup);
+  const startOnStartup = await getStartOnStartup();
+  await setStartOnStartup(startOnStartup);
 
-    createMainWindow();
+  createMainWindow();
 
-    mainWindow?.on("ready-to-show", () => {
-      createTray();
-      createTtsManager();
-      ttsManager!.setWebContents(mainWindow!.webContents);
-      registerIpcHandlers(getWindow, ttsManager!, reconnect);
-    });
-  })
-  .catch((err) => {
-    console.error("Failed to start:", err);
-    app.quit();
+  mainWindow?.on("ready-to-show", () => {
+    createTray();
+    const manager = createTtsManager();
+    manager.setWebContents(mainWindow?.webContents);
+    registerIpcHandlers(getWindow, manager, reconnect);
   });
+});
 
 app.on("before-quit", () => {
   isQuitting = true;

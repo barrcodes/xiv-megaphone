@@ -1,8 +1,5 @@
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
-import { XIcon } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 interface PolicyViewerModalProps {
   open: boolean;
@@ -11,12 +8,7 @@ interface PolicyViewerModalProps {
   content: string;
 }
 
-export function PolicyViewerModal({
-  open,
-  onOpenChange,
-  title,
-  content,
-}: PolicyViewerModalProps) {
+export function PolicyViewerModal({ open, onOpenChange, title, content }: PolicyViewerModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[85vh] flex flex-col p-0 gap-0">

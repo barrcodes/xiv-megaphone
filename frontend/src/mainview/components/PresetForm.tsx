@@ -4,9 +4,9 @@ import { FormProvider, useForm } from "react-hook-form";
 import type { Preset } from "shared/types";
 import { GeneralTab } from "./GeneralTab";
 import { LexiconTab } from "./LexiconTab";
-import { VoiceOverridesTab } from "./VoiceOverridesTab";
 import { Button } from "./ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { VoiceOverridesTab } from "./VoiceOverridesTab";
 
 export type PresetFormValues = {
   name: string;
@@ -31,15 +31,14 @@ export function PresetForm({ preset, onSave, onCancel, readOnly }: Props) {
     defaultValues: {
       name: preset.name,
       speakingRate: preset.speakingRate,
-      voiceOverrides: Object.entries(preset.voiceOverrides).map(
-        ([name, voice]) => ({ name, voice }),
-      ),
-      lexicon: Object.entries(preset.lexicon ?? {}).map(
-        ([term, pronunciation]) => ({
-          term,
-          pronunciation,
-        }),
-      ),
+      voiceOverrides: Object.entries(preset.voiceOverrides).map(([name, voice]) => ({
+        name,
+        voice,
+      })),
+      lexicon: Object.entries(preset.lexicon ?? {}).map(([term, pronunciation]) => ({
+        term,
+        pronunciation,
+      })),
     },
   });
 
@@ -59,10 +58,7 @@ export function PresetForm({ preset, onSave, onCancel, readOnly }: Props) {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col min-h-[calc(100vh-10rem)]"
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col min-h-[calc(100vh-10rem)]">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
         <TabsList variant="line" className="mb-6">
           <TabsTrigger value="general" className="gap-2">

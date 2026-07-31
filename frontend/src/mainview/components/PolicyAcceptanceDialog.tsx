@@ -1,8 +1,8 @@
-import { useState, type ReactNode } from "react";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { useState } from "react";
+import { acceptPolicies, getPolicy, type PolicyData } from "@/api";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { PolicyViewerModal } from "./PolicyViewerModal";
-import { getPolicy, acceptPolicies, type PolicyData } from "@/api";
 
 interface PolicyItemProps {
   label: string;
@@ -69,10 +69,7 @@ interface PolicyAcceptanceDialogProps {
   onAccepted: () => void;
 }
 
-export function PolicyAcceptanceDialog({
-  open,
-  onAccepted,
-}: PolicyAcceptanceDialogProps) {
+export function PolicyAcceptanceDialog({ open, onAccepted }: PolicyAcceptanceDialogProps) {
   const [tosChecked, setTosChecked] = useState(false);
   const [privacyChecked, setPrivacyChecked] = useState(false);
   const [accepting, setAccepting] = useState(false);
@@ -91,22 +88,18 @@ export function PolicyAcceptanceDialog({
 
     try {
       if (!policyData) {
-        const [tos, privacy] = await Promise.all([
-          getPolicy("tos"),
-          getPolicy("privacy-policy"),
-        ]);
+        const [tos, privacy] = await Promise.all([getPolicy("tos"), getPolicy("privacy-policy")]);
         setPolicyData({ tos, privacy });
       }
 
-      const { tos, privacy } = policyData ?? await (async () => {
-        const [t, p] = await Promise.all([
-          getPolicy("tos"),
-          getPolicy("privacy-policy"),
-        ]);
-        const data = { tos: t, privacy: p };
-        setPolicyData(data);
-        return data;
-      })();
+      const { tos, privacy } =
+        policyData ??
+        (await (async () => {
+          const [t, p] = await Promise.all([getPolicy("tos"), getPolicy("privacy-policy")]);
+          const data = { tos: t, privacy: p };
+          setPolicyData(data);
+          return data;
+        })());
 
       await acceptPolicies(tos.versionId, privacy.versionId);
       onAccepted();
@@ -124,9 +117,7 @@ export function PolicyAcceptanceDialog({
         className="sm:max-w-md"
         onInteractOutside={(e) => e.preventDefault()}
       >
-        <DialogTitle className="text-xl font-semibold text-center">
-          Accept Policies
-        </DialogTitle>
+        <DialogTitle className="text-xl font-semibold text-center">Accept Policies</DialogTitle>
         <p className="text-sm text-muted-foreground text-center -mt-1">
           Please review and accept the following policies to continue using XIV Megaphone.
         </p>
@@ -146,15 +137,9 @@ export function PolicyAcceptanceDialog({
           />
         </div>
 
-        {error && (
-          <p className="text-sm text-destructive text-center">{error}</p>
-        )}
+        {error && <p className="text-sm text-destructive text-center">{error}</p>}
 
-        <Button
-          onClick={handleAccept}
-          disabled={!allChecked || accepting}
-          className="w-full"
-        >
+        <Button onClick={handleAccept} disabled={!allChecked || accepting} className="w-full">
           {accepting ? "Accepting..." : "Accept"}
         </Button>
       </DialogContent>

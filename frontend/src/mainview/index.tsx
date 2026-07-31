@@ -8,10 +8,10 @@ import { PresetList } from "./components/PresetList";
 import { SettingsPage } from "./components/SettingsPage";
 import { AuthProvider } from "./lib/auth-provider";
 import "./index.css";
-import { RequireAuth } from "./components/RequireAuth";
-import { LoginPage } from "./components/LoginPage";
-import { ResetPasswordPage } from "./components/ResetPasswordPage";
 import { AccountPage } from "./components/AccountPage";
+import { LoginPage } from "./components/LoginPage";
+import { RequireAuth } from "./components/RequireAuth";
+import { ResetPasswordPage } from "./components/ResetPasswordPage";
 import { RequireDebug } from "./guards/RequireDebug";
 
 const router = createHashRouter([

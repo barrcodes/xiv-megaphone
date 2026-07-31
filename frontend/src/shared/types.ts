@@ -1,5 +1,5 @@
 export interface LogLine {
-  level: 'log' | 'warn' | 'error';
+  level: "log" | "warn" | "error";
   message: string;
   timestamp: string;
 }

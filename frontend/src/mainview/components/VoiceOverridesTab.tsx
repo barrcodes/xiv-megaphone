@@ -18,9 +18,8 @@ export function VoiceOverridesTab({ disabled }: Props) {
   return (
     <div className="space-y-4 animate-fade-in-up">
       <p className="text-sm text-muted-foreground">
-        Override the default voice for any character name, race, gender, beast
-        tribe, or fallback (<code>male</code>, <code>female</code>,{" "}
-        <code>default</code>).
+        Override the default voice for any character name, race, gender, beast tribe, or fallback (
+        <code>male</code>, <code>female</code>, <code>default</code>).
       </p>
 
       {fields.length > 0 && (
@@ -58,12 +57,9 @@ export function VoiceOverridesTab({ disabled }: Props) {
 
       {fields.length === 0 && (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <p className="text-sm text-muted-foreground">
-            No overrides configured.
-          </p>
+          <p className="text-sm text-muted-foreground">No overrides configured.</p>
           <p className="text-xs text-muted-foreground mt-1">
-            Override voices for specific characters, races, or tribes. Leave
-            empty to use defaults.
+            Override voices for specific characters, races, or tribes. Leave empty to use defaults.
           </p>
         </div>
       )}
