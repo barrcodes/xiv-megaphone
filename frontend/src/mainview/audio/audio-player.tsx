@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 import { createStream, streamAudio } from "../api";
+import { useStore } from "../store";
 import { context } from "../telemetry";
 import { PlaybackTrace } from "./playback-trace";
 
@@ -10,6 +11,14 @@ export function AudioPlayer() {
   const genRef = useRef(0);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const gainNodeRef = useRef<GainNode | null>(null);
+
+  const { volume, muted } = useStore();
+
+  useEffect(() => {
+    if (gainNodeRef.current) {
+      gainNodeRef.current.gain.value = muted ? 0 : volume;
+    }
+  }, [volume, muted]);
 
   const getAudioGraph = useCallback(() => {
     if (audioCtxRef.current && gainNodeRef.current) {
@@ -57,7 +66,8 @@ export function AudioPlayer() {
         if (!el) return;
 
         const { gainNode } = getAudioGraph();
-        gainNode.gain.value = gain;
+        const { volume, muted } = useStore.getState();
+        gainNode.gain.value = gain * (muted ? 0 : volume);
 
         const ms = new MediaSource();
         const url = URL.createObjectURL(ms);
@@ -156,7 +166,8 @@ export function AudioPlayer() {
       el.removeAttribute("src");
       el.load();
       if (gainNodeRef.current) {
-        gainNodeRef.current.gain.value = 1.0;
+        const { muted } = useStore.getState();
+        gainNodeRef.current.gain.value = muted ? 0 : 1.0;
       }
       window.dispatchEvent(new CustomEvent("xiv:stream-event", { detail: "cancel" }));
     });

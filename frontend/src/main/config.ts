@@ -3,7 +3,7 @@ import { existsSync } from "node:fs";
 import * as fs from "node:fs/promises";
 import { join } from "node:path";
 import { app } from "electron";
-import { DEFAULT_PORT } from "../shared/defaults";
+import { DEFAULT_PORT, DEFAULT_VOLUME } from "../shared/defaults";
 
 const configFile = join(app.getPath("userData"), "config.json");
 
@@ -27,6 +27,21 @@ export async function setPort(port: number): Promise<void> {
     ? (JSON.parse(await fs.readFile(configFile, "utf-8")) as Record<string, unknown>)
     : {};
   await fs.writeFile(configFile, JSON.stringify({ ...current, port }, null, 2));
+}
+
+export async function getVolume(): Promise<number> {
+  if (!existsSync(configFile)) return DEFAULT_VOLUME;
+  const data = JSON.parse(await fs.readFile(configFile, "utf-8")) as {
+    volume?: number;
+  };
+  return data.volume ?? DEFAULT_VOLUME;
+}
+
+export async function setVolume(volume: number): Promise<void> {
+  const current = existsSync(configFile)
+    ? (JSON.parse(await fs.readFile(configFile, "utf-8")) as Record<string, unknown>)
+    : {};
+  await fs.writeFile(configFile, JSON.stringify({ ...current, volume }, null, 2));
 }
 
 const STARTUP_KEY = "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run";

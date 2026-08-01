@@ -19,6 +19,8 @@ export const getPort = (): Promise<{ port: number }> => api.getPort();
 export const setPort = (port: number): Promise<void> => api.setPort(port);
 export const getStartOnStartup = (): Promise<{ enabled: boolean }> => api.getStartOnStartup();
 export const setStartOnStartup = (en: boolean): Promise<void> => api.setStartOnStartup(en);
+export const getVolume = (): Promise<{ volume: number }> => api.getVolume();
+export const setVolume = (vol: number): Promise<void> => api.setVolume(vol);
 export const getVersion = (): Promise<string> => api.getVersion();
 export const getApiKey = (): Promise<{ apiKey: string }> => api.getApiKey();
 export const setApiKey = (key: string): Promise<void> => api.setApiKey(key);

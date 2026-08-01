@@ -7,6 +7,7 @@ import {
   getPort,
   getPresets,
   getStartOnStartup,
+  getVolume,
 } from "@/lib/ipc";
 import { queryClient } from "@/lib/query-client";
 import { AudioPlayer } from "../audio/audio-player";
@@ -17,8 +18,14 @@ import { Sidebar } from "./Sidebar";
 import { TooltipProvider } from "./ui/tooltip";
 
 export const App: React.FC = () => {
-  const { setPresets, setActivePresetId, setConnectionStatus, setPort, setStartOnStartup } =
-    useStore();
+  const {
+    setPresets,
+    setActivePresetId,
+    setConnectionStatus,
+    setPort,
+    setStartOnStartup,
+    setVolume,
+  } = useStore();
 
   useRefreshBalanceOnStream();
 
@@ -30,14 +37,25 @@ export const App: React.FC = () => {
       getConnectionState(),
       getPort(),
       getStartOnStartup(),
-    ]).then(([localPresets, activePresetId, connectionState, portResult, startupResult]) => {
-      setPresets(localPresets);
-      setActivePresetId(activePresetId);
-      setConnectionStatus(connectionState.status);
-      setPort(portResult.port);
-      setStartOnStartup(startupResult.enabled);
-    });
-  }, [setPresets, setActivePresetId, setConnectionStatus, setPort, setStartOnStartup]);
+      getVolume(),
+    ]).then(
+      ([
+        localPresets,
+        activePresetId,
+        connectionState,
+        portResult,
+        startupResult,
+        volumeResult,
+      ]) => {
+        setPresets(localPresets);
+        setActivePresetId(activePresetId);
+        setConnectionStatus(connectionState.status);
+        setPort(portResult.port);
+        setStartOnStartup(startupResult.enabled);
+        setVolume(volumeResult.volume);
+      },
+    );
+  }, [setPresets, setActivePresetId, setConnectionStatus, setPort, setStartOnStartup, setVolume]);
 
   return (
     <TooltipProvider>

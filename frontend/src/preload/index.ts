@@ -23,6 +23,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
   setPort: (port: number) => ipcRenderer.invoke("setPort", port),
   getStartOnStartup: () => ipcRenderer.invoke("getStartOnStartup"),
   setStartOnStartup: (enabled: boolean) => ipcRenderer.invoke("setStartOnStartup", enabled),
+  getVolume: () => ipcRenderer.invoke("getVolume"),
+  setVolume: (volume: number) => ipcRenderer.invoke("setVolume", volume),
   onPresetsChanged: (cb: (presets: Preset[]) => void) => {
     const handler = (_, d) => cb(d);
     ipcRenderer.on("onPresetsChanged", handler);

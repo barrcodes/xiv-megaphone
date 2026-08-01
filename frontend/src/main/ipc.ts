@@ -1,6 +1,13 @@
 import { app, type BrowserWindow, ipcMain, shell } from "electron";
 import type { ConnectionStatus } from "../shared/types";
-import { getPort, getStartOnStartup, setPort, setStartOnStartup } from "./config";
+import {
+  getPort,
+  getStartOnStartup,
+  getVolume,
+  setPort,
+  setStartOnStartup,
+  setVolume,
+} from "./config";
 import {
   deletePreset,
   getActivePresetId,
@@ -80,6 +87,10 @@ export function registerIpcHandlers(
     enabled: await getStartOnStartup(),
   }));
   ipcMain.handle("setStartOnStartup", async (_, en) => setStartOnStartup(en));
+  ipcMain.handle("getVolume", async () => ({ volume: await getVolume() }));
+  ipcMain.handle("setVolume", async (_, v) => {
+    await setVolume(v);
+  });
 
   ipcMain.handle("setAuthState", async (_, authenticated: boolean) => {
     if (authenticated) {

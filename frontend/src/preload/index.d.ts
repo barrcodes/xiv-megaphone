@@ -21,6 +21,8 @@ declare global {
       setPort(port: number): Promise<void>;
       getStartOnStartup(): Promise<{ enabled: boolean }>;
       setStartOnStartup(enabled: boolean): Promise<void>;
+      getVolume(): Promise<{ volume: number }>;
+      setVolume(volume: number): Promise<void>;
       onPresetsChanged(cb: (presets: Preset[]) => void): () => void;
       onConnectionChanged(cb: (status: ConnectionStatus) => void): () => void;
       onLogLine(cb: (line: LogLine) => void): () => void;
