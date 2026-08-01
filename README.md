@@ -45,6 +45,15 @@ In the plugin settings, select **"megaphone"** from the provider dropdown in the
 
 A default preset ships with the app and is selected automatically. It provides custom voices for all race/gender combinations as well as beast tribes and a few notable named NPCs out of the box. More voices and features to come!
 
+### Volume Control
+
+When connected, a volume slider appears in the sidebar. Volume is saved between sessions.
+
+The final output volume combines three factors:
+- **TextToTalk** sends the FFXIV master × voice volume from in-game
+- **Gain** multiplier adjusts per-voice levels server-side (some voices are louder than others)
+- **Volume slider** multiplier lets you tune down the volume of tts voices relative to in-game voices as desired
+
 ### Custom Voice Assignments & Lexicon
 
 ![preset-list](screenshots/megaphone-preset-list.png)
