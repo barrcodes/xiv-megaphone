@@ -4,6 +4,5 @@ export interface CreateStreamRequest {
   gender?: string;
   race?: string;
   voiceOverrides?: Record<string, string>;
-  speakingRate?: number;
   volume?: number;
 }

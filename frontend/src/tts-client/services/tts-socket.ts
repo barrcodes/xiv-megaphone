@@ -69,7 +69,6 @@ export class TtsSocket extends SocketManager {
         gender: message.Voice?.Name?.toLocaleLowerCase(),
         race: message.Race?.toLocaleLowerCase(),
         voiceOverrides: this.preset.voiceOverrides,
-        speakingRate: this.preset.speakingRate,
         volume: message.Volume ?? 1,
       });
     } catch (error) {

@@ -35,17 +35,17 @@ export function GeneralTab({ disabled }: Props) {
             id="speakingRate"
             type="number"
             min={0.5}
-            max={1.5}
+            max={2.0}
             step="0.05"
             {...register("speakingRate", {
               required: true,
               valueAsNumber: true,
               min: 0.5,
-              max: 1.5,
+              max: 2.0,
             })}
             disabled={disabled}
           />
-          <p className="text-xs text-muted-foreground mt-1">Range: 0.5x to 1.5x</p>
+          <p className="text-xs text-muted-foreground mt-1">Range: 0.5x to 2.0x</p>
         </CardContent>
       </Card>
     </div>

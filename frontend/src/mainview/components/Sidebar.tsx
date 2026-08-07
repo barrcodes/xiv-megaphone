@@ -1,16 +1,15 @@
-import { LayoutList, LogOut, ScrollText, Settings, User, Volume2, VolumeX } from "lucide-react";
+import { LayoutList, LogOut, ScrollText, Settings, User } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth-provider";
 import { cn } from "@/lib/utils";
 import myIconUrl from "../../../art-assets/icon-wake-256.png";
 import { env } from "../../shared/env";
-import { setVolume as persistVolume } from "../lib/ipc";
 import { DISCORD_INVITE_URL } from "../lib/links";
 import { useStore } from "../store";
 import { SimpleIcon } from "./SimpleIcon";
 import { Separator } from "./ui/separator";
-import { Slider } from "./ui/slider";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { VolumeControl } from "./VolumeControl";
 
 const navItems = [
   { path: "/", label: "Presets", icon: LayoutList },
@@ -20,7 +19,7 @@ const navItems = [
 ];
 
 export function Sidebar() {
-  const { connectionStatus, volume, muted, setVolume, setMuted } = useStore();
+  const { connectionStatus } = useStore();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -71,27 +70,7 @@ export function Sidebar() {
 
       {connectionStatus === "connected" && (
         <div className="px-4 pb-3">
-          <div className="flex items-center gap-2 rounded-md bg-secondary/40 px-3 py-2">
-            <button
-              type="button"
-              onClick={() => setMuted(!muted)}
-              className="flex size-4 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
-            </button>
-            <Slider
-              min={0}
-              max={1}
-              step={0.1}
-              value={[volume]}
-              onValueChange={([v]) => {
-                setVolume(v);
-                persistVolume(v);
-              }}
-              disabled={muted}
-              className="flex-1"
-            />
-          </div>
+          <VolumeControl />
         </div>
       )}
 

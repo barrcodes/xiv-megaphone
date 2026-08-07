@@ -41,6 +41,31 @@ export function AudioPlayer() {
     return { audioCtx, gainNode };
   }, []);
 
+  /**
+   * Disable Media Session API action handlers to prevent the OS from interfering with playback.
+   * This is necessary to avoid our app being controlled by keyboard media keys or other system-level media controls.
+   */
+  useEffect(() => {
+    if (!("mediaSession" in navigator)) return;
+    const actions = [
+      "play",
+      "pause",
+      "stop",
+      "seekbackward",
+      "seekforward",
+      "seekto",
+      "previoustrack",
+      "nexttrack",
+    ] as const;
+    for (const action of actions) {
+      try {
+        navigator.mediaSession.setActionHandler(action, () => {});
+      } catch {
+        /* action not supported */
+      }
+    }
+  }, []);
+
   useEffect(() => {
     const cleanup = () => {
       if (urlRef.current) {
@@ -66,8 +91,11 @@ export function AudioPlayer() {
         if (!el) return;
 
         const { gainNode } = getAudioGraph();
-        const { volume, muted } = useStore.getState();
+        const { volume, muted, presets, activePresetId } = useStore.getState();
+        const speakingRate = presets.find((p) => p.id === activePresetId)?.speakingRate ?? 1.0;
         gainNode.gain.value = gain * (muted ? 0 : volume);
+
+        el.preservesPitch = true;
 
         const ms = new MediaSource();
         const url = URL.createObjectURL(ms);
@@ -86,6 +114,8 @@ export function AudioPlayer() {
           const onPlaying = () => trace.playing();
           el.addEventListener("playing", onPlaying);
 
+          el.defaultPlaybackRate = speakingRate;
+          el.playbackRate = speakingRate;
           el.play().catch(() => {});
 
           try {
