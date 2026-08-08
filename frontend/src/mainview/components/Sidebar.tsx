@@ -6,6 +6,7 @@ import myIconUrl from "../../../art-assets/icon-wake-256.png";
 import { env } from "../../shared/env";
 import { DISCORD_INVITE_URL } from "../lib/links";
 import { useStore } from "../store";
+import { AppVersion } from "./AppVersion";
 import { SimpleIcon } from "./SimpleIcon";
 import { Separator } from "./ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
@@ -49,9 +50,7 @@ export function Sidebar() {
           <span className="font-display text-base font-bold leading-tight tracking-wide text-foreground">
             XIV Megaphone
           </span>
-          <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
-            TTS Client
-          </span>
+          <AppVersion />
         </div>
       </div>
 
