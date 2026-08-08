@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron";
+import type { CancelScopePayload, DialogueEvent, PlaybackRequest } from "../shared/playback";
 import type { ConnectionStatus, LogLine, Preset } from "../shared/types";
 
 contextBridge.exposeInMainWorld("electronAPI", {
@@ -40,15 +41,20 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.on("onLogLine", handler);
     return () => ipcRenderer.removeListener("onLogLine", handler);
   },
-  createStream: (cb: (payload: { streamId: string; backendUrl: string }) => void) => {
+  createStream: (cb: (payload: PlaybackRequest) => void) => {
     const handler = (_, d) => cb(d);
     ipcRenderer.on("createStream", handler);
     return () => ipcRenderer.removeListener("createStream", handler);
   },
-  cancelStream: (cb: () => void) => {
-    const handler = () => cb();
+  cancelStream: (cb: (payload: CancelScopePayload) => void) => {
+    const handler = (_, d) => cb(d);
     ipcRenderer.on("cancelStream", handler);
     return () => ipcRenderer.removeListener("cancelStream", handler);
+  },
+  dialogueEvent: (cb: (event: DialogueEvent) => void) => {
+    const handler = (_, d) => cb(d);
+    ipcRenderer.on("dialogueEvent", handler);
+    return () => ipcRenderer.removeListener("dialogueEvent", handler);
   },
   setAuthState: (authenticated: boolean) => ipcRenderer.invoke("setAuthState", authenticated),
   onCheckoutComplete: (cb: (data: { status: "success" | "cancel" }) => void) => {

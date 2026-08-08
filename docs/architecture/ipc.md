@@ -1,6 +1,6 @@
 # IPC Channels
 
-The preload script (`src/preload/index.ts`) exposes typed methods via `contextBridge.exposeInMainWorld` under `window.electronAPI`.
+The preload script (`src/preload/index.ts`) exposes typed methods via `contextBridge.exposeInMainWorld` under `window.electronAPI`. All renderer-side listeners return a cleanup function that removes the listener.
 
 ## Renderer → Main (invoke/handle)
 
@@ -29,7 +29,42 @@ The preload script (`src/preload/index.ts`) exposes typed methods via `contextBr
 | `onPresetsChanged` | — | Presets were modified on disk |
 | `onConnectionChanged` | `ConnectionStatus` | Connection state changed |
 | `onLogLine` | `LogLine` | New log entry |
-| `createStream` | `CreateStreamRequest` | TTS stream request from game |
-| `cancelStream` | — | Cancel current TTS stream |
+| `createStream` | `PlaybackRequest` | TTS stream request with audio class and metadata |
+| `cancelStream` | `CancelScopePayload` | Cancel playback with scope (`"npc"`, `"chat"`, `"flavor"`, `"all"`) |
+| `dialogueEvent` | `DialogueEvent` | Dialogue session lifecycle event |
 | `authCallback` | `AuthCallbackData` | OAuth callback received |
 | `checkoutComplete` | — | Payment provider checkout finished |
+
+## Types
+
+### PlaybackRequest
+
+```typescript
+interface PlaybackRequest {
+  id: string
+  receivedAt: number
+  audioClass: "npc" | "chat" | "flavor"
+  source: "Chat" | "AddonTalk" | "AddonBattleTalk" | "None"
+  chatType: XivChatType | null
+  tts: CreateStreamRequest
+}
+```
+
+### CancelScopePayload
+
+```typescript
+interface CancelScopePayload {
+  scope: "npc" | "chat" | "flavor" | "all"
+}
+```
+
+### DialogueEvent
+
+```typescript
+interface DialogueEvent {
+  eventType: string
+  sessionId: string
+  source: "Chat" | "AddonTalk" | "AddonBattleTalk" | "None"
+  reason: DialogueEventReason
+}
+```

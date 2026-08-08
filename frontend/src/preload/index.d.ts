@@ -1,4 +1,4 @@
-import { CreateStreamRequest } from "../shared/models";
+import type { CancelScopePayload, DialogueEvent, PlaybackRequest } from "../shared/playback";
 import type { ConnectionStatus, LogLine, Preset } from "../shared/types";
 
 declare global {
@@ -33,8 +33,9 @@ declare global {
       getUseLocalBackend(): Promise<{ enabled: boolean }>;
       setUseLocalBackend(enabled: boolean): Promise<void>;
       getBackendUrl(): Promise<{ url: string }>;
-      createStream(cb: (payload: CreateStreamRequest) => void): () => void;
-      cancelStream(cb: () => void): () => void;
+      createStream(cb: (payload: PlaybackRequest) => void): () => void;
+      cancelStream(cb: (payload: CancelScopePayload) => void): () => void;
+      dialogueEvent(cb: (event: DialogueEvent) => void): () => void;
       setAuthState(authenticated: boolean): Promise<void>;
       onCheckoutComplete(cb: (data: { status: "success" | "cancel" }) => void): () => void;
       getVersion(): Promise<string>;
