@@ -10,8 +10,10 @@ export interface VoicePreset {
 export interface IpcMessage {
   Type: IpcMessageType;
   Speaker: string | null;
+  SpeakerWorld?: string | null;
   NpcId: number | null;
   Race: string | null;
+  Gender?: string | null;
   BodyType: string | null;
   Payload: string;
   PayloadTemplate: string;

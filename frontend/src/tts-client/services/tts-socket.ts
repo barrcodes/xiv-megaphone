@@ -34,6 +34,13 @@ function classifyAudioClass(message: IpcMessage): AudioClass | null {
   }
 }
 
+function normalizeCharacterMetadata(value: string | null | undefined): string | undefined {
+  if (!value) return undefined;
+
+  const normalized = value.trim().toLowerCase();
+  return normalized === "none" || normalized === "unknown" ? undefined : normalized;
+}
+
 export class TtsSocket extends SocketManager {
   private preset: Preset;
   private player: PlaybackIpc;
@@ -72,11 +79,11 @@ export class TtsSocket extends SocketManager {
         return;
 
       case "Event":
-        console.log(JSON.stringify(message, null, 2));
         if (!message.EventType || !message.EventSessionId || !message.EventReason) {
           console.warn("Invalid dialogue event received");
           return;
         }
+        console.log(`Dialogue event received: ${JSON.stringify(message, null, 2)}`);
         this.player.sendDialogueEvent({
           eventType: message.EventType,
           sessionId: message.EventSessionId,
@@ -92,6 +99,8 @@ export class TtsSocket extends SocketManager {
         console.warn(`Unsupported message type: ${(message as { Type: string }).Type}`);
         return;
     }
+
+    console.log(`Say message received: ${JSON.stringify(message, null, 2)}`);
 
     const audioClass = classifyAudioClass(message);
     if (!audioClass) {
@@ -115,8 +124,12 @@ export class TtsSocket extends SocketManager {
       tts: {
         text,
         speaker: message.Speaker?.toLowerCase(),
-        gender: message.Voice?.Name?.toLocaleLowerCase(),
-        race: message.Race?.toLocaleLowerCase(),
+        source: message.Source,
+        language: message.Language ?? undefined,
+        chatType: message.ChatType ?? undefined,
+        speakerWorld: message.SpeakerWorld ?? undefined,
+        gender: normalizeCharacterMetadata(message.Gender ?? message.Voice?.Name),
+        race: normalizeCharacterMetadata(message.Race),
         voiceOverrides: this.preset.voiceOverrides,
         volume: message.Volume ?? 1,
       },

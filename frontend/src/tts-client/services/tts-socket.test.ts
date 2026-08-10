@@ -189,7 +189,7 @@ describe("TtsSocket", () => {
       );
     });
 
-    it("forwards speaker, gender, race, volume, and chat metadata", () => {
+    it("forwards speaker, gender, race, volume, language, and chat metadata", () => {
       createSocket();
       mockWsOnMessage?.(
         JSON.stringify({
@@ -197,8 +197,11 @@ describe("TtsSocket", () => {
           Source: "Chat",
           ChatType: 10,
           Speaker: "PlayerName",
+          SpeakerWorld: "Kraken",
           Race: "Hyur",
+          Gender: "Male",
           Voice: { Name: "en-US-Wavenet-D" },
+          Language: "Japanese",
           Volume: 0.8,
           Payload: "Hello with metadata",
         }),
@@ -211,9 +214,39 @@ describe("TtsSocket", () => {
           tts: expect.objectContaining({
             text: "Hello with metadata",
             speaker: "playername",
-            gender: "en-us-wavenet-d",
+            speakerWorld: "Kraken",
+            gender: "male",
             race: "hyur",
+            language: "Japanese",
             volume: 0.8,
+          }),
+        }),
+      );
+    });
+
+    it("treats None and Unknown character metadata as missing", () => {
+      createSocket();
+      mockWsOnMessage?.(
+        JSON.stringify({
+          Type: "Say",
+          Source: "Chat",
+          ChatType: 27,
+          Speaker: "Walter White",
+          SpeakerWorld: "Kraken",
+          Race: "Unknown",
+          Gender: "None",
+          Voice: { Name: "None" },
+          Payload: "FISH",
+        }),
+      );
+
+      expect(mockPlaybackIpc.createStream).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tts: expect.objectContaining({
+            speaker: "walter white",
+            speakerWorld: "Kraken",
+            race: undefined,
+            gender: undefined,
           }),
         }),
       );

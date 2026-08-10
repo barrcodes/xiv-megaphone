@@ -32,7 +32,7 @@ Renderer (AudioPlayer)
 
 1. **FFXIV plugin** sends `IpcMessage` with type `"Say"` (dialogue line), `"Cancel"` (stop NPC playback), or `"Event"` (session lifecycle) over WebSocket
 2. **Main process** `TtsSocket` receives the message:
-   - `"Say"` → classifies by source (`AddonTalk` → `npc`, `Chat` → `chat`, `AddonBattleTalk` → `flavor`), applies lexicon replacements, and forwards a `PlaybackRequest` via `PlaybackIpc.createStream()`
+   - `"Say"` → classifies by source (`AddonTalk` → `npc`, `Chat` → `chat`, `AddonBattleTalk` → `flavor`), applies lexicon replacements, and forwards a `PlaybackRequest` via `PlaybackIpc.createStream()`. The IPC `Language` value is preserved in the TTS request.
    - `"Cancel"` → sends `CancelScopePayload` with `{ scope: "npc" }` via `PlaybackIpc.cancel()`; plugin cancellation never stops chat or flavor
    - `"Event"` → validates and forwards via `PlaybackIpc.sendDialogueEvent()`
 3. **Renderer** `AudioPlayer` component receives the IPC events and forwards them to `AudioScheduler`
@@ -42,7 +42,7 @@ Renderer (AudioPlayer)
     - **flavor**: maintains a concurrent pool (default 3) using the oldest-first eviction strategy when at capacity; flavor is discarded during NPC playback or dialogue sessions
    - Dialogue session events (`AddonShown`, `TextReceived`, `DialogueContextEnded`, `TerritoryChanged`, `LoggedOut`, `PluginStopped`) control chat suppression during NPC interactions
 5. **StreamPlayer** handles the actual audio lifecycle:
-   - Calls `POST /tts/stream` to create a stream, then reads MP3 data via `ReadableStreamDefaultReader`
+   - Calls `POST /tts/stream` to create a stream, then reads MP3 data via `ReadableStreamDefaultReader`. The POST request span records `tts.source` and `tts.language`, which can be grouped to calculate request percentages.
    - Feeds chunks into a `MediaSource` with `audio/mpeg` source buffer
    - Plays through `AudioContext` with a `GainNode` for volume and mute control
    - Includes stale-generation protection: old `play()` calls are ignored after a replacement
