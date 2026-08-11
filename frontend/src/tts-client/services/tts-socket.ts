@@ -79,7 +79,7 @@ export class TtsSocket extends SocketManager {
         return;
 
       case "Event":
-        if (!message.EventType || !message.EventSessionId || !message.EventReason) {
+        if (!message.EventType || !message.EventSessionId || message.EventReason === undefined) {
           console.warn("Invalid dialogue event received");
           return;
         }
@@ -125,6 +125,7 @@ export class TtsSocket extends SocketManager {
         text,
         speaker: message.Speaker?.toLowerCase(),
         source: message.Source,
+        audioClass,
         language: message.Language ?? undefined,
         chatType: message.ChatType ?? undefined,
         speakerWorld: message.SpeakerWorld ?? undefined,

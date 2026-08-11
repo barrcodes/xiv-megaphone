@@ -42,7 +42,7 @@ Renderer (AudioPlayer)
     - **flavor**: maintains a concurrent pool (default 3) using the oldest-first eviction strategy when at capacity; flavor is discarded during NPC playback or dialogue sessions
    - Dialogue session events (`AddonShown`, `TextReceived`, `DialogueContextEnded`, `TerritoryChanged`, `LoggedOut`, `PluginStopped`) control chat suppression during NPC interactions
 5. **StreamPlayer** handles the actual audio lifecycle:
-   - Calls `POST /tts/stream` to create a stream, then reads MP3 data via `ReadableStreamDefaultReader`. The POST request span records `tts.source` and `tts.language`, which can be grouped to calculate request percentages.
+   - Calls `POST /tts/stream` to create a stream, then reads MP3 data via `ReadableStreamDefaultReader`. The request preserves the raw `source` and normalized `audioClass`; the POST request span records them as `tts.source` and `tts.audio_class`, respectively, along with `tts.language`.
    - Feeds chunks into a `MediaSource` with `audio/mpeg` source buffer
    - Plays through `AudioContext` with a `GainNode` for volume and mute control
    - Includes stale-generation protection: old `play()` calls are ignored after a replacement

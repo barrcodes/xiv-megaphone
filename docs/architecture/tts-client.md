@@ -76,6 +76,10 @@ interface PlaybackRequest {
 }
 ```
 
+`CreateStreamRequest` preserves both the raw addon `source` (`Chat`, `AddonTalk`, or
+`AddonBattleTalk`) and its normalized `audioClass` (`chat`, `npc`, or `flavor`) for
+backend tracing.
+
 ### DialogueEvent
 
 ```typescript

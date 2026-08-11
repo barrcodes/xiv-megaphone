@@ -95,7 +95,7 @@ describe("TtsSocket", () => {
       expect(mockPlaybackIpc.createStream).toHaveBeenCalledWith(
         expect.objectContaining({
           audioClass: "npc",
-          tts: expect.objectContaining({ text: "Hello NPC" }),
+          tts: expect.objectContaining({ text: "Hello NPC", audioClass: "npc" }),
         }),
       );
     });
@@ -111,7 +111,10 @@ describe("TtsSocket", () => {
       );
 
       expect(mockPlaybackIpc.createStream).toHaveBeenCalledWith(
-        expect.objectContaining({ audioClass: "chat" }),
+        expect.objectContaining({
+          audioClass: "chat",
+          tts: expect.objectContaining({ audioClass: "chat" }),
+        }),
       );
     });
 
@@ -126,7 +129,10 @@ describe("TtsSocket", () => {
       );
 
       expect(mockPlaybackIpc.createStream).toHaveBeenCalledWith(
-        expect.objectContaining({ audioClass: "flavor" }),
+        expect.objectContaining({
+          audioClass: "flavor",
+          tts: expect.objectContaining({ audioClass: "flavor" }),
+        }),
       );
     });
 
@@ -292,9 +298,9 @@ describe("TtsSocket", () => {
         JSON.stringify({
           Type: "Event",
           EventType: "event",
-          SessionId: "s1",
+          EventSessionId: "s1",
           Source: "AddonTalk",
-          Reason: "AddonShown",
+          EventReason: 1,
         }),
       );
 
@@ -302,7 +308,7 @@ describe("TtsSocket", () => {
         eventType: "event",
         sessionId: "s1",
         source: "AddonTalk",
-        reason: "AddonShown",
+        reason: 1,
       });
     });
 
@@ -312,9 +318,9 @@ describe("TtsSocket", () => {
         JSON.stringify({
           Type: "Event",
           EventType: "NpcDialogueSession",
-          SessionId: "s1",
+          EventSessionId: "s1",
           Source: "AddonTalk",
-          Reason: "AddonShown",
+          EventReason: 1,
         }),
       );
 
@@ -322,7 +328,27 @@ describe("TtsSocket", () => {
         eventType: "NpcDialogueSession",
         sessionId: "s1",
         source: "AddonTalk",
-        reason: "AddonShown",
+        reason: 1,
+      });
+    });
+
+    it("accepts enum value zero for the dialogue event reason", () => {
+      createSocket();
+      mockWsOnMessage?.(
+        JSON.stringify({
+          Type: "Event",
+          EventType: "NpcDialogueSession",
+          EventSessionId: "s1",
+          Source: "AddonTalk",
+          EventReason: 0,
+        }),
+      );
+
+      expect(mockPlaybackIpc.sendDialogueEvent).toHaveBeenCalledWith({
+        eventType: "NpcDialogueSession",
+        sessionId: "s1",
+        source: "AddonTalk",
+        reason: 0,
       });
     });
 
@@ -332,9 +358,9 @@ describe("TtsSocket", () => {
         JSON.stringify({
           Type: "DialogueEvent",
           EventType: "event",
-          // Missing SessionId
+          // Missing EventSessionId
           Source: "AddonTalk",
-          Reason: "AddonShown",
+          EventReason: 1,
         }),
       );
 
