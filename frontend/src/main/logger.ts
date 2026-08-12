@@ -70,7 +70,11 @@ const originalConsole = {
 
 function patchedConsole(level: LogLine["level"], args: unknown[]) {
   const message = args
-    .map((a) => (typeof a === "object" ? JSON.stringify(a) : String(a)))
+    .map((a) => {
+      if (a instanceof Error) return `${a.name}: ${a.message}\n${a.stack ?? ""}`;
+      if (typeof a === "object") return JSON.stringify(a);
+      return String(a);
+    })
     .join(" ");
   const line: LogLine = {
     level,

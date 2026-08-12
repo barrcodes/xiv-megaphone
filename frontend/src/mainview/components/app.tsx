@@ -38,23 +38,27 @@ export const App: React.FC = () => {
       getPort(),
       getStartOnStartup(),
       getVolume(),
-    ]).then(
-      ([
-        localPresets,
-        activePresetId,
-        connectionState,
-        portResult,
-        startupResult,
-        volumeResult,
-      ]) => {
-        setPresets(localPresets);
-        setActivePresetId(activePresetId);
-        setConnectionStatus(connectionState.status);
-        setPort(portResult.port);
-        setStartOnStartup(startupResult.enabled);
-        setVolume(volumeResult.volume);
-      },
-    );
+    ])
+      .then(
+        ([
+          localPresets,
+          activePresetId,
+          connectionState,
+          portResult,
+          startupResult,
+          volumeResult,
+        ]) => {
+          setPresets(localPresets);
+          setActivePresetId(activePresetId);
+          setConnectionStatus(connectionState.status);
+          setPort(portResult.port);
+          setStartOnStartup(startupResult.enabled);
+          setVolume(volumeResult.volume);
+        },
+      )
+      .catch((error: unknown) => {
+        console.error("Failed to initialize app settings:", error);
+      });
   }, [setPresets, setActivePresetId, setConnectionStatus, setPort, setStartOnStartup, setVolume]);
 
   return (

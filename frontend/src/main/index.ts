@@ -209,13 +209,14 @@ app.whenReady().then(async () => {
   const startOnStartup = await getStartOnStartup();
   await setStartOnStartup(startOnStartup);
 
+  const manager = createTtsManager();
+  registerIpcHandlers(getWindow, manager, reconnect);
+
   createMainWindow();
 
   mainWindow?.on("ready-to-show", () => {
     createTray();
-    const manager = createTtsManager();
     manager.setWebContents(mainWindow?.webContents);
-    registerIpcHandlers(getWindow, manager, reconnect);
   });
 });
 
