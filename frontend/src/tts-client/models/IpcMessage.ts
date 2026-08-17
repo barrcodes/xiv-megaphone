@@ -12,6 +12,7 @@ export interface IpcMessage {
   Speaker: string | null;
   SpeakerWorld?: string | null;
   NpcId: number | null;
+  ModelCharaId: number | null;
   Race: string | null;
   Gender?: string | null;
   BodyType: string | null;

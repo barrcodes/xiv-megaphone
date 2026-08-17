@@ -6,6 +6,7 @@ export interface CreateStreamRequest {
   language?: string;
   chatType?: number;
   speakerWorld?: string;
+  modelCharaId?: number;
   gender?: string;
   race?: string;
   voiceOverrides?: Record<string, string>;

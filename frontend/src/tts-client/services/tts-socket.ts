@@ -129,6 +129,7 @@ export class TtsSocket extends SocketManager {
         language: message.Language ?? undefined,
         chatType: message.ChatType ?? undefined,
         speakerWorld: message.SpeakerWorld ?? undefined,
+        modelCharaId: message.ModelCharaId ?? undefined,
         gender: normalizeCharacterMetadata(message.Gender ?? message.Voice?.Name),
         race: normalizeCharacterMetadata(message.Race),
         voiceOverrides: this.preset.voiceOverrides,
