@@ -80,6 +80,11 @@ interface PlaybackRequest {
 `AddonBattleTalk`) and its normalized `audioClass` (`chat`, `npc`, or `flavor`) for
 backend tracing.
 
+The backend preserves the plugin's raw `text` in the cached stream request. It resolves
+an internal `textPrefix` from the language and sends `textPrefix + text` to the TTS
+provider. English has no prefix; French, German, and Japanese use provider accent
+prompts.
+
 ### DialogueEvent
 
 ```typescript
