@@ -8,6 +8,6 @@ procs:
     cwd: "frontend"
 
   voice-smoke:
-    cmd: ["bun", "run", "voice-smoke"]
+    cmd: ["bun", "run", "voice-smoke:run-voices"]
     cwd: "svc/backend/backend"
     autostart: false
