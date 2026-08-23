@@ -1,0 +1,13 @@
+procs:
+  backend:
+    cmd: ["bun", "run", "dev"]
+    cwd: "svc/backend/backend"
+
+  frontend:
+    cmd: ["bun", "run", "dev"]
+    cwd: "frontend"
+
+  voice-smoke:
+    cmd: ["bun", "run", "voice-smoke:run-voices"]
+    cwd: "svc/backend/backend"
+    autostart: false

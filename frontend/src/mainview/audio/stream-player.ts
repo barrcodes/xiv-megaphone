@@ -19,6 +19,7 @@ export interface StreamPlayerDeps {
     speaker?: string;
     gender?: string;
     race?: string;
+    modelCharaId?: number;
     voiceOverrides?: Record<string, string>;
     volume?: number;
   }): Promise<{ streamId: string; gain: number }>;

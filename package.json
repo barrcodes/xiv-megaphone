@@ -2,7 +2,9 @@
   "name": "xiv-megaphone-project",
   "type": "module",
   "scripts": {
-    "postinstall": "cd frontend && bun install"
+    "postinstall": "cd frontend && bun install",
+    "dev": "mprocs",
+    "smoke": "mprocs -c mprocs.smoke.yaml"
   },
   "devDependencies": {
     "@types/bun": "latest"

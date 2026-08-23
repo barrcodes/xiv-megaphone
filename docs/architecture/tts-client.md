@@ -82,6 +82,11 @@ backend tracing. Its optional `rawPayload` contains the original SeString before
 TextToTalk normalization and is used as the dialogue cache identity; `text` is the
 normalized payload sent to the backend.
 
+The backend preserves the plugin's raw `text` in the cached stream request. It resolves
+an internal `textPrefix` from the language and sends `textPrefix + text` to the TTS
+provider. English has no prefix; French, German, and Japanese use provider accent
+prompts.
+
 ### DialogueEvent
 
 ```typescript
