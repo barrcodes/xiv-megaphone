@@ -24,9 +24,9 @@ Abstract class managing WebSocket lifecycle:
 Extends `SocketManager`. Parses incoming JSON messages as `IpcMessage` objects:
 
 - `"Say"` — dialogue line with speaker name, text, and metadata. Classified by `Source`:
-  - `AddonTalk` → `npc`
-  - `Chat` → `chat`
-  - `AddonBattleTalk` → `flavor`
+  - `AddonTalk` and `AddonBattleTalk` → `npc`
+  - `Chat` → `chat`, except `ChatType.NPCDialogue` and `ChatType.NPCDialogueAnnouncements`, which → `npc`
+  - unsupported sources → discarded
   - Unknown sources are discarded
 - `"Cancel"` — stop NPC playback only (`{ scope: "npc" }`); chat and flavor are unaffected
 - `"Event"` — session lifecycle event (validated before forwarding)
@@ -78,20 +78,24 @@ interface PlaybackRequest {
 
 `CreateStreamRequest` preserves both the raw addon `source` (`Chat`, `AddonTalk`, or
 `AddonBattleTalk`) and its normalized `audioClass` (`chat`, `npc`, or `flavor`) for
-backend tracing.
+backend tracing. Its optional `rawPayload` contains the original SeString before
+TextToTalk normalization and is used as the dialogue cache identity; `text` is the
+normalized payload sent to the backend.
 
 ### DialogueEvent
 
 ```typescript
 interface DialogueEvent {
-  eventType: string
+   eventType: `NpcDialogueSessionStarted` | `NpcDialogueSessionEnded`
   sessionId: string
   source: TextSource
   reason: DialogueEventReason
 }
 ```
 
-DialogueEventReason: `TextReceived` | `AddonShown` | `DialogueContextEnded` | `TerritoryChanged` | `LoggedOut` | `PluginStopped`
+`EventType` is the authoritative dialogue-session lifecycle discriminator. `EventReason` is preserved from the plugin message but is not used to determine whether the session is active.
+
+DialogueEventReason: `TextReceived` | `AddonShown` | `DialogueContextStarted` | `DialogueContextEnded` | `TerritoryChanged` | `LoggedOut` | `PluginStopped`
 
 ### CancelScopePayload
 

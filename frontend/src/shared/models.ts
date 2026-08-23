@@ -1,5 +1,7 @@
 export interface CreateStreamRequest {
   text: string;
+  /** Original SeString used to identify pre-generated dialogue audio. */
+  rawPayload?: string;
   speaker?: string;
   source?: "Chat" | "AddonTalk" | "AddonBattleTalk" | "None";
   audioClass?: "npc" | "chat" | "flavor";

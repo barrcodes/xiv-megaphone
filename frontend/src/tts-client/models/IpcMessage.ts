@@ -1,4 +1,4 @@
-import type { DialogueEventReason, XivChatType } from "../../shared/playback";
+import type { DialogueEventReason, IpcEventType, XivChatType } from "../../shared/playback";
 
 export type IpcMessageType = "Say" | "Cancel" | "Event";
 export type TextSource = "Chat" | "AddonTalk" | "AddonBattleTalk" | "None";
@@ -16,6 +16,8 @@ export interface IpcMessage {
   Gender?: string | null;
   BodyType: string | null;
   Payload: string;
+  /** Original SeString before TextToTalk normalization. */
+  RawPayload?: string;
   PayloadTemplate: string;
   Voice: VoicePreset | null;
   StuttersRemoved: boolean;
@@ -23,14 +25,14 @@ export interface IpcMessage {
   ChatType: XivChatType | null;
   Language: string | null;
   Volume?: number;
-  EventType?: string;
+  EventType?: IpcEventType;
   EventSessionId?: string;
   EventReason?: DialogueEventReason;
 }
 
 export interface DialogueEventMessage {
   Type: "Event";
-  EventType: string;
+  EventType: IpcEventType;
   SessionId: string;
   Source: TextSource;
   Reason: DialogueEventReason;

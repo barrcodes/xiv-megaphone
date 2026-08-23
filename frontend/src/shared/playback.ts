@@ -100,11 +100,15 @@ export enum XivChatType {
   CrossLinkShell8 = 107,
 }
 
-export type IpcEventType = string;
+export enum IpcEventType {
+  NpcDialogueSessionStarted = "NpcDialogueSessionStarted",
+  NpcDialogueSessionEnded = "NpcDialogueSessionEnded",
+}
 
 export enum DialogueEventReason {
   TextReceived,
   AddonShown,
+  DialogueContextStarted,
   DialogueContextEnded,
   TerritoryChanged,
   LoggedOut,

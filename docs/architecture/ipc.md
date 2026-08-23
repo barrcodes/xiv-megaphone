@@ -50,6 +50,10 @@ interface PlaybackRequest {
 }
 ```
 
+`CreateStreamRequest.rawPayload` contains the original SeString payload before
+TextToTalk normalization. It is preserved for dialogue cache identity, while
+`text` contains the normalized payload used to create the TTS request.
+
 ### CancelScopePayload
 
 ```typescript

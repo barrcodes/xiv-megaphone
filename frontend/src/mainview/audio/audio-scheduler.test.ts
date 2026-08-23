@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { DialogueEvent, PlaybackRequest } from "../../shared/playback";
-import { DialogueEventReason } from "../../shared/playback";
+import { DialogueEventReason, IpcEventType } from "../../shared/playback";
 import {
   AudioScheduler,
   type IPlayer,
@@ -22,7 +22,14 @@ function makeRequest(overrides: Partial<PlaybackRequest> = {}): PlaybackRequest 
 
 function makeDialogueEvent(overrides: Partial<DialogueEvent> = {}): DialogueEvent {
   return {
-    eventType: "NpcDialogueSession",
+    eventType:
+      overrides.eventType ??
+      (overrides.reason === DialogueEventReason.DialogueContextEnded ||
+      overrides.reason === DialogueEventReason.TerritoryChanged ||
+      overrides.reason === DialogueEventReason.LoggedOut ||
+      overrides.reason === DialogueEventReason.PluginStopped
+        ? IpcEventType.NpcDialogueSessionEnded
+        : IpcEventType.NpcDialogueSessionStarted),
     sessionId: "session_1",
     source: "AddonTalk",
     reason: DialogueEventReason.AddonShown,
@@ -437,6 +444,35 @@ describe("AudioScheduler", () => {
       scheduler.handleDialogueEvent(event);
 
       expect(scheduler.activeDialogueSessionId).toBe("session_1");
+    });
+
+    it("DialogueContextStarted activates dialogue session and buffers chat", () => {
+      const { scheduler, chatPlayer } = makeScheduler();
+
+      scheduler.handleDialogueEvent(
+        makeDialogueEvent({ reason: DialogueEventReason.DialogueContextStarted }),
+      );
+      scheduler.enqueue(makeRequest({ audioClass: "chat" }));
+
+      expect(scheduler.activeDialogueSessionId).toBe("session_1");
+      expect(chatPlayer.currentRequest).toBeNull();
+      expect(scheduler.chatQueueLength).toBe(1);
+    });
+
+    it("uses event type instead of reason for session lifecycle", () => {
+      const { scheduler, chatPlayer } = makeScheduler();
+
+      scheduler.handleDialogueEvent(
+        makeDialogueEvent({
+          eventType: IpcEventType.NpcDialogueSessionStarted,
+          reason: DialogueEventReason.DialogueContextEnded,
+        }),
+      );
+      scheduler.enqueue(makeRequest({ audioClass: "chat" }));
+
+      expect(scheduler.activeDialogueSessionId).toBe("session_1");
+      expect(chatPlayer.currentRequest).toBeNull();
+      expect(scheduler.chatQueueLength).toBe(1);
     });
 
     it("DialogueContextEnded deactivates session", () => {

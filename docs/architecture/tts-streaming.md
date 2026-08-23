@@ -32,15 +32,15 @@ Renderer (AudioPlayer)
 
 1. **FFXIV plugin** sends `IpcMessage` with type `"Say"` (dialogue line), `"Cancel"` (stop NPC playback), or `"Event"` (session lifecycle) over WebSocket
 2. **Main process** `TtsSocket` receives the message:
-   - `"Say"` → classifies by source (`AddonTalk` → `npc`, `Chat` → `chat`, `AddonBattleTalk` → `flavor`), applies lexicon replacements, and forwards a `PlaybackRequest` via `PlaybackIpc.createStream()`. The IPC `Language` value is preserved in the TTS request.
+   - `"Say"` → classifies game-world speech (`AddonTalk`, `AddonBattleTalk`, and `ChatType.NPCDialogue`/`NPCDialogueAnnouncements`) as `npc`; other `Chat` messages as `chat`; unsupported sources are dropped. It applies lexicon replacements to `Payload`, preserves `RawPayload` for cache identity, and forwards a `PlaybackRequest` via `PlaybackIpc.createStream()`. The IPC `Language` value is preserved in the TTS request.
    - `"Cancel"` → sends `CancelScopePayload` with `{ scope: "npc" }` via `PlaybackIpc.cancel()`; plugin cancellation never stops chat or flavor
-   - `"Event"` → validates and forwards via `PlaybackIpc.sendDialogueEvent()`
+    - `"Event"` → validates and forwards via `PlaybackIpc.sendDialogueEvent()`; the renderer uses `EventType` (`NpcDialogueSessionStarted` or `NpcDialogueSessionEnded`) as the session lifecycle discriminator and does not infer lifecycle from numeric `EventReason` values
 3. **Renderer** `AudioPlayer` component receives the IPC events and forwards them to `AudioScheduler`
 4. **AudioScheduler** applies class-specific policies:
     - **npc**: replaces any active NPC playback immediately, cancels active flavor, suppresses incoming flavor while active, and interrupts chat if active
    - **chat**: maintains a FIFO queue; active chat is interrupted during NPC dialogue sessions and resumed when the session ends; respects queue size (10) and age (30s) limits with up to 3 resume attempts
     - **flavor**: maintains a concurrent pool (default 3) using the oldest-first eviction strategy when at capacity; flavor is discarded during NPC playback or dialogue sessions
-   - Dialogue session events (`AddonShown`, `TextReceived`, `DialogueContextEnded`, `TerritoryChanged`, `LoggedOut`, `PluginStopped`) control chat suppression during NPC interactions
+   - Dialogue session events (`NpcDialogueSessionStarted` and `NpcDialogueSessionEnded`) control chat suppression during NPC interactions
 5. **StreamPlayer** handles the actual audio lifecycle:
    - Calls `POST /tts/stream` to create a stream, then reads MP3 data via `ReadableStreamDefaultReader`. The request preserves the raw `source` and normalized `audioClass`; the POST request span records them as `tts.source` and `tts.audio_class`, respectively, along with `tts.language`.
    - Feeds chunks into a `MediaSource` with `audio/mpeg` source buffer
@@ -56,16 +56,14 @@ Renderer (AudioPlayer)
 | `chat` | FIFO queue | 1 | Interrupted during dialogue; auto-resumed |
 | `flavor` | Pool + eviction | Pool size (3) | Oldest evicted when pool full |
 
+Classification currently has no approved flavor source. Optional auditory texture should be added explicitly rather than treating unknown sources as flavor.
+
 ## Dialogue Session Events
 
-| Reason | Action |
+| Event type | Action |
 |--------|--------|
-| `AddonShown` | Start dialogue session, interrupt active chat |
-| `TextReceived` | Refresh session activity timer |
-| `DialogueContextEnded` | End session, resume interrupted chat |
-| `TerritoryChanged` | End session, resume interrupted chat |
-| `LoggedOut` | End session, resume interrupted chat |
-| `PluginStopped` | End session, resume interrupted chat |
+| `NpcDialogueSessionStarted` | Start dialogue session, interrupt active chat |
+| `NpcDialogueSessionEnded` | End session, resume interrupted chat |
 
 ## Scoped Cancellation
 

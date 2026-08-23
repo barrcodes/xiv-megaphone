@@ -1,6 +1,6 @@
 import { env } from "../../shared/env";
 import type { CancelScope, DialogueEvent, PlaybackRequest } from "../../shared/playback";
-import { DialogueEventReason } from "../../shared/playback";
+import { IpcEventType } from "../../shared/playback";
 
 export type StreamPlayerResult =
   | { kind: "completed" }
@@ -120,17 +120,11 @@ export class AudioScheduler {
   }
 
   handleDialogueEvent(event: DialogueEvent): void {
-    switch (event.reason) {
-      case DialogueEventReason.AddonShown:
+    switch (event.eventType) {
+      case IpcEventType.NpcDialogueSessionStarted:
         this.handleSessionStart(event);
         break;
-      case DialogueEventReason.TextReceived:
-        this.handleSessionActivity(event);
-        break;
-      case DialogueEventReason.DialogueContextEnded:
-      case DialogueEventReason.TerritoryChanged:
-      case DialogueEventReason.LoggedOut:
-      case DialogueEventReason.PluginStopped:
+      case IpcEventType.NpcDialogueSessionEnded:
         this.handleSessionEnd(event);
         break;
     }
@@ -355,15 +349,6 @@ export class AudioScheduler {
 
     if (this.activeChat) {
       this.interruptActiveChat(this.activeChat);
-    }
-  }
-
-  private handleSessionActivity(event: DialogueEvent): void {
-    if (this.activeDialogueSession?.sessionId !== event.sessionId) {
-      this.activeDialogueSession = {
-        sessionId: event.sessionId,
-        source: event.source,
-      };
     }
   }
 

@@ -1,6 +1,6 @@
 import type { WebContents } from "electron";
 import type WebSocket from "ws";
-import type { AudioClass, PlaybackRequest } from "../../shared/playback";
+import { type AudioClass, type PlaybackRequest, XivChatType } from "../../shared/playback";
 import type { Preset } from "../../shared/types";
 import type { IpcMessage } from "../models/IpcMessage";
 import { PlaybackIpc } from "./playback-ipc";
@@ -22,13 +22,20 @@ function nextRequestId(): string {
 
 function classifyAudioClass(message: IpcMessage): AudioClass | null {
   if (message.Type !== "Say") return null;
+
+  if (
+    message.ChatType === XivChatType.NPCDialogue ||
+    message.ChatType === XivChatType.NPCDialogueAnnouncements
+  ) {
+    return "npc";
+  }
+
   switch (message.Source) {
     case "AddonTalk":
+    case "AddonBattleTalk":
       return "npc";
     case "Chat":
       return "chat";
-    case "AddonBattleTalk":
-      return "flavor";
     default:
       return null;
   }
@@ -126,6 +133,7 @@ export class TtsSocket extends SocketManager {
         speaker: message.Speaker?.toLowerCase(),
         source: message.Source,
         audioClass,
+        rawPayload: message.RawPayload ?? message.Payload,
         language: message.Language ?? undefined,
         chatType: message.ChatType ?? undefined,
         speakerWorld: message.SpeakerWorld ?? undefined,
