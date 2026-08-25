@@ -7,6 +7,7 @@
     "smoke": "mprocs -c mprocs.smoke.yaml"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.5.9",
     "@types/bun": "latest"
   },
   "peerDependencies": {
