@@ -25,8 +25,8 @@ Queries for backend API data:
 
 | Query | Hook  | Refresh |
 |-------|------|---------|
-| Balance | `useBalance` | On mount, after checkout |
-| Account status | `useAccountStatus` | On mount, after checkout |
+| Balance | `useBalance` | On mount, after checkout, or manual refresh |
+| Account status | `useAccountStatus` | On mount, after checkout, or manual refresh |
 | Auto-refresh | `useRefreshBalanceOnStream`| After each TTS stream |
 
 ## React Hook Form (Form State)

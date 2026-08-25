@@ -1,4 +1,4 @@
-import { Clock, CreditCard, Crown } from "lucide-react";
+import { Clock, CreditCard, Crown, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { createCheckoutSession, createPortalSession } from "../api";
 import { DISCORD_INVITE_URL } from "../lib/links";
@@ -24,8 +24,18 @@ function formatDate(dateStr: string): string {
 }
 
 export function AccountPage() {
-  const { data: balance, isLoading: balanceLoading } = useBalance();
-  const { data: accountStatus, isLoading: statusLoading } = useAccountStatus();
+  const {
+    data: balance,
+    isLoading: balanceLoading,
+    isFetching: balanceFetching,
+    refetch: refetchBalance,
+  } = useBalance();
+  const {
+    data: accountStatus,
+    isLoading: statusLoading,
+    isFetching: statusFetching,
+    refetch: refetchAccountStatus,
+  } = useAccountStatus();
   const [purchasing, setPurchasing] = useState(false);
 
   const handlePurchaseCredits = async () => {
@@ -62,6 +72,11 @@ export function AccountPage() {
   };
 
   const loading = balanceLoading || statusLoading;
+  const refreshing = balanceFetching || statusFetching;
+
+  const handleRefresh = async () => {
+    await Promise.all([refetchBalance(), refetchAccountStatus()]);
+  };
 
   const accountTypeBadge = {
     free: <Badge variant="secondary">Free</Badge>,
@@ -85,18 +100,32 @@ export function AccountPage() {
 
       <Card className="glow-border animate-fade-in-up" style={{ animationDelay: "0.05s" }}>
         <CardContent className="pt-6">
-          <div className="flex items-center gap-3">
-            <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10">
-              <CreditCard className="size-6 text-primary" />
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10">
+                <CreditCard className="size-6 text-primary" />
+              </div>
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Credit Balance
+                </p>
+                <p className="font-display text-3xl font-bold text-foreground">
+                  {loading ? "..." : formatDollars(balance ?? 0)}
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Credit Balance
-              </p>
-              <p className="font-display text-3xl font-bold text-foreground">
-                {loading ? "..." : formatDollars(balance ?? 0)}
-              </p>
-            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              onClick={handleRefresh}
+              disabled={refreshing}
+              aria-label="Refresh credit balance"
+              title="Refresh credit balance"
+            >
+              <RefreshCw className={refreshing ? "animate-spin" : undefined} />
+              <span className="sr-only">Refresh credit balance</span>
+            </Button>
           </div>
         </CardContent>
       </Card>
