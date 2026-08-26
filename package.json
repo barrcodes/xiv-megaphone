@@ -4,7 +4,10 @@
   "scripts": {
     "postinstall": "cd frontend && bun install",
     "dev": "mprocs",
-    "smoke": "mprocs -c mprocs.smoke.yaml"
+    "smoke": "mprocs -c mprocs.smoke.yaml",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "lint:migrate": "biome migrate --write"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.9",

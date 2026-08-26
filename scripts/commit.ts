@@ -1,6 +1,6 @@
 import { execSync } from "node:child_process";
 
-const commitMsg = await Bun.file(import.meta.dir + "/commit-msg.md").text();
+const commitMsg = await Bun.file(`${import.meta.dir}/commit-msg.md`).text();
 
 const messages = commitMsg
   .split("\n")

@@ -115,7 +115,10 @@ class FakePlayer implements IPlayer {
   failNext(error?: Error): void {
     const playback = this.currentPlayback;
     if (!playback) return;
-    playback.resolve({ kind: "errored", error: error ?? new Error("fake error") });
+    playback.resolve({
+      kind: "errored",
+      error: error ?? new Error("fake error"),
+    });
     this.playbacks.delete(playback.request.id);
     this.currentPlayback = null;
     this.currentRequest = null;
@@ -263,9 +266,18 @@ describe("AudioScheduler", () => {
 
     it("maintains FIFO order", async () => {
       const { scheduler, chatPlayer } = makeScheduler();
-      const req1 = makeRequest({ audioClass: "chat", tts: { text: "first", voiceOverrides: {} } });
-      const req2 = makeRequest({ audioClass: "chat", tts: { text: "second", voiceOverrides: {} } });
-      const req3 = makeRequest({ audioClass: "chat", tts: { text: "third", voiceOverrides: {} } });
+      const req1 = makeRequest({
+        audioClass: "chat",
+        tts: { text: "first", voiceOverrides: {} },
+      });
+      const req2 = makeRequest({
+        audioClass: "chat",
+        tts: { text: "second", voiceOverrides: {} },
+      });
+      const req3 = makeRequest({
+        audioClass: "chat",
+        tts: { text: "third", voiceOverrides: {} },
+      });
 
       scheduler.enqueue(req1);
       scheduler.enqueue(req2);
@@ -282,11 +294,26 @@ describe("AudioScheduler", () => {
 
     it("drops oldest queued chat on overflow", async () => {
       const { scheduler, chatPlayer } = makeScheduler();
-      const req1 = makeRequest({ audioClass: "chat", tts: { text: "first", voiceOverrides: {} } });
-      const req2 = makeRequest({ audioClass: "chat", tts: { text: "second", voiceOverrides: {} } });
-      const req3 = makeRequest({ audioClass: "chat", tts: { text: "third", voiceOverrides: {} } });
-      const req4 = makeRequest({ audioClass: "chat", tts: { text: "fourth", voiceOverrides: {} } });
-      const req5 = makeRequest({ audioClass: "chat", tts: { text: "fifth", voiceOverrides: {} } });
+      const req1 = makeRequest({
+        audioClass: "chat",
+        tts: { text: "first", voiceOverrides: {} },
+      });
+      const req2 = makeRequest({
+        audioClass: "chat",
+        tts: { text: "second", voiceOverrides: {} },
+      });
+      const req3 = makeRequest({
+        audioClass: "chat",
+        tts: { text: "third", voiceOverrides: {} },
+      });
+      const req4 = makeRequest({
+        audioClass: "chat",
+        tts: { text: "fourth", voiceOverrides: {} },
+      });
+      const req5 = makeRequest({
+        audioClass: "chat",
+        tts: { text: "fifth", voiceOverrides: {} },
+      });
 
       scheduler.enqueue(req1);
       scheduler.enqueue(req2);
@@ -304,8 +331,14 @@ describe("AudioScheduler", () => {
 
     it("expires stale queued chat", () => {
       const { scheduler, chatPlayer, advanceTime } = makeScheduler();
-      const req1 = makeRequest({ audioClass: "chat", tts: { text: "fresh", voiceOverrides: {} } });
-      const req2 = makeRequest({ audioClass: "chat", tts: { text: "stale", voiceOverrides: {} } });
+      const req1 = makeRequest({
+        audioClass: "chat",
+        tts: { text: "fresh", voiceOverrides: {} },
+      });
+      const req2 = makeRequest({
+        audioClass: "chat",
+        tts: { text: "stale", voiceOverrides: {} },
+      });
 
       scheduler.enqueue(req1);
       scheduler.enqueue(req2);
@@ -319,7 +352,9 @@ describe("AudioScheduler", () => {
     it("enqueues chat during NPC dialogue session", () => {
       const { scheduler, chatPlayer } = makeScheduler();
       const chatReq = makeRequest({ audioClass: "chat" });
-      const dialogueEvent = makeDialogueEvent({ reason: DialogueEventReason.AddonShown });
+      const dialogueEvent = makeDialogueEvent({
+        reason: DialogueEventReason.AddonShown,
+      });
 
       scheduler.handleDialogueEvent(dialogueEvent);
       scheduler.enqueue(chatReq);
@@ -386,7 +421,10 @@ describe("AudioScheduler", () => {
       // Interrupted again by another NPC
       const npc2 = makeRequest({ audioClass: "npc" });
       scheduler.handleDialogueEvent(
-        makeDialogueEvent({ sessionId: "session_2", reason: DialogueEventReason.AddonShown }),
+        makeDialogueEvent({
+          sessionId: "session_2",
+          reason: DialogueEventReason.AddonShown,
+        }),
       );
       scheduler.enqueue(npc2);
 
@@ -403,7 +441,10 @@ describe("AudioScheduler", () => {
       // Interrupted a third time
       const npc3 = makeRequest({ audioClass: "npc" });
       scheduler.handleDialogueEvent(
-        makeDialogueEvent({ sessionId: "session_3", reason: DialogueEventReason.AddonShown }),
+        makeDialogueEvent({
+          sessionId: "session_3",
+          reason: DialogueEventReason.AddonShown,
+        }),
       );
       scheduler.enqueue(npc3);
 
@@ -439,7 +480,9 @@ describe("AudioScheduler", () => {
   describe("Dialogue session events", () => {
     it("AddonShown activates dialogue session", () => {
       const { scheduler } = makeScheduler();
-      const event = makeDialogueEvent({ reason: DialogueEventReason.AddonShown });
+      const event = makeDialogueEvent({
+        reason: DialogueEventReason.AddonShown,
+      });
 
       scheduler.handleDialogueEvent(event);
 
@@ -450,7 +493,9 @@ describe("AudioScheduler", () => {
       const { scheduler, chatPlayer } = makeScheduler();
 
       scheduler.handleDialogueEvent(
-        makeDialogueEvent({ reason: DialogueEventReason.DialogueContextStarted }),
+        makeDialogueEvent({
+          reason: DialogueEventReason.DialogueContextStarted,
+        }),
       );
       scheduler.enqueue(makeRequest({ audioClass: "chat" }));
 
@@ -488,10 +533,16 @@ describe("AudioScheduler", () => {
     it("stale session ID cannot end current session", () => {
       const { scheduler } = makeScheduler();
       scheduler.handleDialogueEvent(
-        makeDialogueEvent({ sessionId: "current", reason: DialogueEventReason.AddonShown }),
+        makeDialogueEvent({
+          sessionId: "current",
+          reason: DialogueEventReason.AddonShown,
+        }),
       );
       scheduler.handleDialogueEvent(
-        makeDialogueEvent({ sessionId: "stale", reason: DialogueEventReason.DialogueContextEnded }),
+        makeDialogueEvent({
+          sessionId: "stale",
+          reason: DialogueEventReason.DialogueContextEnded,
+        }),
       );
 
       expect(scheduler.activeDialogueSessionId).toBe("current");
@@ -499,7 +550,10 @@ describe("AudioScheduler", () => {
 
     it("repeated AddonShown for same session is harmless", () => {
       const { scheduler } = makeScheduler();
-      const event = makeDialogueEvent({ sessionId: "s1", reason: DialogueEventReason.AddonShown });
+      const event = makeDialogueEvent({
+        sessionId: "s1",
+        reason: DialogueEventReason.AddonShown,
+      });
 
       scheduler.handleDialogueEvent(event);
       scheduler.handleDialogueEvent(event);
@@ -567,10 +621,22 @@ describe("AudioScheduler", () => {
 
     it("evicts oldest flavor when pool is full", () => {
       const { scheduler, flavorPlayers } = makeScheduler();
-      const req1 = makeRequest({ audioClass: "flavor", tts: { text: "a", voiceOverrides: {} } });
-      const req2 = makeRequest({ audioClass: "flavor", tts: { text: "b", voiceOverrides: {} } });
-      const req3 = makeRequest({ audioClass: "flavor", tts: { text: "c", voiceOverrides: {} } });
-      const req4 = makeRequest({ audioClass: "flavor", tts: { text: "d", voiceOverrides: {} } });
+      const req1 = makeRequest({
+        audioClass: "flavor",
+        tts: { text: "a", voiceOverrides: {} },
+      });
+      const req2 = makeRequest({
+        audioClass: "flavor",
+        tts: { text: "b", voiceOverrides: {} },
+      });
+      const req3 = makeRequest({
+        audioClass: "flavor",
+        tts: { text: "c", voiceOverrides: {} },
+      });
+      const req4 = makeRequest({
+        audioClass: "flavor",
+        tts: { text: "d", voiceOverrides: {} },
+      });
 
       scheduler.enqueue(req1);
       scheduler.enqueue(req2);

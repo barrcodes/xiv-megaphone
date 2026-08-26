@@ -196,7 +196,9 @@ describe("PlaybackTrace", () => {
       trace.complete();
 
       expect(vi.mocked(mockSpan.setAttribute)).toHaveBeenCalledWith("tts.outcome", "completed");
-      expect(vi.mocked(mockSpan.setStatus)).toHaveBeenCalledWith({ code: SpanStatusCode.OK });
+      expect(vi.mocked(mockSpan.setStatus)).toHaveBeenCalledWith({
+        code: SpanStatusCode.OK,
+      });
     });
 
     it("ends play_audio span", () => {

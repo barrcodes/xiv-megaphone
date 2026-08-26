@@ -10,7 +10,10 @@ interface Props {
 
 export function LexiconTab({ disabled }: Props) {
   const { control, register } = useFormContext<PresetFormValues>();
-  const { fields, append, remove } = useFieldArray({ control, name: "lexicon" });
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "lexicon",
+  });
 
   return (
     <div className="space-y-4 animate-fade-in-up">
@@ -33,13 +36,17 @@ export function LexiconTab({ disabled }: Props) {
                 className="grid grid-cols-[1fr_1fr_auto] gap-3 items-center px-4 py-2.5 transition-colors hover:bg-secondary/20"
               >
                 <Input
-                  {...register(`lexicon.${index}.term` as const, { required: true })}
+                  {...register(`lexicon.${index}.term` as const, {
+                    required: true,
+                  })}
                   placeholder="e.g. Lechat"
                   disabled={disabled}
                   className="h-8"
                 />
                 <Input
-                  {...register(`lexicon.${index}.pronunciation` as const, { required: true })}
+                  {...register(`lexicon.${index}.pronunciation` as const, {
+                    required: true,
+                  })}
                   placeholder="e.g. Luh-shah"
                   disabled={disabled}
                   className="h-8"

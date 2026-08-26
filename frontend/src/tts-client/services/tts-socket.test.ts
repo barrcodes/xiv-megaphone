@@ -95,7 +95,10 @@ describe("TtsSocket", () => {
       expect(mockPlaybackIpc.createStream).toHaveBeenCalledWith(
         expect.objectContaining({
           audioClass: "npc",
-          tts: expect.objectContaining({ text: "Hello NPC", audioClass: "npc" }),
+          tts: expect.objectContaining({
+            text: "Hello NPC",
+            audioClass: "npc",
+          }),
         }),
       );
     });
@@ -130,8 +133,8 @@ describe("TtsSocket", () => {
 
       expect(mockPlaybackIpc.createStream).toHaveBeenCalledWith(
         expect.objectContaining({
-           audioClass: "npc",
-           tts: expect.objectContaining({ audioClass: "npc" }),
+          audioClass: "npc",
+          tts: expect.objectContaining({ audioClass: "npc" }),
         }),
       );
     });
@@ -155,7 +158,11 @@ describe("TtsSocket", () => {
           audioClass: "npc",
           source: "Chat",
           chatType,
-          tts: expect.objectContaining({ audioClass: "npc", source: "Chat", chatType }),
+          tts: expect.objectContaining({
+            audioClass: "npc",
+            source: "Chat",
+            chatType,
+          }),
         }),
       );
     });
@@ -214,7 +221,10 @@ describe("TtsSocket", () => {
 
       expect(mockPlaybackIpc.createStream).toHaveBeenCalledWith(
         expect.objectContaining({
-          tts: expect.objectContaining({ text: "hi bar", rawPayload: "hello foo" }),
+          tts: expect.objectContaining({
+            text: "hi bar",
+            rawPayload: "hello foo",
+          }),
         }),
       );
     });
@@ -361,7 +371,7 @@ describe("TtsSocket", () => {
       mockWsOnMessage?.(
         JSON.stringify({
           Type: "Event",
-           EventType: "NpcDialogueSessionStarted",
+          EventType: "NpcDialogueSessionStarted",
           EventSessionId: "s1",
           Source: "AddonTalk",
           EventReason: 1,
@@ -369,7 +379,7 @@ describe("TtsSocket", () => {
       );
 
       expect(mockPlaybackIpc.sendDialogueEvent).toHaveBeenCalledWith({
-         eventType: "NpcDialogueSessionStarted",
+        eventType: "NpcDialogueSessionStarted",
         sessionId: "s1",
         source: "AddonTalk",
         reason: 1,
@@ -381,7 +391,7 @@ describe("TtsSocket", () => {
       mockWsOnMessage?.(
         JSON.stringify({
           Type: "Event",
-           EventType: "NpcDialogueSessionStarted",
+          EventType: "NpcDialogueSessionStarted",
           EventSessionId: "s1",
           Source: "AddonTalk",
           EventReason: 1,
@@ -389,7 +399,7 @@ describe("TtsSocket", () => {
       );
 
       expect(mockPlaybackIpc.sendDialogueEvent).toHaveBeenCalledWith({
-         eventType: "NpcDialogueSessionStarted",
+        eventType: "NpcDialogueSessionStarted",
         sessionId: "s1",
         source: "AddonTalk",
         reason: 1,
@@ -401,7 +411,7 @@ describe("TtsSocket", () => {
       mockWsOnMessage?.(
         JSON.stringify({
           Type: "Event",
-           EventType: "NpcDialogueSessionStarted",
+          EventType: "NpcDialogueSessionStarted",
           EventSessionId: "s1",
           Source: "AddonTalk",
           EventReason: 0,

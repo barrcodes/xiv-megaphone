@@ -97,15 +97,9 @@ function parseArgs(argv: string[]): Options {
   const target = normalizeVersion(targetInput);
 
   const detectedPlatform =
-    process.platform === "win32"
-      ? "win32"
-      : process.platform === "darwin"
-        ? "darwin"
-        : undefined;
+    process.platform === "win32" ? "win32" : process.platform === "darwin" ? "darwin" : undefined;
 
-  const platform = (flags.get("platform") ?? detectedPlatform) as
-    | Options["platform"]
-    | undefined;
+  const platform = (flags.get("platform") ?? detectedPlatform) as Options["platform"] | undefined;
 
   if (!platform || !["darwin", "win32"].includes(platform)) {
     throw new Error(
@@ -122,25 +116,19 @@ function parseArgs(argv: string[]): Options {
 
   const intervalSeconds = Number(flags.get("interval") ?? 60);
   const timeoutValue = flags.get("timeout");
-  const timeoutSeconds =
-    typeof timeoutValue === "string" ? Number(timeoutValue) : undefined;
+  const timeoutSeconds = typeof timeoutValue === "string" ? Number(timeoutValue) : undefined;
 
   if (!Number.isFinite(intervalSeconds) || intervalSeconds <= 0) {
     throw new Error("--interval must be a positive number.");
   }
 
-  if (
-    timeoutSeconds !== undefined &&
-    (!Number.isFinite(timeoutSeconds) || timeoutSeconds <= 0)
-  ) {
+  if (timeoutSeconds !== undefined && (!Number.isFinite(timeoutSeconds) || timeoutSeconds <= 0)) {
     throw new Error("--timeout must be a positive number.");
   }
 
   const currentValue = flags.get("current");
   const current =
-    typeof currentValue === "string"
-      ? normalizeVersion(currentValue)
-      : previousPatch(target);
+    typeof currentValue === "string" ? normalizeVersion(currentValue) : previousPatch(target);
 
   return {
     owner,
@@ -150,8 +138,7 @@ function parseArgs(argv: string[]): Options {
     platform,
     arch,
     intervalMs: intervalSeconds * 1_000,
-    timeoutMs:
-      timeoutSeconds === undefined ? undefined : timeoutSeconds * 1_000,
+    timeoutMs: timeoutSeconds === undefined ? undefined : timeoutSeconds * 1_000,
     once: flags.get("once") === true,
   };
 }
@@ -170,17 +157,13 @@ function extractAdvertisedVersion(
 
       for (const candidate of [data.version, data.name]) {
         if (typeof candidate === "string") {
-          const match = candidate.match(
-            /v?(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)/,
-          );
+          const match = candidate.match(/v?(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)/);
           if (match) return normalizeVersion(match[1]);
         }
       }
 
       if (typeof data.url === "string") {
-        const match = data.url.match(
-          /(?:^|[-_/])v?(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)(?:[-_/]|$)/,
-        );
+        const match = data.url.match(/(?:^|[-_/])v?(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)(?:[-_/]|$)/);
         if (match) return normalizeVersion(match[1]);
       }
     } catch {
@@ -219,16 +202,12 @@ async function check(options: Options): Promise<boolean> {
       redirect: "follow",
     });
   } catch (error) {
-    console.warn(
-      `Request failed: ${error instanceof Error ? error.message : String(error)}`,
-    );
+    console.warn(`Request failed: ${error instanceof Error ? error.message : String(error)}`);
     return false;
   }
 
   if (response.status === 204) {
-    console.log(
-      `Not available yet: feed reports no update after ${options.current}.`,
-    );
+    console.log(`Not available yet: feed reports no update after ${options.current}.`);
     return false;
   }
 
@@ -242,15 +221,10 @@ async function check(options: Options): Promise<boolean> {
     return false;
   }
 
-  const advertisedVersion = extractAdvertisedVersion(
-    body,
-    response.headers.get("content-type"),
-  );
+  const advertisedVersion = extractAdvertisedVersion(body, response.headers.get("content-type"));
 
   if (!advertisedVersion) {
-    console.warn(
-      "Feed returned an update, but its version could not be parsed.",
-    );
+    console.warn("Feed returned an update, but its version could not be parsed.");
     console.warn(body.slice(0, 1_000));
     return false;
   }
@@ -262,9 +236,7 @@ async function check(options: Options): Promise<boolean> {
     return true;
   }
 
-  console.log(
-    `Waiting for ${options.target}; feed currently advertises ${advertisedVersion}.`,
-  );
+  console.log(`Waiting for ${options.target}; feed currently advertises ${advertisedVersion}.`);
 
   return false;
 }
@@ -295,10 +267,7 @@ async function main(): Promise<void> {
       process.exit(1);
     }
 
-    if (
-      options.timeoutMs !== undefined &&
-      Date.now() - startedAt >= options.timeoutMs
-    ) {
+    if (options.timeoutMs !== undefined && Date.now() - startedAt >= options.timeoutMs) {
       console.error(`❌ Timed out waiting for version ${options.target}.`);
       process.exit(1);
     }

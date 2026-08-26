@@ -12,11 +12,17 @@ vi.mock("../telemetry", () => ({
       recordException: vi.fn(),
     })),
   },
-  context: { active: vi.fn(() => "ctx"), with: (_ctx: unknown, fn: () => unknown) => fn() },
+  context: {
+    active: vi.fn(() => "ctx"),
+    with: (_ctx: unknown, fn: () => unknown) => fn(),
+  },
   trace: { setSpan: vi.fn(() => "parent-ctx") },
 }));
 
-let mockGainNode: { gain: { value: number }; connect: ReturnType<typeof vi.fn> };
+let mockGainNode: {
+  gain: { value: number };
+  connect: ReturnType<typeof vi.fn>;
+};
 
 beforeAll(() => {
   const fakeElementProto = () => {
@@ -171,7 +177,11 @@ function createFakeReader() {
   let done = false;
   return {
     read: vi.fn(() => {
-      if (done) return Promise.resolve({ done: true, value: undefined as unknown as Uint8Array });
+      if (done)
+        return Promise.resolve({
+          done: true,
+          value: undefined as unknown as Uint8Array,
+        });
       done = true;
       return Promise.resolve({ done: false, value: new Uint8Array([1, 2, 3]) });
     }),

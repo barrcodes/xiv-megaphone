@@ -15,8 +15,6 @@
     "preview": "electron-vite build && electron-vite preview",
     "preview:dev": "electron-vite build --mode development && electron-vite preview --mode development --skipBuild",
     "package:win": "bun run build && electron-builder --win --config electron-builder.yml",
-    "lint": "biome check .",
-    "lint:fix": "biome check --write .",
     "test": "vitest run",
     "start": "electron-forge start",
     "package": "electron-forge package",

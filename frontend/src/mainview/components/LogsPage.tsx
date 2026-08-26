@@ -34,7 +34,12 @@ export function LogsPage() {
       icon: Info,
       label: "INFO",
     },
-    warn: { color: "text-warning", border: "border-l-warning", icon: AlertTriangle, label: "WARN" },
+    warn: {
+      color: "text-warning",
+      border: "border-l-warning",
+      icon: AlertTriangle,
+      label: "WARN",
+    },
     error: {
       color: "text-destructive",
       border: "border-l-destructive",
