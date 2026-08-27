@@ -33,6 +33,25 @@ This runs both the frontend and backend concurrently via `mprocs.yaml`:
 - **Frontend**: `bun dev` in `frontend/`
 - **Backend**: `bun dev` in `svc/backend/backend/`
 
+## Git Hooks
+
+Install the root dependencies with `bun install` to configure the root repository's hooks.
+The hooks are stored in `.githooks/` and configure themselves through Git's `core.hooksPath`.
+
+- **Pre-commit**: Runs `bun run lint:fix` and fails on Biome errors or warnings.
+- **Pre-push**: Runs the frontend test suite.
+
+The backend submodule has its own hooks. Install its dependencies from `svc/backend/` to
+configure them; see the backend [development setup](../../svc/backend/docs/development/setup.md).
+
+To configure the root hooks manually:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+Use `--no-verify` only when intentionally bypassing a hook.
+
 ## Smoke Test
 
 Start the smoke environment from the project root:

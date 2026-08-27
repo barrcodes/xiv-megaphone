@@ -3,10 +3,11 @@
   "type": "module",
   "scripts": {
     "postinstall": "cd frontend && bun install",
+    "prepare": "git config core.hooksPath .githooks",
     "dev": "mprocs",
     "smoke": "mprocs -c mprocs.smoke.yaml",
     "lint": "biome check .",
-    "lint:fix": "biome check --write .",
+    "lint:fix": "biome check --write --error-on-warnings .",
     "lint:migrate": "biome migrate --write"
   },
   "devDependencies": {
