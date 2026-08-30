@@ -1,4 +1,5 @@
 import { useFormContext } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import type { PresetFormValues } from "./PresetForm";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
@@ -8,27 +9,28 @@ interface Props {
 }
 
 export function GeneralTab({ disabled }: Props) {
+  const { t } = useTranslation();
   const { register } = useFormContext<PresetFormValues>();
 
   return (
     <div className="space-y-5 animate-fade-in-up">
       <Card>
         <CardHeader>
-          <CardTitle>Preset Name</CardTitle>
+          <CardTitle>{t("presets.presetName")}</CardTitle>
         </CardHeader>
         <CardContent>
           <Input
             id="name"
             {...register("name", { required: true })}
             disabled={disabled}
-            placeholder="My Custom Preset"
+            placeholder={t("presets.presetNamePlaceholder")}
           />
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Speaking Speed</CardTitle>
+          <CardTitle>{t("presets.speakingSpeed")}</CardTitle>
         </CardHeader>
         <CardContent>
           <Input
@@ -45,7 +47,7 @@ export function GeneralTab({ disabled }: Props) {
             })}
             disabled={disabled}
           />
-          <p className="text-xs text-muted-foreground mt-1">Range: 0.5x to 2.0x</p>
+          <p className="text-xs text-muted-foreground mt-1">{t("presets.speedRange")}</p>
         </CardContent>
       </Card>
     </div>

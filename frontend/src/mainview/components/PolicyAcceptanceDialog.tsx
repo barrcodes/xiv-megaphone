@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import { acceptPolicies, getPolicy, type PolicyData } from "@/api";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -7,11 +8,12 @@ import { PolicyViewerModal } from "./PolicyViewerModal";
 interface PolicyItemProps {
   label: string;
   policyId: "tos" | "privacy-policy";
+  language: string;
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
 }
 
-function PolicyItem({ label, policyId, checked, onCheckedChange }: PolicyItemProps) {
+function PolicyItem({ label, policyId, language, checked, onCheckedChange }: PolicyItemProps) {
   const [viewerOpen, setViewerOpen] = useState(false);
   const [policyData, setPolicyData] = useState<PolicyData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -19,7 +21,7 @@ function PolicyItem({ label, policyId, checked, onCheckedChange }: PolicyItemPro
   const handleView = async () => {
     setLoading(true);
     try {
-      const data = await getPolicy(policyId);
+      const data = await getPolicy(language, policyId);
       setPolicyData(data);
       setViewerOpen(true);
     } catch (err) {
@@ -40,15 +42,20 @@ function PolicyItem({ label, policyId, checked, onCheckedChange }: PolicyItemPro
             className="mt-0.5 size-4 rounded border-border bg-background text-primary accent-primary cursor-pointer"
           />
           <span className="text-sm leading-relaxed text-foreground select-none">
-            I accept the terms of the{" "}
-            <button
-              type="button"
-              onClick={handleView}
-              disabled={loading}
-              className="text-primary underline-offset-4 hover:underline inline cursor-pointer disabled:opacity-50"
-            >
-              {label}
-            </button>
+            <Trans
+              i18nKey="policies.acceptTerms"
+              values={{ policy: label }}
+              components={{
+                policy: (
+                  <button
+                    type="button"
+                    onClick={handleView}
+                    disabled={loading}
+                    className="text-primary underline-offset-4 hover:underline inline cursor-pointer disabled:opacity-50"
+                  />
+                ),
+              }}
+            />
           </span>
         </label>
       </div>
@@ -70,6 +77,8 @@ interface PolicyAcceptanceDialogProps {
 }
 
 export function PolicyAcceptanceDialog({ open, onAccepted }: PolicyAcceptanceDialogProps) {
+  const { t, i18n } = useTranslation();
+  const policyLanguage = i18n.resolvedLanguage ?? "en";
   const [tosChecked, setTosChecked] = useState(false);
   const [privacyChecked, setPrivacyChecked] = useState(false);
   const [accepting, setAccepting] = useState(false);
@@ -87,24 +96,22 @@ export function PolicyAcceptanceDialog({ open, onAccepted }: PolicyAcceptanceDia
     setError(null);
 
     try {
-      if (!policyData) {
-        const [tos, privacy] = await Promise.all([getPolicy("tos"), getPolicy("privacy-policy")]);
-        setPolicyData({ tos, privacy });
-      }
-
-      const { tos, privacy } =
+      const data =
         policyData ??
         (await (async () => {
-          const [t, p] = await Promise.all([getPolicy("tos"), getPolicy("privacy-policy")]);
-          const data = { tos: t, privacy: p };
+          const [tos, privacy] = await Promise.all([
+            getPolicy(policyLanguage, "tos"),
+            getPolicy(policyLanguage, "privacy-policy"),
+          ]);
+          const data = { tos, privacy };
           setPolicyData(data);
           return data;
         })());
 
-      await acceptPolicies(tos.versionId, privacy.versionId);
+      await acceptPolicies(data.tos.versionId, data.privacy.versionId);
       onAccepted();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to accept policies");
+      setError(err instanceof Error ? err.message : t("policies.failedToAccept"));
     } finally {
       setAccepting(false);
     }
@@ -117,21 +124,25 @@ export function PolicyAcceptanceDialog({ open, onAccepted }: PolicyAcceptanceDia
         className="sm:max-w-md"
         onInteractOutside={(e) => e.preventDefault()}
       >
-        <DialogTitle className="text-xl font-semibold text-center">Accept Policies</DialogTitle>
+        <DialogTitle className="text-xl font-semibold text-center">
+          {t("policies.acceptTitle")}
+        </DialogTitle>
         <p className="text-sm text-muted-foreground text-center -mt-1">
-          Please review and accept the following policies to continue using XIV Megaphone.
+          {t("policies.acceptDescription")}
         </p>
 
         <div className="space-y-4 py-4">
           <PolicyItem
-            label="Terms of Service"
+            label={t("policies.termsOfService")}
             policyId="tos"
+            language={policyLanguage}
             checked={tosChecked}
             onCheckedChange={setTosChecked}
           />
           <PolicyItem
-            label="Privacy Policy"
+            label={t("policies.privacyPolicy")}
             policyId="privacy-policy"
+            language={policyLanguage}
             checked={privacyChecked}
             onCheckedChange={setPrivacyChecked}
           />
@@ -140,7 +151,7 @@ export function PolicyAcceptanceDialog({ open, onAccepted }: PolicyAcceptanceDia
         {error && <p className="text-sm text-destructive text-center">{error}</p>}
 
         <Button onClick={handleAccept} disabled={!allChecked || accepting} className="w-full">
-          {accepting ? "Accepting..." : "Accept"}
+          {accepting ? t("policies.accepting") : t("policies.accept")}
         </Button>
       </DialogContent>
     </Dialog>

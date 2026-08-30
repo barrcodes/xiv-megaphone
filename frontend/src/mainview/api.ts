@@ -176,10 +176,14 @@ export interface PolicyData {
   content: string;
   version: string;
   versionId: string;
+  language: string;
 }
 
-export async function getPolicy(policyId: "tos" | "privacy-policy"): Promise<PolicyData> {
-  const res = await fetch(`${env.VITE_BACKEND_URL}/policies/${policyId}`);
+export async function getPolicy(
+  language: string,
+  policyId: "tos" | "privacy-policy",
+): Promise<PolicyData> {
+  const res = await fetch(`${env.VITE_BACKEND_URL}/policies/${language}/${policyId}`);
   if (!res.ok) throw new Error(`Failed to fetch policy: ${res.status}`);
   return res.json();
 }

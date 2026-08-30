@@ -19,7 +19,7 @@ Hash-based routing with React Router 7:
 
 ```
 <StrictMode>
-  <AuthProvider>                            ← Supabase auth context
+  <AuthProvider>                            ← authentication context
     <RouterProvider>                        ← HashRouter
       <LoginPage />                         ← /login
       <ResetPasswordPage />                 ← /reset-password

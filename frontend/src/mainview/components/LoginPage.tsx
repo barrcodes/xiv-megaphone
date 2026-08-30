@@ -1,9 +1,11 @@
 import { Eye, EyeOff, KeyRound, Mail } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import { type SocialProvider, signInWithProvider } from "../lib/social-auth";
 import { supabase } from "../lib/supabase";
 import { usePasswordValidation } from "../lib/use-password-validation";
+import { LanguageSelector } from "./LanguageSelector";
 import { PasswordRequirements } from "./password-requirements";
 import { DiscordIcon } from "./svg/discord";
 import { GoogleIcon } from "./svg/google";
@@ -14,6 +16,7 @@ import { Label } from "./ui/label";
 import { Separator } from "./ui/separator";
 
 export function LoginPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -60,7 +63,7 @@ export function LoginPage() {
 
     if (mode === "sign-up") {
       if (!passwordValidation.isValid) {
-        setError("Password does not meet all requirements.");
+        setError(t("auth.passwordInvalid"));
         return;
       }
     }
@@ -95,7 +98,7 @@ export function LoginPage() {
 
   const handlePasswordReset = async () => {
     if (!email) {
-      setError("Please enter your email address.");
+      setError(t("auth.emailRequired"));
       return;
     }
 
@@ -119,7 +122,7 @@ export function LoginPage() {
       console.log("Opening external URL for social sign-in:", url);
       await window.electronAPI.shellOpenExternal(url);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to sign in");
+      setError(err instanceof Error ? err.message : t("auth.signInFailed"));
     }
   };
 
@@ -151,6 +154,9 @@ export function LoginPage() {
 
   return (
     <main className="relative flex h-dvh flex-col mesh-bg">
+      <div className="absolute right-6 top-6 z-10">
+        <LanguageSelector />
+      </div>
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
           className={`absolute w-96 h-96 rounded-full blur-3xl transition-all duration-700 ${
@@ -178,15 +184,15 @@ export function LoginPage() {
                   <KeyRound className="size-7 text-primary" />
                 </div>
                 <h1 className="font-display text-2xl font-bold text-foreground">
-                  Check your email
+                  {t("auth.checkEmail")}
                 </h1>
                 <p className="text-sm text-muted-foreground mt-2 text-center">
-                  We sent a password reset link to
+                  {t("auth.passwordResetSent")}
                   <br />
                   <span className="font-medium text-foreground">{submittedResetEmail}</span>
                 </p>
                 <p className="text-xs text-muted-foreground mt-4 text-center max-w-xs">
-                  Click the link in that email to reset your password.
+                  {t("auth.resetEmailInstructions")}
                 </p>
               </div>
 
@@ -201,7 +207,7 @@ export function LoginPage() {
                   disabled={loading}
                   className="w-full h-11 font-medium"
                 >
-                  {loading ? "Sending..." : "Resend email"}
+                  {loading ? t("auth.sending") : t("auth.resendEmail")}
                 </Button>
                 <Button
                   variant="outline"
@@ -212,7 +218,7 @@ export function LoginPage() {
                   }}
                   className="w-full h-11 font-medium"
                 >
-                  Back to sign in
+                  {t("auth.backToSignIn")}
                 </Button>
               </div>
             </>
@@ -223,15 +229,15 @@ export function LoginPage() {
                   <Mail className="size-7 text-primary" />
                 </div>
                 <h1 className="font-display text-2xl font-bold text-foreground">
-                  Check your email
+                  {t("auth.checkEmail")}
                 </h1>
                 <p className="text-sm text-muted-foreground mt-2 text-center">
-                  We sent a confirmation link to
+                  {t("auth.confirmationSent")}
                   <br />
                   <span className="font-medium text-foreground">{submittedEmail}</span>
                 </p>
                 <p className="text-xs text-muted-foreground mt-4 text-center max-w-xs">
-                  Click the link in that email to finish creating your account.
+                  {t("auth.confirmationInstructions")}
                 </p>
               </div>
 
@@ -246,7 +252,7 @@ export function LoginPage() {
                   disabled={loading}
                   className="w-full h-11 font-medium"
                 >
-                  {loading ? "Sending..." : "Resend email"}
+                  {loading ? t("auth.sending") : t("auth.resendEmail")}
                 </Button>
                 <Button
                   variant="outline"
@@ -257,7 +263,7 @@ export function LoginPage() {
                   }}
                   className="w-full h-11 font-medium"
                 >
-                  Back to sign in
+                  {t("auth.backToSignIn")}
                 </Button>
               </div>
             </>
@@ -270,7 +276,7 @@ export function LoginPage() {
                   className="w-full h-11 font-medium gap-3"
                 >
                   <GoogleIcon className="size-4 shrink-0" />
-                  Continue with Google
+                  {t("auth.continueWith", { provider: "Google" })}
                 </Button>
                 <Button
                   variant="outline"
@@ -278,7 +284,7 @@ export function LoginPage() {
                   className="w-full h-11 font-medium gap-3"
                 >
                   <DiscordIcon className="size-4 shrink-0 fill-current text-indigo-500" />
-                  Continue with Discord
+                  {t("auth.continueWith", { provider: "Discord" })}
                 </Button>
                 <Button
                   variant="outline"
@@ -286,14 +292,14 @@ export function LoginPage() {
                   className="w-full h-11 font-medium gap-3"
                 >
                   <TwitchIcon className="size-4 shrink-0 fill-current text-purple-600" />
-                  Continue with Twitch
+                  {t("auth.continueWith", { provider: "Twitch" })}
                 </Button>
               </div>
 
               <div className="relative my-6">
                 <Separator />
                 <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-2 text-xs text-muted-foreground">
-                  {mode === "sign-in" ? "Or sign in with" : "Or sign up with"}
+                  {mode === "sign-in" ? t("auth.orSignInWith") : t("auth.orSignUpWith")}
                 </span>
               </div>
 
@@ -303,12 +309,12 @@ export function LoginPage() {
                     htmlFor="email"
                     className="text-xs font-medium uppercase tracking-wider text-muted-foreground"
                   >
-                    Email
+                    {t("auth.email")}
                   </Label>
                   <Input
                     id="email"
                     type="email"
-                    placeholder="you@example.com"
+                    placeholder={t("auth.emailPlaceholder")}
                     value={email}
                     onChange={(event) => setEmail(event.target.value)}
                     required
@@ -321,13 +327,15 @@ export function LoginPage() {
                     htmlFor="password"
                     className="text-xs font-medium uppercase tracking-wider text-muted-foreground"
                   >
-                    Password
+                    {t("auth.password")}
                   </Label>
                   <div className="relative">
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder={mode === "sign-in" ? "Enter your password" : "Create a password"}
+                      placeholder={
+                        mode === "sign-in" ? t("auth.enterPassword") : t("auth.createPassword")
+                      }
                       value={password}
                       onChange={(event) => setPassword(event.target.value)}
                       required
@@ -338,6 +346,7 @@ export function LoginPage() {
                       onClick={() => setShowPassword((prev) => !prev)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                       tabIndex={-1}
+                      aria-label={showPassword ? t("auth.hidePassword") : t("auth.showPassword")}
                     >
                       {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                     </button>
@@ -356,7 +365,11 @@ export function LoginPage() {
                   disabled={loading || (mode === "sign-up" && !passwordValidation.isValid)}
                   className="w-full h-11 font-medium"
                 >
-                  {loading ? "Working..." : mode === "sign-in" ? "Sign In" : "Create Account"}
+                  {loading
+                    ? t("auth.working")
+                    : mode === "sign-in"
+                      ? t("auth.signIn")
+                      : t("auth.createAccount")}
                 </Button>
 
                 <div className="flex items-center justify-between pt-2">
@@ -368,7 +381,7 @@ export function LoginPage() {
                       setError(null);
                     }}
                   >
-                    {mode === "sign-in" ? "Don't have an account? Sign up" : "Back to sign in"}
+                    {mode === "sign-in" ? t("auth.signUpPrompt") : t("auth.backToSignIn")}
                   </button>
                   {mode === "sign-in" && (
                     <button
@@ -376,7 +389,7 @@ export function LoginPage() {
                       className="text-sm text-muted-foreground hover:text-primary transition-colors"
                       onClick={handlePasswordReset}
                     >
-                      Forgot password?
+                      {t("auth.forgotPassword")}
                     </button>
                   )}
                 </div>

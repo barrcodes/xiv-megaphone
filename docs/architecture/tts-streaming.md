@@ -1,6 +1,6 @@
 # TTS Streaming
 
-## End-to-End Flow
+## Client Flow
 
 ```
 FFXIV Plugin (TextToTalk)
@@ -15,17 +15,9 @@ Renderer (AudioPlayer)
     │
     └─ AudioScheduler (classification, queuing, interruption)
          │
-         ├─ npc → StreamPlayer (replacement)
-         ├─ chat → StreamPlayer (FIFO + interruption + resume)
-         └─ flavor → StreamPlayer[n] (concurrent pool + eviction)
-              │
-              │ HTTP POST stream request, GET stream by id
-              ▼
-         Backend API
-              │
-              │ TTS SDK / API
-              ▼
-         TTS Provider
+          ├─ npc → StreamPlayer (replacement)
+          ├─ chat → StreamPlayer (FIFO + interruption + resume)
+          └─ flavor → StreamPlayer[n] (concurrent pool + eviction)
 ```
 
 ## Step-by-Step
@@ -42,7 +34,7 @@ Renderer (AudioPlayer)
     - **flavor**: maintains a concurrent pool (default 3) using the oldest-first eviction strategy when at capacity; flavor is discarded during NPC playback or dialogue sessions
    - Dialogue session events (`NpcDialogueSessionStarted` and `NpcDialogueSessionEnded`) control chat suppression during NPC interactions
 5. **StreamPlayer** handles the actual audio lifecycle:
-   - Calls `POST /tts/stream` to create a stream, then reads MP3 data via `ReadableStreamDefaultReader`. The request preserves the raw `source` and normalized `audioClass`; the POST request span records them as `tts.source` and `tts.audio_class`, respectively, along with `tts.language`.
+   - Requests an audio stream and reads MP3 data via `ReadableStreamDefaultReader`. The request preserves the raw `source`, normalized `audioClass`, and dialogue language metadata.
    - Feeds chunks into a `MediaSource` with `audio/mpeg` source buffer
    - Plays through `AudioContext` with a `GainNode` for volume and mute control
    - Includes stale-generation protection: old `play()` calls are ignored after a replacement
@@ -75,8 +67,8 @@ Each `StreamPlayer.play()` call increments a generation counter (`gen`). Async c
 
 ## Stream Lifecycle
 
-- **Start**: `POST /tts/stream` returns `{ streamId, gain }`
-- **Stream**: `GET /tts/stream/:streamId` returns MP3 audio as a byte stream
+- **Start**: `StreamPlayer` requests an audio stream and initializes the playback pipeline.
+- **Stream**: MP3 data is read incrementally and appended to the `MediaSource` buffer.
 - **Completion**: Reader EOF calls `MediaSource.endOfStream()`, but playback completes only after the audio element emits `ended`; buffered audio is not discarded at network EOF
 - **Cancel**: AbortController aborts the HTTP fetch; cleanup removes the audio element, revokes the object URL, and closes the AudioContext
 - **Error**: On failure, resolves as `{ kind: "errored", error }` or `{ kind: "cancelled" }` for AbortError

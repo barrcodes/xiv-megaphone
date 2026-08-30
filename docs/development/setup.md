@@ -3,20 +3,16 @@
 ## Prerequisites
 
 - [Bun](https://bun.sh) (latest)
-- [mprocs](https://github.com/pvolok/mprocs) (for running frontend + backend concurrently)
+- [mprocs](https://github.com/pvolok/mprocs) (for running local app processes concurrently)
 
 ## Environment
 
-Copy `.env` files from the project root and each subproject. Key variables:
+The frontend configuration is in the tracked `frontend/.env` file. Keep only
+non-secret values that are intended to ship with the distributed app there;
+keep credentials and environment-specific secrets out of the repository.
+`VITE_DEBUG` is optional and defaults to `false`.
 
-### Frontend (`frontend/.env`)
-
-| Variable | Description |
-|----------|-------------|
-| `VITE_BACKEND_URL` | Backend API URL |
-| `VITE_SUPABASE_URL` | Supabase project URL |
-| `VITE_SUPABASE_ANON_KEY` | Supabase anon key for user auth requests |
-| `VITE_DEBUG` | Enable debug pages, as they are added |
+Use `frontend/.env.development.local` for local-only overrides when needed.
 
 ### Main Process (`src/main/`)
 
@@ -29,9 +25,17 @@ Uses `src/shared/env.ts` which reads from `import.meta.env` (Vite) or `process.e
 bun run dev
 ```
 
-This runs both the frontend and backend concurrently via `mprocs.yaml`:
-- **Frontend**: `bun dev` in `frontend/`
-- **Backend**: `bun dev` in `svc/backend/backend/`
+This runs the local app processes concurrently via `mprocs.yaml`.
+
+Install backend dependencies separately before starting the complete local app:
+
+```bash
+cd svc/backend
+bun install
+```
+
+See the [backend development setup](../../svc/backend/docs/development/setup.md)
+for backend environment and local database requirements.
 
 ## Git Hooks
 
@@ -40,9 +44,6 @@ The hooks are stored in `.githooks/` and configure themselves through Git's `cor
 
 - **Pre-commit**: Runs `bun run lint:fix` and fails on Biome errors or warnings.
 - **Pre-push**: Runs the frontend test suite.
-
-The backend submodule has its own hooks. Install its dependencies from `svc/backend/` to
-configure them; see the backend [development setup](../../svc/backend/docs/development/setup.md).
 
 To configure the root hooks manually:
 
@@ -60,20 +61,6 @@ Start the smoke environment from the project root:
 bun run smoke
 ```
 
-This uses `mprocs.smoke.yaml` to start the frontend and backend automatically.
-The `voice-smoke` process is intentionally not autostarted. After the Electron
-client is ready, select `voice-smoke` in the mprocs UI and start it manually.
-
-The smoke runner defaults to English and French dialogue cases plus the
-English-only beast cases. It connects to the Electron client on port `57575`
-and may consume TTS credits.
-
-The equivalent direct command is:
-
-```bash
-mprocs -f mprocs.smoke.yaml
-```
-
-## Backend
-
-For backend-specific setup, see [svc/backend/docs/development/setup.md](../../svc/backend/docs/development/setup.md).
+The smoke environment is configured separately from the frontend development
+environment. Use the project-specific smoke command when validating the complete
+application locally.

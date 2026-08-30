@@ -8,11 +8,14 @@ import { PresetList } from "./components/PresetList";
 import { SettingsPage } from "./components/SettingsPage";
 import { AuthProvider } from "./lib/auth-provider";
 import "./index.css";
+import i18next from "i18next";
+import { I18nextProvider } from "react-i18next";
 import { AccountPage } from "./components/AccountPage";
 import { LoginPage } from "./components/LoginPage";
 import { RequireAuth } from "./components/RequireAuth";
 import { ResetPasswordPage } from "./components/ResetPasswordPage";
 import { RequireDebug } from "./guards/RequireDebug";
+import { initializeRendererI18n } from "./lib/i18n";
 
 const router = createHashRouter([
   {
@@ -47,10 +50,18 @@ const router = createHashRouter([
 const rootElement = document.getElementById("root");
 if (!rootElement) throw new Error("Root element not found");
 
-createRoot(rootElement).render(
-  <StrictMode>
-    <AuthProvider>
-      <RouterProvider router={router} />
-    </AuthProvider>
-  </StrictMode>,
-);
+initializeRendererI18n()
+  .then(() => {
+    createRoot(rootElement).render(
+      <StrictMode>
+        <I18nextProvider i18n={i18next}>
+          <AuthProvider>
+            <RouterProvider router={router} />
+          </AuthProvider>
+        </I18nextProvider>
+      </StrictMode>,
+    );
+  })
+  .catch((error) => {
+    console.error("Failed to initialize localization:", error);
+  });

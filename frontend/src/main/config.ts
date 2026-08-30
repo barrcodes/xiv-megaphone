@@ -83,3 +83,25 @@ export async function setStartOnStartup(enabled: boolean): Promise<void> {
     }
   }
 }
+
+export async function getLanguage(): Promise<string | null> {
+  if (!existsSync(configFile)) return null;
+  const data = JSON.parse(await fs.readFile(configFile, "utf-8")) as {
+    language?: string;
+  };
+  return data.language ?? null;
+}
+
+export async function setLanguage(language: string | null): Promise<void> {
+  const current = existsSync(configFile)
+    ? (JSON.parse(await fs.readFile(configFile, "utf-8")) as Record<string, unknown>)
+    : {};
+
+  if (language === null) {
+    delete current.language;
+  } else {
+    current.language = language;
+  }
+
+  await fs.writeFile(configFile, JSON.stringify(current, null, 2));
+}

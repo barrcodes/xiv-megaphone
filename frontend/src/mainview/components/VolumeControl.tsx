@@ -1,4 +1,5 @@
 import { Volume2, VolumeX } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { setVolume as persistVolume } from "../lib/ipc";
 import { useStore } from "../store";
@@ -10,6 +11,7 @@ const UNITY_POSITION = UNITY_VOLUME / MAX_VOLUME;
 const UNITY_SNAP_THRESHOLD = 0.1;
 
 export function VolumeControl() {
+  const { t } = useTranslation();
   const { volume, muted, setVolume, setMuted } = useStore();
 
   return (
@@ -19,7 +21,7 @@ export function VolumeControl() {
           type="button"
           onClick={() => setMuted(!muted)}
           className="flex size-4 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
-          aria-label={muted ? "Unmute" : "Mute"}
+          aria-label={muted ? t("common.unmute") : t("common.mute")}
         >
           {muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
         </button>
@@ -36,7 +38,7 @@ export function VolumeControl() {
           }}
           disabled={muted}
           markAt={UNITY_POSITION}
-          aria-label="Volume"
+          aria-label={t("common.volume")}
           className="flex-1"
         />
         <span

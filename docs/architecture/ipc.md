@@ -16,6 +16,8 @@ The preload script (`src/preload/index.ts`) exposes typed methods via `contextBr
 | `setPort` | `port: number` | `void` | Set WebSocket port |
 | `getStartOnStartup` | — | `boolean` | Get auto-start setting |
 | `setStartOnStartup` | `enabled: boolean` | `void` | Set auto-start |
+| `getI18nState` | — | `I18nState` | Get system, selected, and effective UI languages |
+| `setLanguage` | `language: SupportedLanguage \| null` | `I18nState` | Persist or clear the UI language override and update native UI |
 | `connect` | — | `void` | Connect to FFXIV plugin |
 | `disconnect` | — | `void` | Disconnect from FFXIV plugin |
 | `getAuthState` | — | `AuthState` | Get current auth state |
@@ -34,6 +36,8 @@ The preload script (`src/preload/index.ts`) exposes typed methods via `contextBr
 | `dialogueEvent` | `DialogueEvent` | Dialogue session lifecycle event |
 | `authCallback` | `AuthCallbackData` | OAuth callback received |
 | `checkoutComplete` | — | Payment provider checkout finished |
+
+Localization uses the channels `app:get-i18n-state` and `app:set-language`. The renderer receives the effective UI locale before initialization; TTS/game language is metadata in `PlaybackRequest.tts.language`, not an IPC UI-locale setting. See [frontend i18n](../frontend/i18n.md).
 
 ## Types
 

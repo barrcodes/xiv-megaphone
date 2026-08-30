@@ -1,5 +1,6 @@
 import { Clock, CreditCard, Crown, RefreshCw } from "lucide-react";
 import { useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import { createCheckoutSession, createPortalSession } from "../api";
 import { DISCORD_INVITE_URL } from "../lib/links";
 import { useAccountStatus } from "../queries/useAccountStatus";
@@ -24,6 +25,7 @@ function formatDate(dateStr: string): string {
 }
 
 export function AccountPage() {
+  const { t } = useTranslation();
   const {
     data: balance,
     isLoading: balanceLoading,
@@ -79,9 +81,13 @@ export function AccountPage() {
   };
 
   const accountTypeBadge = {
-    free: <Badge variant="secondary">Free</Badge>,
-    premium: <Badge className="bg-primary/15 text-primary border-primary/20">Premium</Badge>,
-    subscriber: <Badge className="bg-accent/15 text-accent border-accent/20">Subscriber</Badge>,
+    free: <Badge variant="secondary">{t("account.free")}</Badge>,
+    premium: (
+      <Badge className="bg-primary/15 text-primary border-primary/20">{t("account.premium")}</Badge>
+    ),
+    subscriber: (
+      <Badge className="bg-accent/15 text-accent border-accent/20">{t("account.subscriber")}</Badge>
+    ),
   }[accountStatus?.accountType ?? "free"];
 
   const isSubscriber = accountStatus?.accountType === "subscriber";
@@ -90,10 +96,8 @@ export function AccountPage() {
     <div className="p-6 max-w-2xl mx-auto space-y-6 animate-fade-in-up">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-foreground">Account</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Manage your credits and subscription.
-          </p>
+          <h1 className="font-display text-2xl font-bold text-foreground">{t("account.title")}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t("account.description")}</p>
         </div>
         {accountTypeBadge}
       </div>
@@ -107,7 +111,7 @@ export function AccountPage() {
               </div>
               <div>
                 <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Credit Balance
+                  {t("account.creditBalance")}
                 </p>
                 <p className="font-display text-3xl font-bold text-foreground">
                   {loading ? "..." : formatDollars(balance ?? 0)}
@@ -120,11 +124,11 @@ export function AccountPage() {
               size="icon-sm"
               onClick={handleRefresh}
               disabled={refreshing}
-              aria-label="Refresh credit balance"
-              title="Refresh credit balance"
+              aria-label={t("account.refreshCreditBalance")}
+              title={t("account.refreshCreditBalance")}
             >
               <RefreshCw className={refreshing ? "animate-spin" : undefined} />
-              <span className="sr-only">Refresh credit balance</span>
+              <span className="sr-only">{t("account.refreshCreditBalance")}</span>
             </Button>
           </div>
         </CardContent>
@@ -139,18 +143,21 @@ export function AccountPage() {
               </div>
               <div>
                 <p className="text-sm font-medium text-foreground">
-                  Want to try before subscribing?
+                  {t("account.tryBeforeSubscribing")}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Join our{" "}
-                  <button
-                    type="button"
-                    onClick={() => window.electronAPI.shellOpenExternal(DISCORD_INVITE_URL)}
-                    className="underline underline-offset-2 hover:text-foreground transition-colors"
-                  >
-                    Discord
-                  </button>{" "}
-                  and ask for a limited trial.
+                  <Trans
+                    i18nKey="account.joinDiscordTrial"
+                    components={{
+                      discord: (
+                        <button
+                          type="button"
+                          onClick={() => window.electronAPI.shellOpenExternal(DISCORD_INVITE_URL)}
+                          className="underline underline-offset-2 hover:text-foreground transition-colors"
+                        />
+                      ),
+                    }}
+                  />
                 </p>
               </div>
             </div>
@@ -163,13 +170,13 @@ export function AccountPage() {
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
               <CreditCard className="size-4 text-primary" />
-              Buy Credits
+              {t("account.buyCredits")}
             </CardTitle>
-            <CardDescription>Pay-as-you-go with no subscription.</CardDescription>
+            <CardDescription>{t("account.payAsYouGo")}</CardDescription>
           </CardHeader>
           <CardContent>
             <Button onClick={handlePurchaseCredits} disabled={purchasing} className="w-full">
-              {purchasing ? "Opening..." : "Purchase Credits"}
+              {purchasing ? t("account.opening") : t("account.purchaseCredits")}
             </Button>
           </CardContent>
         </Card>
@@ -178,37 +185,35 @@ export function AccountPage() {
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
               <Crown className="size-4 text-accent" />
-              Subscription
+              {t("account.subscription")}
             </CardTitle>
             {isSubscriber && accountStatus?.subscription && (
               <CardDescription className="flex items-center gap-1.5">
                 <Clock className="size-3" />
-                Next billing: {formatDate(accountStatus.subscription.current_period_end)}
+                {t("account.nextBilling", {
+                  date: formatDate(accountStatus.subscription.current_period_end),
+                })}
               </CardDescription>
             )}
           </CardHeader>
           <CardContent>
             {isSubscriber ? (
               <div className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  Active subscription. Credits refresh monthly.
-                </p>
+                <p className="text-sm text-muted-foreground">{t("account.activeSubscription")}</p>
                 <Button variant="outline" onClick={handleManage} className="w-full">
-                  Manage Subscription
+                  {t("account.manageSubscription")}
                 </Button>
               </div>
             ) : (
               <div className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  $10/month for monthly credit refresh.
-                </p>
+                <p className="text-sm text-muted-foreground">{t("account.monthlyPrice")}</p>
                 <Button
                   variant="outline"
                   onClick={handleSubscribe}
                   disabled={purchasing}
                   className="w-full"
                 >
-                  {purchasing ? "Opening..." : "Subscribe $10/mo"}
+                  {purchasing ? t("account.opening") : t("account.subscribe")}
                 </Button>
               </div>
             )}

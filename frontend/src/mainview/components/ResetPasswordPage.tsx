@@ -1,5 +1,6 @@
 import { Eye, EyeOff, KeyRound } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/auth-provider";
 import { supabase } from "../lib/supabase";
@@ -10,6 +11,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 
 export function ResetPasswordPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, loading } = useAuth();
 
@@ -31,7 +33,7 @@ export function ResetPasswordPage() {
     setError(null);
 
     if (!passwordValidation.isValid) {
-      setError("Password does not meet all requirements.");
+      setError(t("auth.passwordInvalid"));
       return;
     }
 
@@ -65,8 +67,10 @@ export function ResetPasswordPage() {
             <div className="flex size-14 items-center justify-center rounded-2xl bg-primary/10 mb-4">
               <KeyRound className="size-7 text-primary" />
             </div>
-            <h1 className="font-display text-2xl font-bold text-foreground">Reset Password</h1>
-            <p className="text-sm text-muted-foreground mt-1">Enter your new password</p>
+            <h1 className="font-display text-2xl font-bold text-foreground">
+              {t("auth.resetPassword")}
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">{t("auth.enterNewPassword")}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -75,13 +79,13 @@ export function ResetPasswordPage() {
                 htmlFor="password"
                 className="text-xs font-medium uppercase tracking-wider text-muted-foreground"
               >
-                New Password
+                {t("auth.newPassword")}
               </Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Enter your new password"
+                  placeholder={t("auth.enterNewPasswordPlaceholder")}
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   required
@@ -92,6 +96,7 @@ export function ResetPasswordPage() {
                   onClick={() => setShowPassword((prev) => !prev)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                   tabIndex={-1}
+                  aria-label={showPassword ? t("auth.hidePassword") : t("auth.showPassword")}
                 >
                   {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                 </button>
@@ -110,7 +115,7 @@ export function ResetPasswordPage() {
               disabled={submitting || !passwordValidation.isValid}
               className="w-full h-11 font-medium"
             >
-              {submitting ? "Updating..." : "Set New Password"}
+              {submitting ? t("auth.updating") : t("auth.setNewPassword")}
             </Button>
           </form>
         </div>

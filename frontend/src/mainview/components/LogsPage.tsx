@@ -1,5 +1,6 @@
 import { AlertCircle, AlertTriangle, Info, Search, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useStore } from "../store";
 import { Button } from "./ui/button";
@@ -8,6 +9,7 @@ import { Input } from "./ui/input";
 type LogLevel = "all" | "log" | "warn" | "error";
 
 export function LogsPage() {
+  const { t } = useTranslation();
   const logs = useStore((s) => s.logs);
   const logContainerRef = useRef<HTMLDivElement>(null);
   const [filter, setFilter] = useState<LogLevel>("all");
@@ -32,36 +34,36 @@ export function LogsPage() {
       color: "text-foreground",
       border: "border-l-muted-foreground/30",
       icon: Info,
-      label: "INFO",
+      label: t("logs.infoShort"),
     },
     warn: {
       color: "text-warning",
       border: "border-l-warning",
       icon: AlertTriangle,
-      label: "WARN",
+      label: t("logs.warnShort"),
     },
     error: {
       color: "text-destructive",
       border: "border-l-destructive",
       icon: AlertCircle,
-      label: "ERR",
+      label: t("logs.errorShort"),
     },
   };
 
   const filterButtons: { value: LogLevel; label: string }[] = [
-    { value: "all", label: "All" },
-    { value: "log", label: "Info" },
-    { value: "warn", label: "Warn" },
-    { value: "error", label: "Error" },
+    { value: "all", label: t("logs.all") },
+    { value: "log", label: t("logs.info") },
+    { value: "warn", label: t("logs.warn") },
+    { value: "error", label: t("logs.error") },
   ];
 
   return (
     <div className="flex flex-col h-full animate-fade-in-up">
       <div className="flex items-center justify-between px-6 py-4 border-b border-border/40 shrink-0">
         <div>
-          <h1 className="font-display text-2xl font-bold text-foreground">Logs</h1>
+          <h1 className="font-display text-2xl font-bold text-foreground">{t("logs.title")}</h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            {filteredLogs.length} {filteredLogs.length === 1 ? "entry" : "entries"}
+            {t("logs.entry", { count: filteredLogs.length })}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -71,7 +73,7 @@ export function LogsPage() {
             className="h-7 text-xs"
             onClick={() => setAutoScroll(!autoScroll)}
           >
-            Auto-scroll
+            {t("logs.autoScroll")}
           </Button>
           <Button
             variant="ghost"
@@ -80,7 +82,7 @@ export function LogsPage() {
             onClick={() => useStore.setState({ logs: [] })}
           >
             <Trash2 className="size-3" />
-            Clear
+            {t("logs.clear")}
           </Button>
         </div>
       </div>
@@ -89,7 +91,7 @@ export function LogsPage() {
         <div className="relative flex-1 max-w-xs">
           <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Filter logs..."
+            placeholder={t("logs.filterPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="h-8 pl-8 text-xs"
@@ -118,7 +120,7 @@ export function LogsPage() {
         {filteredLogs.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full gap-2">
             <p className="text-sm text-muted-foreground">
-              {logs.length === 0 ? "No logs yet." : "No matching logs."}
+              {logs.length === 0 ? t("logs.noLogs") : t("logs.noMatchingLogs")}
             </p>
           </div>
         ) : (

@@ -1,9 +1,11 @@
 import { LogOut, Power, RefreshCw, Rocket, Wifi, WifiOff } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth-provider";
 import { disconnect, reconnect, setPort, setStartOnStartup } from "@/lib/ipc";
 import { supabase } from "@/lib/supabase";
 import { useStore } from "../store";
+import { LanguageSelector } from "./LanguageSelector";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
@@ -12,6 +14,7 @@ import { Separator } from "./ui/separator";
 import { Switch } from "./ui/switch";
 
 export function SettingsPage() {
+  const { t } = useTranslation();
   const {
     connectionStatus,
     port,
@@ -57,27 +60,37 @@ export function SettingsPage() {
   return (
     <div className="p-6 max-w-2xl mx-auto space-y-6 animate-fade-in-up">
       <div>
-        <h1 className="font-display text-2xl font-bold text-foreground">Settings</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Configure application behavior and connection options.
-        </p>
+        <h1 className="font-display text-2xl font-bold text-foreground">{t("settings.title")}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t("settings.description")}</p>
       </div>
 
       <Card className="animate-fade-in-up" style={{ animationDelay: "0.05s" }}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Rocket className="size-4 text-primary" />
-            Application
+            {t("settings.application")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
           <div className="flex items-center justify-between">
             <div>
+              <Label className="text-sm font-medium">{t("common.language")}</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {t("settings.languageDescription")}
+              </p>
+            </div>
+            <LanguageSelector />
+          </div>
+
+          <Separator className="bg-border/40" />
+
+          <div className="flex items-center justify-between">
+            <div>
               <Label htmlFor="startup-toggle" className="text-sm font-medium cursor-pointer">
-                Launch on startup
+                {t("settings.launchOnStartup")}
               </Label>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Automatically start XIV Megaphone when your computer boots.
+                {t("settings.launchOnStartupDescription")}
               </p>
             </div>
             <Switch
@@ -92,10 +105,10 @@ export function SettingsPage() {
           <div className="flex items-center justify-between">
             <div>
               <Label htmlFor="port-input" className="text-sm font-medium">
-                Connection Port
+                {t("settings.connectionPort")}
               </Label>
               <p className="text-xs text-muted-foreground mt-0.5">
-                The port used for the FFXIV plugin connection.
+                {t("settings.connectionPortDescription")}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -115,7 +128,7 @@ export function SettingsPage() {
                 onClick={handleRestart}
               >
                 <RefreshCw className="size-3.5" />
-                Restart
+                {t("settings.restart")}
               </Button>
             </div>
           </div>
@@ -126,19 +139,21 @@ export function SettingsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Wifi className="size-4 text-primary" />
-            Connection
+            {t("settings.connection")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium">
-                {connectionStatus === "connected" ? "Force Disconnect" : "Reconnect"}
+                {connectionStatus === "connected"
+                  ? t("settings.forceDisconnect")
+                  : t("settings.reconnect")}
               </p>
               <p className="text-xs text-muted-foreground mt-0.5">
                 {connectionStatus === "connected"
-                  ? "Manually disconnect the active game session."
-                  : "Reconnect to the game session."}
+                  ? t("settings.disconnectDescription")
+                  : t("settings.reconnectDescription")}
               </p>
             </div>
             <Button
@@ -150,11 +165,11 @@ export function SettingsPage() {
             >
               {connectionStatus === "connected" ? (
                 <>
-                  <WifiOff className="size-3.5" /> Disconnect
+                  <WifiOff className="size-3.5" /> {t("settings.disconnect")}
                 </>
               ) : (
                 <>
-                  <RefreshCw className="size-3.5" /> Reconnect
+                  <RefreshCw className="size-3.5" /> {t("settings.reconnect")}
                 </>
               )}
             </Button>
@@ -166,20 +181,20 @@ export function SettingsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <LogOut className="size-4 text-destructive" />
-            Account
+            {t("settings.account")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium">Sign Out</p>
+              <p className="text-sm font-medium">{t("settings.signOut")}</p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Log out of your current session.
+                {t("settings.signOutDescription")}
               </p>
             </div>
             <Button variant="destructive" size="sm" onClick={handleLogout} className="gap-1.5">
               <Power className="size-3.5" />
-              Logout
+              {t("settings.logout")}
             </Button>
           </div>
         </CardContent>

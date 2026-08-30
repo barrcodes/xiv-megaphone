@@ -1,4 +1,5 @@
 import { ArrowLeftIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import type { Preset } from "../../shared/types";
 import { savePreset } from "../lib/ipc";
@@ -7,6 +8,7 @@ import { PresetForm } from "./PresetForm";
 import { Button } from "./ui/button";
 
 export function PresetEditPage() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const { state } = useLocation();
   const presets = useStore((s) => s.presets);
@@ -23,10 +25,10 @@ export function PresetEditPage() {
   if (!preset) {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-3">
-        <p className="text-sm text-muted-foreground">Preset not found.</p>
+        <p className="text-sm text-muted-foreground">{t("presets.notFound")}</p>
         <Button variant="outline" size="sm" onClick={() => navigate("/")}>
           <ArrowLeftIcon className="size-3.5" />
-          Go Back
+          {t("presets.goBack")}
         </Button>
       </div>
     );
@@ -45,7 +47,11 @@ export function PresetEditPage() {
         </Button>
         <div>
           <h2 className="font-display text-xl font-bold text-foreground">
-            {preset.id === "default" ? "View Preset" : preset.name ? "Edit Preset" : "New Preset"}
+            {preset.id === "default"
+              ? t("presets.viewPreset")
+              : preset.name
+                ? t("presets.editPreset")
+                : t("presets.newPreset")}
           </h2>
           {preset.name && <p className="text-xs text-muted-foreground mt-0.5">{preset.name}</p>}
         </div>

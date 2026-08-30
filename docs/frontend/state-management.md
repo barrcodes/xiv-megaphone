@@ -19,9 +19,11 @@ interface AppStore {
 
 Setters are available for each field. The store is initialized in `App.tsx` via `useEffect` calling IPC methods (`getPresets`, `getActivePreset`, etc.). IPC listeners in `src/lib/ipc.ts` update the store reactively when the main process pushes changes.
 
+UI localization is not stored in Zustand. The main process owns the effective `I18nState`; the renderer initializes i18next from `getI18nState`, and `LanguageSelector` changes i18next directly before persisting through `app:set-language`. See [Internationalization](i18n.md).
+
 ## TanStack React Query (Server State)
 
-Queries for backend API data:
+Queries for remote application data:
 
 | Query | Hook  | Refresh |
 |-------|------|---------|

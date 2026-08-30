@@ -1,13 +1,16 @@
 import { app, type BrowserWindow, ipcMain, shell } from "electron";
+import type { SupportedLanguage } from "../shared/i18n/types";
 import type { ConnectionStatus } from "../shared/types";
 import {
   getPort,
   getStartOnStartup,
   getVolume,
+  setLanguage,
   setPort,
   setStartOnStartup,
   setVolume,
 } from "./config";
+import { getI18nState, setMainLanguage } from "./i18n";
 import {
   deletePreset,
   getActivePresetId,
@@ -23,6 +26,7 @@ export function registerIpcHandlers(
   getWindow: () => BrowserWindow | null,
   ttsManager: TtsManager,
   reconnect: () => void,
+  onLanguageChanged: () => void,
 ) {
   if (registered) return;
   registered = true;
@@ -114,6 +118,13 @@ export function registerIpcHandlers(
   });
 
   ipcMain.handle("app:get-version", () => app.getVersion());
+  ipcMain.handle("app:get-i18n-state", () => getI18nState());
+  ipcMain.handle("app:set-language", async (_, language: SupportedLanguage | null) => {
+    await setLanguage(language);
+    const state = await setMainLanguage(language);
+    onLanguageChanged();
+    return state;
+  });
 }
 
 export function pushConnectionChanged(

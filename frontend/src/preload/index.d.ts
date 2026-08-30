@@ -1,3 +1,4 @@
+import type { I18nState, SupportedLanguage } from "../shared/i18n/types";
 import type { CancelScopePayload, DialogueEvent, PlaybackRequest } from "../shared/playback";
 import type { ConnectionStatus, LogLine, Preset } from "../shared/types";
 
@@ -41,6 +42,8 @@ declare global {
       getVersion(): Promise<string>;
       showPolicyDialog(): Promise<void>;
       shellOpenExternal(url: string): Promise<void>;
+      getI18nState(): Promise<I18nState>;
+      setLanguage(language: SupportedLanguage | null): Promise<I18nState>;
     };
   }
 }

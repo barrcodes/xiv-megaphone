@@ -1,5 +1,6 @@
 import { Plus, Trash2 } from "lucide-react";
 import { useFieldArray, useFormContext } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import type { PresetFormValues } from "./PresetForm";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export function LexiconTab({ disabled }: Props) {
+  const { t } = useTranslation();
   const { control, register } = useFormContext<PresetFormValues>();
   const { fields, append, remove } = useFieldArray({
     control,
@@ -17,16 +19,13 @@ export function LexiconTab({ disabled }: Props) {
 
   return (
     <div className="space-y-4 animate-fade-in-up">
-      <p className="text-sm text-muted-foreground">
-        Add word pronunciations. The original word will be replaced with the phonetic spelling
-        before sending to TTS.
-      </p>
+      <p className="text-sm text-muted-foreground">{t("presets.lexiconDescription")}</p>
 
       {fields.length > 0 && (
         <div className="rounded-lg border border-border/40 overflow-hidden">
           <div className="grid grid-cols-[1fr_1fr_auto] gap-3 bg-secondary/30 px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            <span>Term</span>
-            <span>Pronunciation</span>
+            <span>{t("presets.term")}</span>
+            <span>{t("presets.pronunciation")}</span>
             <span className="w-9" />
           </div>
           <div className="divide-y divide-border/30">
@@ -39,7 +38,7 @@ export function LexiconTab({ disabled }: Props) {
                   {...register(`lexicon.${index}.term` as const, {
                     required: true,
                   })}
-                  placeholder="e.g. Lechat"
+                  placeholder={t("presets.termPlaceholder")}
                   disabled={disabled}
                   className="h-8"
                 />
@@ -47,7 +46,7 @@ export function LexiconTab({ disabled }: Props) {
                   {...register(`lexicon.${index}.pronunciation` as const, {
                     required: true,
                   })}
-                  placeholder="e.g. Luh-shah"
+                  placeholder={t("presets.pronunciationPlaceholder")}
                   disabled={disabled}
                   className="h-8"
                 />
@@ -60,6 +59,7 @@ export function LexiconTab({ disabled }: Props) {
                     onClick={() => remove(index)}
                   >
                     <Trash2 className="size-3.5" />
+                    <span className="sr-only">{t("presets.removeEntry")}</span>
                   </Button>
                 )}
               </div>
@@ -76,16 +76,14 @@ export function LexiconTab({ disabled }: Props) {
           onClick={() => append({ term: "", pronunciation: "" })}
         >
           <Plus className="size-3.5" />
-          Add Entry
+          {t("presets.addEntry")}
         </Button>
       )}
 
       {fields.length === 0 && (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <p className="text-sm text-muted-foreground">No lexicon entries yet.</p>
-          <p className="text-xs text-muted-foreground mt-1">
-            Add pronunciation overrides for FFXIV terms.
-          </p>
+          <p className="text-sm text-muted-foreground">{t("presets.noLexicon")}</p>
+          <p className="text-xs text-muted-foreground mt-1">{t("presets.noLexiconDescription")}</p>
         </div>
       )}
     </div>

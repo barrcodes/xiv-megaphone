@@ -1,6 +1,7 @@
 import { BookOpen, Settings, Users } from "lucide-react";
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import type { Preset } from "shared/types";
 import { GeneralTab } from "./GeneralTab";
 import { LexiconTab } from "./LexiconTab";
@@ -23,6 +24,7 @@ interface Props {
 }
 
 export function PresetForm({ preset, onSave, onCancel, readOnly }: Props) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("general");
 
   const methods = useForm<PresetFormValues>({
@@ -63,15 +65,15 @@ export function PresetForm({ preset, onSave, onCancel, readOnly }: Props) {
         <TabsList variant="line" className="mb-6">
           <TabsTrigger value="general" className="gap-2">
             <Settings className="size-3.5" />
-            General
+            {t("presets.general")}
           </TabsTrigger>
           <TabsTrigger value="overrides" className="gap-2">
             <Users className="size-3.5" />
-            Overrides
+            {t("presets.overrides")}
           </TabsTrigger>
           <TabsTrigger value="lexicon" className="gap-2">
             <BookOpen className="size-3.5" />
-            Lexicon
+            {t("presets.lexicon")}
           </TabsTrigger>
         </TabsList>
 
@@ -94,11 +96,11 @@ export function PresetForm({ preset, onSave, onCancel, readOnly }: Props) {
 
       <div className="flex gap-3 justify-end border-t rounded-lg border-border/40 p-4 mt-6 sticky bottom-6 glass-panel -mx-6 px-6">
         <Button type="button" variant="outline" onClick={onCancel}>
-          {readOnly ? "Close" : "Cancel"}
+          {readOnly ? t("common.close") : t("common.cancel")}
         </Button>
         {!readOnly && (
           <Button type="submit" disabled={!isDirty || !isValid}>
-            Save Changes
+            {t("presets.saveChanges")}
           </Button>
         )}
       </div>

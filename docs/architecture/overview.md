@@ -28,4 +28,4 @@ xiv-megaphone is an Electron desktop application with three layers:
 
 1. **IPC** — Main process ↔ Renderer via preload bridge (presets, connection, logs, streams)
 2. **WebSocket** — Main process ↔ FFXIV TextToTalk plugin (dialogue events)
-3. **HTTP** — Renderer ↔ Backend API (TTS streams, credits, shop, policies)
+3. **HTTP** — Renderer requests to remote application services

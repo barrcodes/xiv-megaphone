@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron";
+import type { SupportedLanguage } from "../shared/i18n/types";
 import type { CancelScopePayload, DialogueEvent, PlaybackRequest } from "../shared/playback";
 import type { ConnectionStatus, LogLine, Preset } from "../shared/types";
 
@@ -65,4 +66,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getVersion: () => ipcRenderer.invoke("app:get-version"),
   shellOpenExternal: (url: string) => ipcRenderer.invoke("shellOpenExternal", url),
   showPolicyDialog: () => ipcRenderer.invoke("policy:show-dialog"),
+  getI18nState: () => ipcRenderer.invoke("app:get-i18n-state"),
+  setLanguage: (language: SupportedLanguage | null) =>
+    ipcRenderer.invoke("app:set-language", language),
 });

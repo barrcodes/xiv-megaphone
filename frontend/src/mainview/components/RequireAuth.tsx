@@ -1,9 +1,11 @@
 import { Megaphone } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/auth-provider";
 
 export function RequireAuth() {
   const { user, loading } = useAuth();
+  const { t } = useTranslation();
   const location = useLocation();
 
   if (loading) {
@@ -13,7 +15,7 @@ export function RequireAuth() {
           <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10 animate-glow-pulse">
             <Megaphone className="size-6 text-primary" />
           </div>
-          <p className="text-sm text-muted-foreground">Loading...</p>
+          <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
         </div>
       </div>
     );

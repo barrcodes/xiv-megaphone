@@ -5,6 +5,7 @@ import { updateElectronApp } from "update-electron-app";
 import appIcon from "../../art-assets/icon-wake-256.png?asset";
 import type { ConnectionStatus } from "../shared/types";
 import { getStartOnStartup, setStartOnStartup } from "./config";
+import { initializeMainI18n, translate } from "./i18n";
 import { pushConnectionChanged, registerIpcHandlers } from "./ipc";
 import { initLogger } from "./logger";
 import { bootstrap } from "./presets";
@@ -93,7 +94,7 @@ function getWindow() {
 
 function createMainWindow() {
   mainWindow = new BrowserWindow({
-    title: "Preset Editor",
+    title: translate("app.windowTitle"),
     width: 1280,
     height: 720,
     x: 150,
@@ -132,7 +133,7 @@ function createTray() {
   const initialStatus: ConnectionStatus = "disconnected";
   tray = new Tray(getTrayImage(initialStatus));
   tray.setContextMenu(buildTrayMenu(initialStatus));
-  tray.setToolTip("xiv-megaphone");
+  tray.setToolTip(translate("app.trayTooltip"));
   tray.on("click", () => openMainWindow());
 }
 
@@ -142,27 +143,35 @@ function getTrayImage(status: ConnectionStatus) {
 
 function buildTrayMenu(status: ConnectionStatus) {
   return Menu.buildFromTemplate([
-    { label: "Change Preset", click: () => openMainWindow() },
+    { label: translate("common.changePreset"), click: () => openMainWindow() },
     { type: "separator" },
     {
-      label: "Disconnect",
+      label: translate("settings.disconnect"),
       enabled: status === "connected",
       click: () => ttsManager?.disconnect(),
     },
     {
-      label: "Reconnect",
+      label: translate("settings.reconnect"),
       enabled: status === "disconnected",
       click: () => reconnect(),
     },
     { type: "separator" },
     {
-      label: "Exit",
+      label: translate("common.exit"),
       click: () => {
         isQuitting = true;
         app.quit();
       },
     },
   ]);
+}
+
+function refreshNativeUi() {
+  mainWindow?.setTitle(translate("app.windowTitle"));
+  if (tray) {
+    tray.setContextMenu(buildTrayMenu(ttsManager?.getStatus() ?? "disconnected"));
+    tray.setToolTip(translate("app.trayTooltip"));
+  }
 }
 
 function createTtsManager(): TtsManager {
@@ -201,6 +210,7 @@ async function reconnect() {
 }
 
 app.whenReady().then(async () => {
+  await initializeMainI18n();
   bootstrap();
 
   initLogger(getWindow);
@@ -210,7 +220,7 @@ app.whenReady().then(async () => {
   await setStartOnStartup(startOnStartup);
 
   const manager = createTtsManager();
-  registerIpcHandlers(getWindow, manager, reconnect);
+  registerIpcHandlers(getWindow, manager, reconnect, refreshNativeUi);
 
   createMainWindow();
 

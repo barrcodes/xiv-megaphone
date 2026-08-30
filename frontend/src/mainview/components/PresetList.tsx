@@ -1,4 +1,5 @@
 import { BookOpen, Eye, Pencil, Plus, Trash2, Users, Zap } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import type { Preset } from "shared/types";
 import { deletePreset, setActivePreset } from "@/lib/ipc";
@@ -9,6 +10,7 @@ import { Button } from "./ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 
 export function PresetList() {
+  const { t } = useTranslation();
   const { presets, activePresetId, setActivePresetId } = useStore();
   const navigate = useNavigate();
 
@@ -38,10 +40,8 @@ export function PresetList() {
   return (
     <div className="p-6 space-y-6 max-w-4xl mx-auto">
       <div className="animate-fade-in-up">
-        <h1 className="font-display text-2xl font-bold text-foreground">Presets</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Configure voice assignments for your FFXIV characters.
-        </p>
+        <h1 className="font-display text-2xl font-bold text-foreground">{t("presets.title")}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t("presets.description")}</p>
       </div>
 
       {activePreset && (
@@ -59,16 +59,18 @@ export function PresetList() {
                   <h2 className="font-display text-lg font-semibold text-foreground">
                     {activePreset.name}
                   </h2>
-                  <Badge className="bg-primary/15 text-primary border-primary/20">Active</Badge>
+                  <Badge className="bg-primary/15 text-primary border-primary/20">
+                    {t("presets.active")}
+                  </Badge>
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Currently assigned to your game connection
+                  {t("presets.assignedToGame")}
                 </p>
               </div>
             </div>
             <Select value={activePresetId} onValueChange={handleActiveChange}>
               <SelectTrigger className="min-w-[140px]">
-                <SelectValue placeholder="Switch preset" />
+                <SelectValue placeholder={t("presets.switchPreset")} />
               </SelectTrigger>
               <SelectContent>
                 {presets.map((p) => (
@@ -83,14 +85,14 @@ export function PresetList() {
           <div className="mt-4 flex gap-4">
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Users className="size-3.5" />
-              <span>{overrideCount} overrides</span>
+              <span>{t("presets.overrideCount", { count: overrideCount })}</span>
             </div>
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <BookOpen className="size-3.5" />
-              <span>{lexiconCount} lexicon entries</span>
+              <span>{t("presets.lexiconEntries", { count: lexiconCount })}</span>
             </div>
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <span>Speed: {activePreset.speakingRate}x</span>
+              <span>{t("presets.speed", { speed: activePreset.speakingRate })}</span>
             </div>
           </div>
         </div>
@@ -98,7 +100,7 @@ export function PresetList() {
 
       <div className="space-y-3">
         <h2 className="font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-          All Presets
+          {t("presets.allPresets")}
         </h2>
 
         <div className="grid gap-3 sm:grid-cols-2">
@@ -125,12 +127,12 @@ export function PresetList() {
                       </h3>
                       {isDefault && (
                         <Badge variant="secondary" className="text-[10px] px-1.5">
-                          Default
+                          {t("presets.default")}
                         </Badge>
                       )}
                     </div>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {presetOverrideCount} overrides
+                      {t("presets.overrideCount", { count: presetOverrideCount })}
                     </p>
                   </div>
                 </div>
@@ -145,12 +147,12 @@ export function PresetList() {
                     {isDefault ? (
                       <>
                         <Eye className="size-3" />
-                        View
+                        {t("presets.view")}
                       </>
                     ) : (
                       <>
                         <Pencil className="size-3" />
-                        Edit
+                        {t("presets.edit")}
                       </>
                     )}
                   </Button>
@@ -160,6 +162,8 @@ export function PresetList() {
                       size="sm"
                       className="h-7 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
                       onClick={() => handleDelete(preset.id)}
+                      aria-label={t("presets.delete")}
+                      title={t("presets.delete")}
                     >
                       <Trash2 className="size-3" />
                     </Button>
@@ -180,7 +184,7 @@ export function PresetList() {
             style={{ animationDelay: `${0.1 + presets.length * 0.04}s` }}
           >
             <Plus className="size-4" />
-            New Preset
+            {t("presets.newPreset")}
           </button>
         </div>
       </div>

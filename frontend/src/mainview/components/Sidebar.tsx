@@ -1,4 +1,5 @@
 import { LayoutList, LogOut, ScrollText, Settings, User } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth-provider";
 import { cn } from "@/lib/utils";
@@ -13,24 +14,25 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { VolumeControl } from "./VolumeControl";
 
 const navItems = [
-  { path: "/", label: "Presets", icon: LayoutList },
-  { path: "/account", label: "Account", icon: User },
-  { path: "/logs", label: "Logs", icon: ScrollText, debugOnly: true },
-  { path: "/settings", label: "Settings", icon: Settings },
+  { path: "/", label: "presets", icon: LayoutList },
+  { path: "/account", label: "account", icon: User },
+  { path: "/logs", label: "logs", icon: ScrollText, debugOnly: true },
+  { path: "/settings", label: "settings", icon: Settings },
 ];
 
 export function Sidebar() {
+  const { t } = useTranslation();
   const { connectionStatus } = useStore();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const statusConfig = {
-    connected: { color: "bg-success", label: "Connected", pulse: false },
-    connecting: { color: "bg-warning", label: "Connecting...", pulse: true },
+    connected: { color: "bg-success", label: t("app.connected"), pulse: false },
+    connecting: { color: "bg-warning", label: t("app.connecting"), pulse: true },
     disconnected: {
       color: "bg-muted-foreground",
-      label: "Disconnected",
+      label: t("app.disconnected"),
       pulse: false,
     },
   }[connectionStatus];
@@ -99,7 +101,7 @@ export function Sidebar() {
                 <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r-full bg-primary" />
               )}
               <item.icon className="size-4 shrink-0" />
-              <span>{item.label}</span>
+              <span>{t(`app.${item.label}`)}</span>
             </button>
           );
         })}
@@ -114,7 +116,7 @@ export function Sidebar() {
           )}
         >
           <SimpleIcon slug="discord" className="size-4 shrink-0" />
-          <span>Join Discord</span>
+          <span>{t("app.joinDiscord")}</span>
         </button>
       </nav>
 
@@ -125,7 +127,9 @@ export function Sidebar() {
           {user?.email?.[0]?.toUpperCase() ?? "?"}
         </div>
         <div className="flex-1 overflow-hidden">
-          <p className="truncate text-xs font-medium text-foreground">{user?.email ?? "Unknown"}</p>
+          <p className="truncate text-xs font-medium text-foreground">
+            {user?.email ?? t("app.unknown")}
+          </p>
         </div>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -137,7 +141,7 @@ export function Sidebar() {
               <LogOut className="size-3.5" />
             </button>
           </TooltipTrigger>
-          <TooltipContent side="right">Log out</TooltipContent>
+          <TooltipContent side="right">{t("app.logout")}</TooltipContent>
         </Tooltip>
       </div>
     </aside>
