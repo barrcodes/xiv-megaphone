@@ -36,7 +36,7 @@ export async function initTelemetry() {
       [ATTR_SERVICE_NAME]: "xiv-megaphone",
       [ATTR_SERVICE_VERSION]: version,
       [ATTR_DEPLOYMENT_ENVIRONMENT_NAME]: env.VITE_OTEL_ENV_NAME,
-      "telemetry.schema.version": "4",
+      "telemetry.schema.version": "5",
     }),
     spanProcessors: [new SimpleSpanProcessor(exporter)],
   });

@@ -5,10 +5,12 @@
     "postinstall": "cd frontend && bun install",
     "prepare": "git config core.hooksPath .githooks",
     "dev": "mprocs",
+    "start": "mprocs -c mprocs.prod.yaml",
     "smoke": "mprocs -c mprocs.smoke.yaml",
     "lint": "biome check .",
     "lint:fix": "biome check --write --error-on-warnings .",
-    "lint:migrate": "biome migrate --write"
+    "lint:migrate": "biome migrate --write",
+    "generate:tos-migration": "bun run scripts/generate-tos-migration.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.9",
