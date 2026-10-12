@@ -1,4 +1,5 @@
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 interface PolicyViewerModalProps {
@@ -16,7 +17,20 @@ export function PolicyViewerModal({ open, onOpenChange, title, content }: Policy
           <DialogTitle className="text-xl font-semibold">{title}</DialogTitle>
         </div>
         <div className="prose prose-sm prose-invert max-w-none no-scrollbar overflow-y-auto px-4">
-          <ReactMarkdown>{content}</ReactMarkdown>
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              table({ children }) {
+                return (
+                  <div className="my-4 max-w-full overflow-x-auto rounded-md border border-border">
+                    <table className="m-0 w-full min-w-[32rem] border-collapse">{children}</table>
+                  </div>
+                );
+              },
+            }}
+          >
+            {content}
+          </ReactMarkdown>
         </div>
       </DialogContent>
     </Dialog>
