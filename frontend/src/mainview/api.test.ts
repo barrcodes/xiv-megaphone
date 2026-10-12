@@ -60,3 +60,41 @@ describe("policy API", () => {
     expect(new Headers(init?.headers).get("Content-Type")).toBe("application/json");
   });
 });
+
+describe("plan portal action API", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("returns a typed error for the known stale scheduled-plan response", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({ code: "SCHEDULED_PLAN_CHANGE_STALE", error: "refresh account" }),
+        {
+          status: 409,
+          headers: { "Content-Type": "application/json" },
+        },
+      ),
+    );
+    const { createPlanPortalAction, StaleScheduledPlanChangeError } = await import("./api");
+
+    await expect(createPlanPortalAction("cancel")).rejects.toBeInstanceOf(
+      StaleScheduledPlanChangeError,
+    );
+  });
+
+  it("does not expose arbitrary server errors for other portal-action failures", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ code: "INTERNAL_ERROR", error: "private server detail" }), {
+        status: 409,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    const { createPlanPortalAction } = await import("./api");
+
+    await expect(createPlanPortalAction("cancel")).rejects.toThrow(
+      "Failed to open plan confirmation: 409",
+    );
+    await expect(createPlanPortalAction("cancel")).rejects.not.toThrow("private server detail");
+  });
+});

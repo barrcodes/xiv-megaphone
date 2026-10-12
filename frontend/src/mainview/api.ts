@@ -142,10 +142,32 @@ export async function getUsageLog(limit = 20, offset = 0): Promise<{ entries: Us
   return res.json();
 }
 
+export type SubscriptionTier = "casual" | "enthusiast" | "legend";
+
+export class StaleScheduledPlanChangeError extends Error {
+  readonly code = "SCHEDULED_PLAN_CHANGE_STALE";
+
+  constructor() {
+    super("Scheduled plan change is stale");
+    this.name = "StaleScheduledPlanChangeError";
+  }
+}
+
 export interface AccountStatus {
-  accountType: "free" | "premium" | "subscriber";
   balance: number;
-  subscription: { status: string; current_period_end: string } | null;
+  subscriptionTier: SubscriptionTier | null;
+  effectiveUsageTier: SubscriptionTier;
+  paidThroughAt: string | null;
+  billingStatus: string;
+  cancellationScheduled: boolean;
+  scheduledTier: SubscriptionTier | null;
+  scheduledChangeAt: string | null;
+  pendingTier: SubscriptionTier | null;
+  subscriptionCreditBalance: number;
+  subscriptionCreditExpiresAt: string | null;
+  permanentCreditBalance: number;
+  otherCreditBalance: number;
+  subscription: Record<string, unknown> | null;
 }
 
 export async function getAccountStatus(): Promise<AccountStatus> {
@@ -154,13 +176,78 @@ export async function getAccountStatus(): Promise<AccountStatus> {
   return res.json();
 }
 
-export async function createCheckoutSession(mode: "payment" | "subscription"): Promise<string> {
-  const res = await authFetch(`${env.VITE_BACKEND_URL}/shop/checkout?mode=${mode}`, {
+export async function createCheckoutSession(tier: SubscriptionTier): Promise<string> {
+  const res = await authFetch(`${env.VITE_BACKEND_URL}/shop/checkout`, {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ mode: "subscription", tier }),
   });
   if (!res.ok) throw new Error(`Failed to create checkout session: ${res.status}`);
   const { url } = await res.json();
   return url;
+}
+
+export async function changeSubscriptionPlan(
+  action: "downgrade" | "undo",
+  tier?: SubscriptionTier,
+): Promise<{
+  state: "paid" | "payment_required" | "pending" | "scheduled";
+  pendingTier: SubscriptionTier | null;
+  invoiceUrl: string | null;
+  paymentIntentStatus: string | null;
+}> {
+  const res = await authFetch(`${env.VITE_BACKEND_URL}/shop/plan`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ action, ...(tier ? { tier } : {}) }),
+  });
+  if (!res.ok) throw new Error(`Failed to change subscription plan: ${res.status}`);
+  return res.json();
+}
+
+export async function createPlanPortalAction(
+  action: "upgrade" | "cancel",
+  tier?: SubscriptionTier,
+  scheduled?: { tier: SubscriptionTier; changeAt: string },
+): Promise<string> {
+  const res = await authFetch(`${env.VITE_BACKEND_URL}/shop/plan/portal-action`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      action,
+      ...(tier ? { tier } : {}),
+      ...(scheduled
+        ? { expectedScheduledTier: scheduled.tier, expectedScheduledChangeAt: scheduled.changeAt }
+        : {}),
+    }),
+  });
+  if (!res.ok) {
+    if (res.status === 409) {
+      const responseBody: unknown = await res.json().catch(() => null);
+      if (
+        typeof responseBody === "object" &&
+        responseBody !== null &&
+        "code" in responseBody &&
+        responseBody.code === "SCHEDULED_PLAN_CHANGE_STALE"
+      ) {
+        throw new StaleScheduledPlanChangeError();
+      }
+    }
+    throw new Error(`Failed to open plan confirmation: ${res.status}`);
+  }
+  const { url } = await res.json();
+  return url;
+}
+
+export async function getSubscriptionPaymentAction(): Promise<{
+  state: "payment_required";
+  pendingTier: SubscriptionTier;
+  invoiceUrl: string;
+  paymentIntentStatus: string | null;
+} | null> {
+  const res = await authFetch(`${env.VITE_BACKEND_URL}/shop/plan/payment-action`);
+  if (!res.ok) throw new Error(`Failed to retrieve subscription payment action: ${res.status}`);
+  return res.json();
 }
 
 export async function createPortalSession(): Promise<string> {
