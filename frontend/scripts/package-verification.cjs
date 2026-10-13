@@ -111,8 +111,12 @@ function verifySquirrelAssets(directory, expectedVersion) {
     referencedFiles.has(expectedPackage),
     `RELEASES is missing exact package ${expectedPackage}`,
   );
-  const setup = `xiv-megaphone-${expectedVersion} Setup.exe`;
-  assert(fs.existsSync(path.join(directory, setup)), `Missing Squirrel setup executable ${setup}`);
+  const setupNames = [
+    `xiv-megaphone-${expectedVersion} Setup.exe`,
+    `xiv-megaphone-${expectedVersion}.Setup.exe`,
+  ];
+  const setup = setupNames.find((name) => fs.existsSync(path.join(directory, name)));
+  assert(setup, `Missing Squirrel setup executable; expected one of: ${setupNames.join(", ")}`);
   return { setup, releases: releasesPath, package: expectedPackage };
 }
 

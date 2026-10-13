@@ -82,7 +82,7 @@ test("rejects an AppImage with a corrupted digest or size", () => {
   );
 });
 
-test("validates Squirrel SHA-1, size, exact setup, and full package version", () => {
+test("validates Squirrel SHA-1, size, local and GitHub Setup names, and full package version", () => {
   const directory = path.join(temporaryDirectory, "squirrel");
   fs.mkdirSync(directory, { recursive: true });
   const packageName = "xiv-megaphone-2.0.0-full.nupkg";
@@ -94,6 +94,9 @@ test("validates Squirrel SHA-1, size, exact setup, and full package version", ()
     path.join(directory, "RELEASES"),
     `${sha1} ${packageName} ${packageData.length}\n`,
   );
+  assert.equal(verifySquirrelAssets(directory, "2.0.0").package, packageName);
+  fs.rmSync(path.join(directory, "xiv-megaphone-2.0.0 Setup.exe"));
+  fs.writeFileSync(path.join(directory, "xiv-megaphone-2.0.0.Setup.exe"), "setup");
   assert.equal(verifySquirrelAssets(directory, "2.0.0").package, packageName);
   assert.throws(() => verifySquirrelAssets(directory, "2.0.00"), /missing exact package/);
   fs.writeFileSync(path.join(directory, packageName), "corrupted");

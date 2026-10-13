@@ -29,7 +29,7 @@ This app is brand new, built solely by me, and completely bootstrapped with very
 ### Windows
 
 1. Go to the [Releases](../../releases) page.
-2. Download the latest `xiv-megaphone-<version> Setup.exe` installer.
+2. Download the latest `xiv-megaphone-<version>.Setup.exe` installer.
 3. Run the installer and launch the application.
 
 ### Linux (x86_64)
