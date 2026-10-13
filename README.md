@@ -34,15 +34,55 @@ This app is brand new, built solely by me, and completely bootstrapped with very
 
 ### Linux (x86_64)
 
-The installer downloads the latest published AppImage, checks its SHA-512 digest against the release update metadata, and installs it under `~/Applications`:
+Note: Electron, Chromium, and Node.js are bundled with the app; you do not need to install them separately. Use a glibc-based desktop Linux distribution with its normal graphics and audio libraries.
+
+#### Dependencies
+
+The installer needs **Bash, curl, and Python 3**. Bash and Python 3 are usually already installed on desktop distributions. These commands install the installer dependencies and desktop integration tools if needed:
 
 ```sh
-curl --fail --location --show-error https://raw.githubusercontent.com/barrcodes/xiv-megaphone/main/scripts/install-linux.sh --output /tmp/install-xiv-megaphone.sh
+# Ubuntu / Debian
+sudo apt install curl python3 desktop-file-utils xdg-utils
+
+# Fedora
+sudo dnf install curl python3 desktop-file-utils xdg-utils
+
+# Arch Linux (the Python 3 package is named "python")
+sudo pacman -S --needed curl python desktop-file-utils xdg-utils
+```
+
+The current AppImage uses the legacy **FUSE 2** runtime (`libfuse.so.2`) due to electron-builder v27 being pre-release. Install FUSE 2 support if it is not already available:
+
+| Distribution | Command |
+| --- | --- |
+| Ubuntu 22.04 / Debian 12 | `sudo apt install libfuse2` |
+| Ubuntu 24.04+ / Debian 13 | `sudo apt install libfuse2t64` |
+| Fedora | `sudo dnf install fuse fuse-libs` |
+| Arch Linux | `sudo pacman -S fuse2` |
+
+On modern Ubuntu, install the library listed above rather than the older `fuse` package, which can conflict with the system's existing FUSE setup.
+
+#### Option 1: Script Installer
+
+The following downloads the latest published AppImage, checks its SHA-512 digest against the release update metadata, and installs it under `~/Applications`:
+
+```sh
+curl --fail --location --show-error https://raw.githubusercontent.com/barrcodes/xiv-megaphone/refs/heads/feature/linux/scripts/install-linux.sh --output /tmp/install-xiv-megaphone.sh
 bash /tmp/install-xiv-megaphone.sh
 rm /tmp/install-xiv-megaphone.sh
 ```
 
-On Ubuntu, install FUSE 2 support if needed (`sudo apt install libfuse2` on 22.04 or `sudo apt install libfuse2t64` on 24.04). Fedora: `sudo dnf install fuse fuse-libs`. Arch Linux: `sudo pacman -S fuse2`. The AppImage runs with Electron's normal sandbox; do not disable it to work around a missing system dependency.
+Launch **xiv-megaphone** from your application menu or run:
+
+```sh
+"$HOME/Applications/xiv-megaphone.AppImage"
+```
+
+#### Option 2: Manual Install
+
+Alternatively, download `xiv-megaphone-linux-x64.AppImage` from the [Releases](../../releases) page, mark it executable with `chmod +x xiv-megaphone-linux-x64.AppImage`, and run it. The installer also sets up the application menu entry and authentication links.
+
+#### Updating
 
 Linux automatic updates are supported for installed AppImages. When an update is found, choose **Download Update** or **Later**. After download, choose **Restart to Update** from the prompt, application menu, or tray menu. Extracted AppImages are not automatically updated. Launch-on-startup uses the installed AppImage path.
 
