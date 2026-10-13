@@ -251,6 +251,20 @@ export const ja = {
     connectionPort: "接続ポート",
     connectionPortDescription: "FFXIVプラグインとの接続に使用するポートです。",
     restart: "再起動",
+    restartToUpdate: "再起動して更新",
+    updateAvailableTitle: "アップデートがあります",
+    updateAvailableMessage:
+      "新しいバージョンがあります。今すぐダウンロードするか、「後で」を選んで現在のバージョンを使い続けてください。",
+    downloadUpdate: "アップデートをダウンロード",
+    later: "後で",
+    updateReadyTitle: "アップデートの準備完了",
+    updateReadyMessage:
+      "新しいバージョンをダウンロードしました。今すぐ再起動するか、後でアプリケーションメニューまたはトレイメニューから更新してください。",
+    updateErrorTitle: "アップデートのダウンロードに失敗しました",
+    updateDownloadError:
+      "アップデートをダウンロードできませんでした。現在のバージョンを引き続き使用し、後で再確認します。",
+    updateInstallError:
+      "アップデートをインストールできませんでした。現在のバージョンを引き続き使用し、後で「再起動して更新」を再試行してください。",
     connection: "接続",
     forceDisconnect: "強制切断",
     reconnect: "再接続",

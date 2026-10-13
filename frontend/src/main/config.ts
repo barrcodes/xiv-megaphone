@@ -1,9 +1,11 @@
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import * as fs from "node:fs/promises";
-import { join } from "node:path";
+import { homedir } from "node:os";
+import { isAbsolute, join, resolve } from "node:path";
 import { app } from "electron";
 import { DEFAULT_PORT, DEFAULT_VOLUME } from "../shared/defaults";
+import { escapeDesktopExecArg } from "./desktop-entry";
 
 const configFile = join(app.getPath("userData"), "config.json");
 
@@ -56,14 +58,21 @@ export async function getStartOnStartup(): Promise<boolean> {
 }
 
 export async function setStartOnStartup(enabled: boolean): Promise<void> {
+  const effectiveEnabled =
+    enabled &&
+    (process.platform === "win32" ||
+      (process.platform === "linux" && Boolean(process.env.APPIMAGE) && app.isPackaged));
   const current = existsSync(configFile)
     ? (JSON.parse(await fs.readFile(configFile, "utf-8")) as Record<string, unknown>)
     : {};
-  await fs.writeFile(configFile, JSON.stringify({ ...current, startOnStartup: enabled }, null, 2));
+  await fs.writeFile(
+    configFile,
+    JSON.stringify({ ...current, startOnStartup: effectiveEnabled }, null, 2),
+  );
 
   if (process.platform === "win32") {
     try {
-      if (enabled) {
+      if (effectiveEnabled) {
         await spawnAsync("reg", [
           "add",
           STARTUP_KEY,
@@ -80,6 +89,22 @@ export async function setStartOnStartup(enabled: boolean): Promise<void> {
       }
     } catch {
       // reg delete exits 1 when key doesn't exist; reg add may fail without admin — non-fatal
+    }
+  } else if (process.platform === "linux") {
+    const xdgConfigHome = process.env.XDG_CONFIG_HOME;
+    const autostartDir = join(
+      xdgConfigHome && isAbsolute(xdgConfigHome) ? xdgConfigHome : join(homedir(), ".config"),
+      "autostart",
+    );
+    const desktopFile = join(autostartDir, "xiv-megaphone.desktop");
+    if (effectiveEnabled && process.env.APPIMAGE) {
+      await fs.mkdir(autostartDir, { recursive: true });
+      await fs.writeFile(
+        desktopFile,
+        `[Desktop Entry]\nType=Application\nName=xiv-megaphone\nExec="${escapeDesktopExecArg(resolve(process.env.APPIMAGE))}" %U\nTerminal=false\nX-GNOME-Autostart-enabled=true\n`,
+      );
+    } else {
+      await fs.rm(desktopFile, { force: true });
     }
   }
 }

@@ -8,24 +8,126 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
-  release:
-    runs-on: windows-latest
+  prepare:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+      - name: Check tag version and prepare draft release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          node -e 'const p=require("./frontend/package.json"); const tag=process.env.TAG; if (tag !== `v${p.version}`) { console.error(`Tag ${tag} does not match frontend package version ${p.version}`); process.exit(1); }'
+          result_file="$RUNNER_TEMP/release-view.txt"
+          error_file="$RUNNER_TEMP/release-view.err"
+          if gh release view "$TAG" --json isDraft --jq '.isDraft' >"$result_file" 2>"$error_file"; then
+            if [[ "$(cat "$result_file")" != "true" ]]; then
+              echo "Refusing to upload to an already-published release" >&2
+              exit 1
+            fi
+          elif grep -Fqi "release not found" "$error_file"; then
+            gh release create "$TAG" --verify-tag --draft --generate-notes --title "$TAG"
+          else
+            cat "$error_file" >&2
+            exit 1
+          fi
+
+  windows:
+    needs: prepare
+    runs-on: windows-2022
     defaults:
       run:
         working-directory: frontend
-
+        shell: bash
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          fetch-depth: 0
-
+          node-version: 22.14.0
       - uses: oven-sh/setup-bun@v2
-
-      - run: bun install
-
+        with:
+          bun-version: 1.3.14
+      - run: bun install --frozen-lockfile
       - run: bun run build
-
-      - run: bun run publish
+      - run: bun run make
+      - run: bun run verify:win
+      - name: Confirm draft and upload Squirrel artifacts
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          is_draft="$(gh release view "$TAG" --json isDraft --jq '.isDraft')"
+          if [[ "$is_draft" != "true" ]]; then
+            echo "Release is no longer a draft" >&2
+            exit 1
+          fi
+          gh release upload "$TAG" out/make/squirrel.windows/x64/* --clobber
+
+  linux:
+    needs: prepare
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: frontend
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+      - run: bun install --frozen-lockfile
+      - run: bun run build
+      - run: bunx electron-builder --linux AppImage --x64 --config electron-builder.linux.yml --publish never
+      - run: bun run verify:linux
+      - name: Confirm draft and upload AppImage update artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          is_draft="$(gh release view "$TAG" --json isDraft --jq '.isDraft')"
+          if [[ "$is_draft" != "true" ]]; then
+            echo "Release is no longer a draft" >&2
+            exit 1
+          fi
+          gh release upload "$TAG" dist/linux/xiv-megaphone-linux-x64.AppImage dist/linux/latest-linux.yml --clobber
+
+  verify-draft:
+    needs: [prepare, windows, linux]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+      - run: bun install --frozen-lockfile
+        working-directory: frontend
+      - name: Verify uploaded artifacts and draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          mkdir release-assets
+          is_draft="$(gh release view "$TAG" --json isDraft --jq '.isDraft')"
+          [[ "$is_draft" == "true" ]]
+          gh release download "$TAG" --dir release-assets
+          node scripts/verify-release-assets.cjs release-assets "${TAG#v}"
+        working-directory: frontend

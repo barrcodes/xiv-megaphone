@@ -27,10 +27,10 @@ export function registerIpcHandlers(
   ttsManager: TtsManager,
   reconnect: () => void,
   onLanguageChanged: () => void,
+  onAuthStateChanged: (authenticated: boolean) => void,
 ) {
   if (registered) return;
   registered = true;
-
   ipcMain.handle("getPresets", () => loadPresets());
   ipcMain.handle("savePreset", (_, preset) => {
     savePreset(preset);
@@ -97,6 +97,7 @@ export function registerIpcHandlers(
   });
 
   ipcMain.handle("setAuthState", async (_, authenticated: boolean) => {
+    onAuthStateChanged(authenticated);
     if (authenticated) {
       reconnect();
     } else {

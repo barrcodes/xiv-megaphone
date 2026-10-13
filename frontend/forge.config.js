@@ -31,14 +31,6 @@ module.exports = {
       name: "@electron-forge/maker-zip",
       platforms: ["darwin"],
     },
-    {
-      name: "@electron-forge/maker-deb",
-      config: {},
-    },
-    {
-      name: "@electron-forge/maker-rpm",
-      config: {},
-    },
   ],
   publishers: [
     {
@@ -50,6 +42,7 @@ module.exports = {
         },
         draft: true,
         generateReleaseNotes: true,
+        force: true,
       },
     },
   ],

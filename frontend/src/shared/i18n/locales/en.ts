@@ -254,6 +254,20 @@ export const en = {
     connectionPort: "Connection Port",
     connectionPortDescription: "The port used for the FFXIV plugin connection.",
     restart: "Restart",
+    restartToUpdate: "Restart to Update",
+    updateAvailableTitle: "Update available",
+    updateAvailableMessage:
+      "A new version is available. Download it now, or choose Later to keep using this version.",
+    downloadUpdate: "Download Update",
+    later: "Later",
+    updateReadyTitle: "Update ready",
+    updateReadyMessage:
+      "A new version has been downloaded. Restart now to install it, or choose Restart to Update later from the application menu or tray.",
+    updateErrorTitle: "Update download failed",
+    updateDownloadError:
+      "The update could not be downloaded. The current version will continue running; the app will check again later.",
+    updateInstallError:
+      "The update could not be installed. The current version will continue running; try Restart to Update again later.",
     connection: "Connection",
     forceDisconnect: "Force Disconnect",
     reconnect: "Reconnect",

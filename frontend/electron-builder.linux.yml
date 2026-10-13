@@ -1,0 +1,36 @@
+appId: com.barrcodes.xiv-megaphone
+productName: xiv-megaphone
+asar: true
+directories:
+  output: dist/linux
+  buildResources: resources
+files:
+  - build/**/*
+extraResources:
+  - from: art-assets/icon-wake-256.png
+    to: icon-wake-256.png
+  - from: art-assets/icon-sleep-256.png
+    to: icon-sleep-256.png
+linux:
+  icon: art-assets/icon-wake-256.png
+  syncDesktopName: true
+  target:
+    - target: AppImage
+      arch:
+        - x64
+  executableName: xiv-megaphone
+  category: Utility
+appImage:
+  artifactName: xiv-megaphone-linux-x64.AppImage
+publish:
+  provider: github
+  owner: barrcodes
+  repo: xiv-megaphone
+  releaseType: draft
+electronFuses:
+  runAsNode: false
+  enableCookieEncryption: true
+  enableNodeOptionsEnvironmentVariable: false
+  enableNodeCliInspectArguments: false
+  enableEmbeddedAsarIntegrityValidation: true
+  onlyLoadAppFromAsar: true

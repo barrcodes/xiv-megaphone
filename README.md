@@ -3,7 +3,7 @@
 
   ![Icon](frontend/art-assets/icon-wake-256.png)
 
-  A Windows desktop application to simplify AI TTS for FFXIV, built with Electron + React + Vite.
+  A desktop application for Windows and Linux that simplifies AI TTS for FFXIV, built with Electron + React + Vite.
 
   [![Join our Discord](https://img.shields.io/badge/JOIN%20DISCORD-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/GSEuGqAGAf) [![Latest Release](https://img.shields.io/github/v/release/barrcodes/xiv-megaphone?style=for-the-badge&logo=github&label=Latest%20Release)](https://github.com/barrcodes/xiv-megaphone/releases/latest)
 </div>
@@ -26,10 +26,27 @@ This app is brand new, built solely by me, and completely bootstrapped with very
 
 ## Installation
 
+### Windows
+
 1. Go to the [Releases](../../releases) page.
-2. Download the latest `.exe` installer.
+2. Download the latest `xiv-megaphone-<version> Setup.exe` installer.
 3. Run the installer and launch the application.
-4. Create an account
+
+### Linux (x86_64)
+
+The installer downloads the latest published AppImage, checks its SHA-512 digest against the release update metadata, and installs it under `~/Applications`:
+
+```sh
+curl --fail --location --show-error https://raw.githubusercontent.com/barrcodes/xiv-megaphone/main/scripts/install-linux.sh --output /tmp/install-xiv-megaphone.sh
+bash /tmp/install-xiv-megaphone.sh
+rm /tmp/install-xiv-megaphone.sh
+```
+
+On Ubuntu, install FUSE 2 support if needed (`sudo apt install libfuse2` on 22.04 or `sudo apt install libfuse2t64` on 24.04). Fedora: `sudo dnf install fuse fuse-libs`. Arch Linux: `sudo pacman -S fuse2`. The AppImage runs with Electron's normal sandbox; do not disable it to work around a missing system dependency.
+
+Linux automatic updates are supported for installed AppImages. When an update is found, choose **Download Update** or **Later**. After download, choose **Restart to Update** from the prompt, application menu, or tray menu. Extracted AppImages are not automatically updated. Launch-on-startup uses the installed AppImage path.
+
+Create an account after launching the application.
 
 ## Setup
 
@@ -103,22 +120,31 @@ Opens an Electron window. The renderer hot-reloads on file changes; the main pro
 ## Build
 
 ```sh
+cd frontend
 bun run build
 ```
 
-Compiles all three processes to `out/`.
+Compiles all three processes (main, preload, renderer) to `frontend/build/`.
 
-## Package (Windows installer)
+## Package (Windows Squirrel installer)
 
 ```sh
+cd frontend
 bun run build:make
 ```
 
-Produces an NSIS installer in `out/make/[platform]`.
+Produces Squirrel.Windows Setup, RELEASES, and NuGet package artifacts in `out/make/squirrel.windows/x64/`.
+
+## Package (Linux AppImage)
+
+On Linux x86_64, run `bun run package:linux` from `frontend/`. It builds an AppImage in `frontend/dist/linux/` without publishing. `bun run publish:linux` explicitly enables electron-builder's GitHub publishing behavior and should only be used for a release workflow.
+
+Electron Forge commands use the npm executable shipped with Node.js for Forge's package-manager compatibility check; dependency installation and the authoritative lockfile remain Bun-based.
 
 ## Lint
 
 ```sh
+cd frontend
 bun run lint       # check
 bun run lint:fix   # auto-fix
 ```

@@ -8,7 +8,7 @@ export default defineConfig({
       outDir: resolve(__dirname, "build/main"),
       rollupOptions: {
         input: { index: resolve(__dirname, "src/main/index.ts") },
-        external: ["ws"],
+        external: ["ws", "electron-updater", "update-electron-app"],
       },
     },
     resolve: {

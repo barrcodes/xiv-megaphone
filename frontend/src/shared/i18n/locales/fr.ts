@@ -260,6 +260,20 @@ export const fr = {
     connectionPort: "Port de connexion",
     connectionPortDescription: "Le port utilisé pour la connexion au plugin FFXIV.",
     restart: "Redémarrer",
+    restartToUpdate: "Redémarrer pour mettre à jour",
+    updateAvailableTitle: "Mise à jour disponible",
+    updateAvailableMessage:
+      "Une nouvelle version est disponible. Téléchargez-la maintenant ou choisissez Plus tard pour continuer à utiliser cette version.",
+    downloadUpdate: "Télécharger la mise à jour",
+    later: "Plus tard",
+    updateReadyTitle: "Mise à jour prête",
+    updateReadyMessage:
+      "Une nouvelle version a été téléchargée. Redémarrez maintenant ou choisissez Redémarrer pour mettre à jour plus tard dans le menu de l’application ou de la zone de notification.",
+    updateErrorTitle: "Échec du téléchargement de la mise à jour",
+    updateDownloadError:
+      "La mise à jour n’a pas pu être téléchargée. La version actuelle continuera de fonctionner ; une nouvelle vérification aura lieu plus tard.",
+    updateInstallError:
+      "La mise à jour n’a pas pu être installée. La version actuelle continuera de fonctionner ; réessayez plus tard depuis Redémarrer pour mettre à jour.",
     connection: "Connexion",
     forceDisconnect: "Forcer la déconnexion",
     reconnect: "Reconnecter",

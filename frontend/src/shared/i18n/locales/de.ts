@@ -261,6 +261,20 @@ export const de = {
     connectionPort: "Verbindungsport",
     connectionPortDescription: "Der für die Verbindung zum FFXIV-Plugin verwendete Port.",
     restart: "Neu starten",
+    restartToUpdate: "Zum Aktualisieren neu starten",
+    updateAvailableTitle: "Update verfügbar",
+    updateAvailableMessage:
+      "Eine neue Version ist verfügbar. Jetzt herunterladen oder mit „Später“ diese Version weiterverwenden.",
+    downloadUpdate: "Update herunterladen",
+    later: "Später",
+    updateReadyTitle: "Update bereit",
+    updateReadyMessage:
+      "Eine neue Version wurde heruntergeladen. Jetzt neu starten oder später über das Anwendungs- oder Infobereich-Menü aktualisieren.",
+    updateErrorTitle: "Update-Download fehlgeschlagen",
+    updateDownloadError:
+      "Das Update konnte nicht heruntergeladen werden. Die aktuelle Version läuft weiter; später wird erneut nach Updates gesucht.",
+    updateInstallError:
+      "Das Update konnte nicht installiert werden. Die aktuelle Version läuft weiter; versuchen Sie später erneut „Zum Aktualisieren neu starten“.",
     connection: "Verbindung",
     forceDisconnect: "Trennung erzwingen",
     reconnect: "Neu verbinden",
