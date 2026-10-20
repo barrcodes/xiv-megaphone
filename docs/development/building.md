@@ -23,7 +23,7 @@ Produces a Squirrel Setup executable, `RELEASES`, and `.nupkg` in `out/make/squi
 
 ### Linux: electron-builder AppImage
 
-Requires Linux x86_64 and AppImage/FUSE build tooling. `electron-builder.linux.yml` is an independent electron-builder v26 config; no Forge prepackaged app or shared builder config is used.
+Requires Linux x86_64; electron-builder downloads its AppImage build tools. `electron-builder.linux.yml` is an independent electron-builder v26 config; no Forge prepackaged app or shared builder config is used. The frontend Bun lockfile currently resolves electron-builder to 26.15.3. With `toolsets.appimage` unset, this version selects the legacy FUSE 2 runtime, requiring host `libfuse.so.2` for normal mounting, and adds `--no-sandbox` to the generated AppImage desktop entry by default. Electron bundles Chromium and Node.js, but compatible Linux desktop libraries are still required on the user's system. See the [Linux installation instructions](../../README.md#linux-x86_64) for distribution-specific FUSE 2 packages and the extraction fallback.
 
 ```sh
 cd frontend
@@ -54,7 +54,7 @@ Shared desktop behavior preserves Windows close-to-tray operation, but shows the
 
 Before publishing a release, manually validate:
 
-1. Install and launch on Fedora, Ubuntu, and Arch Linux; confirm the window and application menu are usable on GNOME even when no tray extension is present.
+1. Install and launch on Fedora, Ubuntu 22.04/24.04, and Arch Linux with the documented FUSE 2 packages; confirm the window and application menu are usable on GNOME even when no tray extension is present. Check host-library errors and inspect the extracted `AppRun` and desktop entry for sandbox arguments. CI's extraction checks do not verify FUSE mounting, desktop-library availability, or sandbox behavior. Also test `--appimage-extract-and-run` with FUSE unavailable.
 2. Test tray creation, restore, Linux close-to-quit behavior, reconnect, and tray icon changes while connected/disconnected.
 3. Test social-auth and checkout deep links on first launch and while a second instance is already running; confirm auth codes work and tokens are never logged.
 4. Enable/disable launch-on-startup and inspect `~/.config/autostart/xiv-megaphone.desktop`; confirm its executable is the stable installed AppImage.
