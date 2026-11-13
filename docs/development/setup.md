@@ -43,7 +43,16 @@ Install the root dependencies with `bun install` to configure the root repositor
 The hooks are stored in `.githooks/` and configure themselves through Git's `core.hooksPath`.
 
 - **Pre-commit**: Runs `bun run lint:fix` and fails on Biome errors or warnings.
-- **Pre-push**: Runs the frontend test suite.
+  Root Biome checks exclude the backend submodule, which has its own lint hook.
+- **Pre-push**: Runs the frontend test suite only when the pushed ref updates
+  change `frontend/`. Backend submodule pointer updates and tooling-only changes
+  skip frontend tests. Backend tests belong to the backend submodule's own hook.
+
+Push hooks compare each outgoing ref against its remote tip, including deletions
+and renames of files, and run each applicable suite once. Deleted refs are skipped.
+New refs or unavailable remote tips are compared against an empty tree, so all
+applicable suites present in the pushed tree run. Tests execute in the current
+checkout; commit the changes you intend to validate before pushing.
 
 To configure the root hooks manually:
 

@@ -9,7 +9,7 @@
   },
 
   "files": {
-    "includes": ["**", "!!**/build", "!!**/dist", "!!**/out"]
+    "includes": ["**", "!!**/build", "!!**/dist", "!!**/out", "!!svc/backend"]
   },
 
   "assist": {
